@@ -131,6 +131,22 @@ Pipeline GitHub Actions (`.github/workflows/ci.yml`):
 
 Detail: [docs/CI_CD.md](docs/CI_CD.md)
 
+## Deploy Online (Render.com)
+
+Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
+
+Ringkas:
+1. Deploy API + PostgreSQL dari repo `api` via Render Blueprint
+2. Set secret `SIAP_API_URL` di GitHub repo `siap`
+3. Push ke `main` → GitHub Actions build web + APK ke branch `gh-pages`
+4. Buat Render Static Site dari branch `gh-pages`
+
+| Komponen | URL |
+|----------|-----|
+| API | `https://siap-api.onrender.com/v1` |
+| Web | `https://siap-web.onrender.com` |
+| APK | `https://siap-web.onrender.com/downloads/siap.apk` |
+
 ## Dokumentasi
 
 | Dokumen | Isi |
@@ -140,6 +156,7 @@ Detail: [docs/CI_CD.md](docs/CI_CD.md)
 | [docs/TESTING.md](docs/TESTING.md) | Panduan testing |
 | [docs/API.md](docs/API.md) | Referensi endpoint API |
 | [docs/CI_CD.md](docs/CI_CD.md) | Pipeline CI/CD |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy ke Render.com (API, Web, APK) |
 
 ## Push ke GitHub (aktifkan CI/CD)
 

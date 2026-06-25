@@ -1,0 +1,103 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'API URL (contoh https://siap-api.onrender.com/v1)'
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-render
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build Web + APK → gh-pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Resolve API URL
+        id: api
+        run: |
+          if [ -n "${{ github.event.inputs.api_base_url }}" ]; then
+            echo "url=${{ github.event.inputs.api_base_url }}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ secrets.SIAP_API_URL }}" ]; then
+            echo "url=${{ secrets.SIAP_API_URL }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Set repository secret SIAP_API_URL atau isi input api_base_url saat manual dispatch"
+            exit 1
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: |
+          flutter build web --release \
+            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+
+      - name: Package downloads
+        run: |
+          mkdir -p build/web/downloads
+          cp build/app/outputs/flutter-apk/app-release.apk build/web/downloads/siap.apk
+          cat > build/web/downloads/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="id">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Download SIAP APK</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 480px; margin: 4rem auto; padding: 0 1rem; }
+              a { display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #2e7d32; color: #fff; text-decoration: none; border-radius: 8px; }
+            </style>
+          </head>
+          <body>
+            <h1>SIAP — Android APK</h1>
+            <p>Unduh aplikasi SIAP untuk Android (Nox / perangkat fisik).</p>
+            <a href="./siap.apk" download>Download siap.apk</a>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to gh-pages (for Render Static Site)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/web
+          branch: gh-pages
+          clean: true
+          single-commit: true
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: siap-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30

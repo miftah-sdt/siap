@@ -100,7 +100,7 @@ deploy-web:
   runs-on: ubuntu-latest
   if: github.ref == 'refs/heads/main'
   steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         name: web-build
         path: build/web

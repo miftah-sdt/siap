@@ -131,21 +131,24 @@ Pipeline GitHub Actions (`.github/workflows/ci.yml`):
 
 Detail: [docs/CI_CD.md](docs/CI_CD.md)
 
-## Deploy Online (Render.com)
+## Deploy Online
 
 Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
 
-Ringkas:
-1. Deploy API + PostgreSQL dari repo `api` via Render Blueprint
-2. Set secret `SIAP_API_URL` di GitHub repo `siap`
-3. Push ke `main` → GitHub Actions build web + APK ke branch `gh-pages`
-4. Buat Render Static Site dari branch `gh-pages`
+**Disarankan (gratis, tanpa kartu kredit):** Neon (DB) + Koyeb (API) + GitHub Pages (Web + APK)
 
-| Komponen | URL |
-|----------|-----|
-| API | `https://siap-api.onrender.com/v1` |
-| Web | `https://siap-web.onrender.com` |
-| APK | `https://siap-web.onrender.com/downloads/siap.apk` |
+| Repo | URL |
+|------|-----|
+| API | https://github.com/miftah-sdt/api |
+| Flutter | https://github.com/miftah-sdt/siap |
+
+| Komponen | Platform |
+|----------|----------|
+| Database | [Neon](https://neon.tech) |
+| API | [Koyeb](https://www.koyeb.com) |
+| Web + APK | GitHub Pages (`gh-pages`) |
+
+Alternatif: [Render.com](docs/DEPLOY.md#alternatif-rendercom)
 
 ## Dokumentasi
 
@@ -156,7 +159,7 @@ Ringkas:
 | [docs/TESTING.md](docs/TESTING.md) | Panduan testing |
 | [docs/API.md](docs/API.md) | Referensi endpoint API |
 | [docs/CI_CD.md](docs/CI_CD.md) | Pipeline CI/CD |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy ke Render.com (API, Web, APK) |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy online (API: [miftah-sdt/api](https://github.com/miftah-sdt/api)) |
 
 ## Push ke GitHub (aktifkan CI/CD)
 

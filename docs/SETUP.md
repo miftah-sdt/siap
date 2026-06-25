@@ -20,10 +20,16 @@ Untuk build iOS (macOS only):
 ## Clone & Install
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/miftah-sdt/siap.git
 cd siap
 flutter pub get
 dart run build_runner build
+```
+
+API backend (repo terpisah):
+
+```bash
+git clone https://github.com/miftah-sdt/api.git
 ```
 
 ## Environment
@@ -43,10 +49,10 @@ Atau override saat build (future enhancement via `--dart-define`).
 
 ## Backend API (Express + PostgreSQL)
 
-Proyek API berada di `d:/project_flutter/api` (sibling folder).
+Proyek API: https://github.com/miftah-sdt/api (atau folder sibling `../api`).
 
 ```bash
-cd ../api
+cd ../api   # atau clone dari GitHub
 docker compose up -d
 npm install
 copy .env.example .env

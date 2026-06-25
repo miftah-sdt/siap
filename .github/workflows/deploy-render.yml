@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       api_base_url:
-        description: 'API URL (contoh https://siap-api.onrender.com/v1)'
-        required: true
+        description: 'API URL (wajib jika secret belum di-set), contoh https://siap-api.onrender.com/v1'
+        required: false
         type: string
 
 concurrency:
@@ -28,42 +28,73 @@ jobs:
 
       - name: Resolve API URL
         id: api
+        env:
+          INPUT_URL: ${{ github.event.inputs.api_base_url }}
+          SECRET_URL: ${{ secrets.SIAP_API_URL }}
         run: |
-          if [ -n "${{ github.event.inputs.api_base_url }}" ]; then
-            echo "url=${{ github.event.inputs.api_base_url }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ secrets.SIAP_API_URL }}" ]; then
-            echo "url=${{ secrets.SIAP_API_URL }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error::Set repository secret SIAP_API_URL atau isi input api_base_url saat manual dispatch"
-            exit 1
+          RAW_URL="${INPUT_URL:-$SECRET_URL}"
+          RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+
+          if [ -z "$RAW_URL" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "::error::Isi input 'api_base_url' ATAU set secret SIAP_API_URL di repo Settings → Secrets → Actions"
+              exit 1
+            fi
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Deploy dilewati — secret SIAP_API_URL belum di-set."
+            echo "Langkah: GitHub repo → Settings → Secrets and variables → Actions → New repository secret"
+            echo "Name: SIAP_API_URL | Value: https://YOUR-API-HOST/v1"
+            exit 0
           fi
 
+          case "$RAW_URL" in
+            http://*|https://*) ;;
+            *)
+              echo "::error::API URL harus diawali http:// atau https://"
+              exit 1
+              ;;
+          esac
+
+          if [ "${RAW_URL##*/}" != "v1" ]; then
+            echo "::warning::API URL sebaiknya diakhiri /v1 (contoh: https://siap-api.onrender.com/v1)"
+          fi
+
+          echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "Using API_BASE_URL=$RAW_URL"
+
       - name: Setup Java
+        if: steps.api.outputs.skip != 'true'
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
       - name: Setup Flutter
+        if: steps.api.outputs.skip != 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
       - name: Install dependencies
+        if: steps.api.outputs.skip != 'true'
         run: flutter pub get
 
       - name: Build Web
+        if: steps.api.outputs.skip != 'true'
         run: |
           flutter build web --release \
             --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
 
       - name: Build APK
+        if: steps.api.outputs.skip != 'true'
         run: |
           flutter build apk --release \
             --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
 
       - name: Package downloads
+        if: steps.api.outputs.skip != 'true'
         run: |
           mkdir -p build/web/downloads
           cp build/app/outputs/flutter-apk/app-release.apk build/web/downloads/siap.apk
@@ -87,7 +118,8 @@ jobs:
           </html>
           EOF
 
-      - name: Deploy to gh-pages (for Render Static Site)
+      - name: Deploy to gh-pages
+        if: steps.api.outputs.skip != 'true'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
@@ -96,6 +128,7 @@ jobs:
           single-commit: true
 
       - name: Upload APK artifact
+        if: steps.api.outputs.skip != 'true'
         uses: actions/upload-artifact@v5
         with:
           name: siap-release-apk

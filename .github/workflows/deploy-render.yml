@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       api_base_url:
-        description: 'API URL (wajib jika secret belum di-set), contoh https://siap-api.onrender.com/v1'
+        description: 'API URL, contoh https://siap-api-production.up.railway.app/v1'
         required: false
         type: string
 
@@ -43,7 +43,7 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "::warning::Deploy dilewati — secret SIAP_API_URL belum di-set."
             echo "Langkah: GitHub repo → Settings → Secrets and variables → Actions → New repository secret"
-            echo "Name: SIAP_API_URL | Value: https://YOUR-API-HOST/v1"
+            echo "Name: SIAP_API_URL | Value: https://siap-api-production.up.railway.app/v1"
             exit 0
           fi
 
@@ -56,7 +56,7 @@ jobs:
           esac
 
           if [ "${RAW_URL##*/}" != "v1" ]; then
-            echo "::warning::API URL sebaiknya diakhiri /v1 (contoh: https://siap-api.onrender.com/v1)"
+            echo "::warning::API URL sebaiknya diakhiri /v1 (contoh: https://siap-api-production.up.railway.app/v1)"
           fi
 
           echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
@@ -85,6 +85,7 @@ jobs:
         if: steps.api.outputs.skip != 'true'
         run: |
           flutter build web --release \
+            --base-href "/siap/" \
             --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
 
       - name: Build APK

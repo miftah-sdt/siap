@@ -38,7 +38,7 @@ Aplikasi enterprise Flutter untuk manajemen asuransi pertanian dengan Clean Arch
 ### Instalasi
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/miftah-sdt/siap.git
 cd siap
 flutter pub get
 dart run build_runner build
@@ -68,10 +68,19 @@ static const AppEnvironment current = AppEnvironment.development;
 | Environment | Base URL |
 |-------------|----------|
 | development | `http://localhost:3000/v1` |
-| staging | `https://staging-api.siap.local/v1` |
-| production | `https://api.siap.local/v1` |
+| staging / production | `https://siap-api-production.up.railway.app/v1` |
 
-Backend Express tersedia di folder saudara `../api` (PostgreSQL). Jalankan terlebih dahulu sebelum login di app:
+**Production (online):**
+
+| Layanan | URL |
+|---------|-----|
+| API | https://siap-api-production.up.railway.app |
+| Web | https://miftah-sdt.github.io/siap/ |
+| APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
+
+Repo API: https://github.com/miftah-sdt/api
+
+### Development lokal
 
 ```bash
 cd ../api
@@ -81,6 +90,8 @@ npm run dev
 ```
 
 Akun demo: `admin@siap.local` / `password123`
+
+## Struktur Proyek
 
 ```
 lib/
@@ -135,7 +146,9 @@ Detail: [docs/CI_CD.md](docs/CI_CD.md)
 
 Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
 
-**Disarankan (gratis, tanpa kartu kredit):** Neon (DB) + Koyeb (API) + GitHub Pages (Web + APK)
+**Disarankan (tanpa kartu kredit):** Neon (DB) + **Railway** (API) + GitHub Pages (Web + APK)
+
+> Render & Koyeb sering minta kartu kredit. Jika terblokir, pakai Railway atau Belmo.
 
 | Repo | URL |
 |------|-----|
@@ -145,8 +158,9 @@ Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
 | Komponen | Platform |
 |----------|----------|
 | Database | [Neon](https://neon.tech) |
-| API | [Koyeb](https://www.koyeb.com) |
-| Web + APK | GitHub Pages (`gh-pages`) |
+| API | [Railway](https://railway.com) — https://siap-api-production.up.railway.app |
+| Web | https://miftah-sdt.github.io/siap/ |
+| APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 
 Alternatif: [Render.com](docs/DEPLOY.md#alternatif-rendercom)
 

@@ -6,7 +6,7 @@ class Env {
   const Env._();
 
   /// Override saat build/deploy:
-  /// `flutter build web --dart-define=API_BASE_URL=https://siap-api.onrender.com/v1`
+  /// `flutter build web --dart-define=API_BASE_URL=https://siap-api-production.up.railway.app/v1`
   static const String _apiBaseUrlOverride = String.fromEnvironment(
     'API_BASE_URL',
   );
@@ -22,9 +22,9 @@ class Env {
       case AppEnvironment.development:
         return _developmentBaseUrl;
       case AppEnvironment.staging:
-        return 'https://siap-api.onrender.com/v1';
+        return 'https://siap-api-production.up.railway.app/v1';
       case AppEnvironment.production:
-        return 'https://siap-api.onrender.com/v1';
+        return 'https://siap-api-production.up.railway.app/v1';
     }
   }
 

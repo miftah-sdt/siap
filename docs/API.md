@@ -2,9 +2,16 @@
 
 Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
-Default development: `http://localhost:3000/v1` (Express API di `d:/project_flutter/api`)
+Default development: `http://localhost:3000/v1`
 
-Jalankan backend (PostgreSQL + API):
+**Production (Railway):** `https://siap-api-production.up.railway.app/v1`
+
+| Endpoint | URL |
+|----------|-----|
+| Health | https://siap-api-production.up.railway.app/health |
+| Login | `POST /v1/auth/login` |
+
+Jalankan backend lokal (PostgreSQL + API):
 
 ```bash
 cd d:/project_flutter/api

@@ -7,7 +7,9 @@ class Env {
 
   /// Override saat build/deploy:
   /// `flutter build web --dart-define=API_BASE_URL=https://siap-api.onrender.com/v1`
-  static const String _apiBaseUrlOverride = String.fromEnvironment('API_BASE_URL');
+  static const String _apiBaseUrlOverride = String.fromEnvironment(
+    'API_BASE_URL',
+  );
 
   static const AppEnvironment current = AppEnvironment.development;
 

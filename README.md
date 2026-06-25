@@ -1,8 +1,6 @@
 # SIAP — Sistem Informasi Asuransi Pertanian
 
-<!-- Ganti URL badge setelah repo GitHub dibuat:
-![CI](https://github.com/USERNAME/siap/actions/workflows/ci.yml/badge.svg)
--->
+![CI](https://github.com/miftah-sdt/siap/actions/workflows/ci.yml/badge.svg)
 
 Aplikasi enterprise Flutter untuk manajemen asuransi pertanian dengan Clean Architecture, modular features, dan dukungan multi-platform (Android, iOS, Web).
 
@@ -141,7 +139,7 @@ git init
 git add .
 git commit -m "Initial commit: SIAP Flutter app with CI/CD"
 git branch -M main
-git remote add origin https://github.com/USERNAME/siap.git
+git remote add origin https://github.com/miftah-sdt/siap.git
 git push -u origin main
 ```
 

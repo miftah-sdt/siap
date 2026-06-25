@@ -1,0 +1,66 @@
+name: Deploy GitHub Pages Only
+
+# Re-deploy web cepat jika halaman putih (base-href /siap/)
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'API URL (opsional jika secret SIAP_API_URL sudah di-set)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy-web:
+    name: Build & deploy web → gh-pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve API URL
+        id: api
+        env:
+          INPUT_URL: ${{ github.event.inputs.api_base_url }}
+          SECRET_URL: ${{ secrets.SIAP_API_URL }}
+        run: |
+          RAW_URL="${INPUT_URL:-$SECRET_URL}"
+          RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+          if [ -z "$RAW_URL" ]; then
+            echo "::error::Set secret SIAP_API_URL atau isi api_base_url"
+            exit 1
+          fi
+          echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build Web for GitHub Pages
+        run: |
+          flutter build web --release \
+            --base-href "/siap/" \
+            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+          sed -i 's|<base href="[^"]*"|<base href="/siap/"|' build/web/index.html
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
+          grep '<base href' build/web/index.html
+
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/web
+          branch: gh-pages
+          clean: true
+          single-commit: true

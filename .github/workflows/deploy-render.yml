@@ -88,6 +88,18 @@ jobs:
             --base-href "/siap/" \
             --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
 
+      - name: Prepare GitHub Pages output
+        if: steps.api.outputs.skip != 'true'
+        run: |
+          # Paksa base href — project site: https://miftah-sdt.github.io/siap/
+          sed -i 's|<base href="[^"]*"|<base href="/siap/"|' build/web/index.html
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
+          echo "=== verify base href ==="
+          grep '<base href' build/web/index.html
+          grep -q 'base href="/siap/"' build/web/index.html
+          test -f build/web/flutter_bootstrap.js
+
       - name: Build APK
         if: steps.api.outputs.skip != 'true'
         run: |

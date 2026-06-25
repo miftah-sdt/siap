@@ -67,11 +67,20 @@ static const AppEnvironment current = AppEnvironment.development;
 
 | Environment | Base URL |
 |-------------|----------|
-| development | `https://dev-api.siap.local/v1` |
+| development | `http://localhost:3000/v1` |
 | staging | `https://staging-api.siap.local/v1` |
 | production | `https://api.siap.local/v1` |
 
-## Struktur Proyek
+Backend Express tersedia di folder saudara `../api` (PostgreSQL). Jalankan terlebih dahulu sebelum login di app:
+
+```bash
+cd ../api
+docker compose up -d
+npm install
+npm run dev
+```
+
+Akun demo: `admin@siap.local` / `password123`
 
 ```
 lib/

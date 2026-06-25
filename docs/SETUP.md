@@ -41,6 +41,20 @@ class Env {
 
 Atau override saat build (future enhancement via `--dart-define`).
 
+## Backend API (Express + PostgreSQL)
+
+Proyek API berada di `d:/project_flutter/api` (sibling folder).
+
+```bash
+cd ../api
+docker compose up -d
+npm install
+copy .env.example .env
+npm run dev
+```
+
+Server: `http://localhost:3000/v1` — PostgreSQL wajib berjalan (via Docker atau instalasi lokal).
+
 ## Menjalankan Aplikasi
 
 ```bash

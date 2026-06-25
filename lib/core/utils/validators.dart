@@ -12,7 +12,7 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return 'Email wajib diisi';
     }
-    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    final regex = RegExp(r'^[\w.\-]+@([\w\-]+\.)+[\w\-]{2,63}$');
     if (!regex.hasMatch(value.trim())) {
       return 'Format email tidak valid';
     }

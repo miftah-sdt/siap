@@ -5,6 +5,7 @@ void main() {
   group('Validators.email', () {
     test('returns null for valid email', () {
       expect(Validators.email('user@example.com'), isNull);
+      expect(Validators.email('admin@siap.local'), isNull);
     });
 
     test('returns error for empty email', () {

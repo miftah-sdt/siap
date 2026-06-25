@@ -2,7 +2,18 @@
 
 Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
-Default development: `https://dev-api.siap.local/v1`
+Default development: `http://localhost:3000/v1` (Express API di `d:/project_flutter/api`)
+
+Jalankan backend (PostgreSQL + API):
+
+```bash
+cd d:/project_flutter/api
+docker compose up -d
+npm install
+npm run dev
+```
+
+**Android Emulator:** gunakan `http://10.0.2.2:3000/v1` atau `adb reverse tcp:3000 tcp:3000`.
 
 Semua response menggunakan wrapper `BaseApiResponse<T>`:
 

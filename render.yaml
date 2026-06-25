@@ -1,0 +1,22 @@
+# Render Static Site — SIAP Web + APK Download
+#
+# Buat manual di Render Dashboard (Static Site tidak bisa share Blueprint dengan API repo):
+# 1. New + Static Site
+# 2. Connect repo: miftah-sdt/siap
+# 3. Branch: gh-pages
+# 4. Root Directory: (kosong)
+# 5. Build Command: (kosong — sudah di-build oleh GitHub Actions)
+# 6. Publish Directory: .
+
+services:
+  - type: web
+    name: siap-web
+    runtime: static
+    plan: free
+    region: singapore
+    buildCommand: echo "Pre-built on gh-pages branch by GitHub Actions"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

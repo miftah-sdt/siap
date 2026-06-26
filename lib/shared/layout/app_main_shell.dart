@@ -93,92 +93,92 @@ class AppMainShell extends StatelessWidget {
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
-        final user = authState is AuthAuthenticated ? authState.user : null;
-        final role = user?.role ?? UserRole.petani;
-        final visibleItems = _visibleItems(role);
-        final isDesktop = Responsive.isDesktop(context);
-        final isMobile = Responsive.isMobile(context);
-        final selectedIndex = _selectedIndex(context);
+          final user = authState is AuthAuthenticated ? authState.user : null;
+          final role = user?.role ?? UserRole.petani;
+          final visibleItems = _visibleItems(role);
+          final isDesktop = Responsive.isDesktop(context);
+          final isMobile = Responsive.isMobile(context);
+          final selectedIndex = _selectedIndex(context);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text(AppConstants.appName),
-            actions: [
-              if (user != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                  ),
-                  child: Chip(
-                    avatar: CircleAvatar(
-                      child: Text(user.name.isNotEmpty ? user.name[0] : '?'),
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(AppConstants.appName),
+              actions: [
+                if (user != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
                     ),
-                    label: Text(user.role.label),
-                  ),
-                ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: 'Keluar',
-                onPressed: () {
-                  context.read<AuthBloc>().add(
-                    const AuthEvent.logoutRequested(),
-                  );
-                },
-              ),
-            ],
-          ),
-          drawer: isDesktop
-              ? null
-              : Drawer(
-                  child: _Sidebar(
-                    items: visibleItems,
-                    selectedIndex: selectedIndex,
-                    onSelected: (route) {
-                      Navigator.pop(context);
-                      context.go(route);
-                    },
-                  ),
-                ),
-          body: Row(
-            children: [
-              if (isDesktop)
-                SizedBox(
-                  width: 260,
-                  child: _Sidebar(
-                    items: visibleItems,
-                    selectedIndex: selectedIndex,
-                    onSelected: (route) => context.go(route),
-                  ),
-                ),
-              Expanded(
-                child: OfflineBanner(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: child,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: isMobile
-              ? NavigationBar(
-                  selectedIndex: selectedIndex.clamp(
-                    0,
-                    visibleItems.length - 1,
-                  ),
-                  onDestinationSelected: (index) {
-                    context.go(visibleItems[index].route);
-                  },
-                  destinations: [
-                    for (final item in visibleItems)
-                      NavigationDestination(
-                        icon: Icon(item.icon),
-                        label: item.label,
+                    child: Chip(
+                      avatar: CircleAvatar(
+                        child: Text(user.name.isNotEmpty ? user.name[0] : '?'),
                       ),
-                  ],
-                )
-              : null,
-        );
+                      label: Text(user.role.label),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  tooltip: 'Keluar',
+                  onPressed: () {
+                    context.read<AuthBloc>().add(
+                      const AuthEvent.logoutRequested(),
+                    );
+                  },
+                ),
+              ],
+            ),
+            drawer: isDesktop
+                ? null
+                : Drawer(
+                    child: _Sidebar(
+                      items: visibleItems,
+                      selectedIndex: selectedIndex,
+                      onSelected: (route) {
+                        Navigator.pop(context);
+                        context.go(route);
+                      },
+                    ),
+                  ),
+            body: Row(
+              children: [
+                if (isDesktop)
+                  SizedBox(
+                    width: 260,
+                    child: _Sidebar(
+                      items: visibleItems,
+                      selectedIndex: selectedIndex,
+                      onSelected: (route) => context.go(route),
+                    ),
+                  ),
+                Expanded(
+                  child: OfflineBanner(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: child,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: isMobile
+                ? NavigationBar(
+                    selectedIndex: selectedIndex.clamp(
+                      0,
+                      visibleItems.length - 1,
+                    ),
+                    onDestinationSelected: (index) {
+                      context.go(visibleItems[index].route);
+                    },
+                    destinations: [
+                      for (final item in visibleItems)
+                        NavigationDestination(
+                          icon: Icon(item.icon),
+                          label: item.label,
+                        ),
+                    ],
+                  )
+                : null,
+          );
         },
       ),
     );

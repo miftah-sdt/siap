@@ -25,9 +25,7 @@ class SiapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final sharedPrefService = sl<SharedPrefService>();
     final themeMode = sharedPrefService.getThemeMode();
-    final router = AppRouter.createRouter(
-      authRefresh: sl<AuthRouterRefresh>(),
-    );
+    final router = AppRouter.createRouter(authRefresh: sl<AuthRouterRefresh>());
 
     return ScreenUtilInit(
       designSize: const Size(390, 844),

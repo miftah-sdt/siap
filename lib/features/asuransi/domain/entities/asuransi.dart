@@ -1,3 +1,5 @@
+import 'package:siap/core/models/rfi_models.dart';
+
 enum AsuransiStatus {
   draft,
   submitted,
@@ -32,6 +34,12 @@ class Asuransi {
     required this.status,
     required this.documents,
     required this.createdAt,
+    this.riskScore,
+    this.riskLevel,
+    this.scoreFactors = const [],
+    this.scoredAt,
+    this.askrindoRef,
+    this.askrindoStatus,
   });
 
   final String id;
@@ -43,6 +51,12 @@ class Asuransi {
   final AsuransiStatus status;
   final List<String> documents;
   final DateTime createdAt;
+  final int? riskScore;
+  final String? riskLevel;
+  final List<ScoreFactor> scoreFactors;
+  final String? scoredAt;
+  final String? askrindoRef;
+  final String? askrindoStatus;
 }
 
 class AsuransiListResult {

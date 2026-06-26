@@ -17,6 +17,8 @@ void main() {
 
   const lahanModel = LahanModel(
     id: '1',
+    petaniId: 'p1',
+    petaniNama: 'Budi Santoso',
     kodeLahan: 'LH-001',
     namaLahan: 'Sawah A',
     luas: 2.5,
@@ -41,7 +43,12 @@ void main() {
       );
 
       when(
-        () => remote.getLahanList(page: 1, limit: 10, search: null),
+        () => remote.getLahanList(
+          page: 1,
+          limit: 10,
+          search: null,
+          petaniId: null,
+        ),
       ).thenAnswer((_) async => listResult);
 
       final result = await repository.getLahanList(page: 1, limit: 10);
@@ -55,6 +62,7 @@ void main() {
           page: any(named: 'page'),
           limit: any(named: 'limit'),
           search: any(named: 'search'),
+          petaniId: any(named: 'petaniId'),
         ),
       ).thenThrow(
         const ServerException(message: 'Server error', statusCode: 500),
@@ -72,6 +80,8 @@ void main() {
       when(() => remote.createLahan(any())).thenAnswer((_) async => lahanModel);
 
       final result = await repository.createLahan(
+        petaniId: 'p1',
+        petaniNama: 'Budi Santoso',
         kodeLahan: 'LH-001',
         namaLahan: 'Sawah A',
         luas: 2.5,

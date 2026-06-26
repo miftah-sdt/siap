@@ -8,6 +8,7 @@ abstract class LahanRemoteDataSource {
     required int page,
     required int limit,
     String? search,
+    String? petaniId,
   });
 
   Future<LahanModel> getLahanDetail(String id);
@@ -26,6 +27,7 @@ class LahanRemoteDataSourceImpl implements LahanRemoteDataSource {
     required int page,
     required int limit,
     String? search,
+    String? petaniId,
   }) async {
     final response = await _client.get<List<dynamic>>(
       ApiEndpoint.lahan,
@@ -33,6 +35,7 @@ class LahanRemoteDataSourceImpl implements LahanRemoteDataSource {
         'page': page,
         'limit': limit,
         if (search != null && search.isNotEmpty) 'search': search,
+        if (petaniId != null && petaniId.isNotEmpty) 'petani_id': petaniId,
       },
       fromJsonT: (json) => json as List<dynamic>,
     );

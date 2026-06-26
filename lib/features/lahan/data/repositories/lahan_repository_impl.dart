@@ -17,12 +17,14 @@ class LahanRepositoryImpl implements LahanRepository {
     required int page,
     required int limit,
     String? search,
+    String? petaniId,
   }) async {
     try {
       final result = await _remote.getLahanList(
         page: page,
         limit: limit,
         search: search,
+        petaniId: petaniId,
       );
       return Success(result);
     } on AppException catch (e) {
@@ -46,6 +48,8 @@ class LahanRepositoryImpl implements LahanRepository {
 
   @override
   Future<Result<Lahan>> createLahan({
+    required String petaniId,
+    required String petaniNama,
     required String kodeLahan,
     required String namaLahan,
     required double luas,
@@ -55,6 +59,8 @@ class LahanRepositoryImpl implements LahanRepository {
     try {
       final model = await _remote.createLahan(
         LahanRequestModel(
+          petaniId: petaniId,
+          petaniNama: petaniNama,
           kodeLahan: kodeLahan,
           namaLahan: namaLahan,
           luas: luas,
@@ -73,6 +79,8 @@ class LahanRepositoryImpl implements LahanRepository {
   @override
   Future<Result<Lahan>> updateLahan({
     required String id,
+    required String petaniId,
+    required String petaniNama,
     required String kodeLahan,
     required String namaLahan,
     required double luas,
@@ -83,6 +91,8 @@ class LahanRepositoryImpl implements LahanRepository {
       final model = await _remote.updateLahan(
         id,
         LahanRequestModel(
+          petaniId: petaniId,
+          petaniNama: petaniNama,
           kodeLahan: kodeLahan,
           namaLahan: namaLahan,
           luas: luas,

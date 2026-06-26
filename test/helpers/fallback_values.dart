@@ -21,6 +21,18 @@ void registerTestFallbacks() {
   );
   registerFallbackValue(
     const LahanRequestModel(
+      petaniId: 'p1',
+      petaniNama: 'Petani Test',
+      kodeLahan: 'LH-001',
+      namaLahan: 'Lahan Test',
+      luas: 1,
+      lokasi: 'Lokasi',
+    ),
+  );
+  registerFallbackValue(
+    const CreateLahanParams(
+      petaniId: 'p1',
+      petaniNama: 'Petani Test',
       kodeLahan: 'LH-001',
       namaLahan: 'Lahan Test',
       luas: 1,

@@ -7,6 +7,9 @@ import 'package:siap/core/network/file_remote_datasource.dart';
 import 'package:siap/core/services/connectivity_service.dart';
 import 'package:siap/core/services/download_service.dart';
 import 'package:siap/core/services/location_service.dart';
+import 'package:siap/core/services/lookup_service.dart';
+import 'package:siap/core/services/open_meteo_service.dart';
+import 'package:siap/core/services/rfi_remote_service.dart';
 import 'package:siap/core/services/media_picker_service.dart';
 import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/storage/shared_pref_service.dart';
@@ -99,6 +102,11 @@ Future<void> configureDependencies() async {
   );
   sl.registerLazySingleton<DownloadService>(
     () => DownloadService(sl<DioClient>()),
+  );
+  sl.registerLazySingleton<LookupService>(() => LookupService(sl<DioClient>()));
+  sl.registerLazySingleton<OpenMeteoService>(OpenMeteoService.new);
+  sl.registerLazySingleton<RfiRemoteService>(
+    () => RfiRemoteService(sl<DioClient>()),
   );
 
   // Router auth refresh

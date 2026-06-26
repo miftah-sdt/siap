@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/models/select_option.dart';
 import 'package:siap/core/services/location_service.dart';
+import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/core/utils/validators.dart';
@@ -11,7 +13,10 @@ import 'package:siap/features/lahan/presentation/bloc/lahan_form_event.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_form_state.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
+import 'package:siap/shared/widgets/app_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
+import 'package:siap/shared/widgets/lahan_map_picker.dart';
+import 'package:siap/shared/widgets/lahan_map_view.dart';
 
 class LahanFormPage extends StatefulWidget {
   const LahanFormPage({super.key, this.lahan});
@@ -29,7 +34,54 @@ class _LahanFormPageState extends State<LahanFormPage> {
   late final TextEditingController _luasController;
   late final TextEditingController _lokasiController;
   late final TextEditingController _koordinatController;
+
+  List<SelectOption> _petaniOptions = [];
+  String? _selectedPetaniId;
+  bool _loadingPetani = true;
   bool _isFetchingGps = false;
+
+  LookupService get _lookup => sl<LookupService>();
+
+  @override
+  void initState() {
+    super.initState();
+    _kodeController = TextEditingController(text: widget.lahan?.kodeLahan);
+    _namaController = TextEditingController(text: widget.lahan?.namaLahan);
+    _luasController = TextEditingController(
+      text: widget.lahan?.luas.toString(),
+    );
+    _lokasiController = TextEditingController(text: widget.lahan?.lokasi);
+    _koordinatController = TextEditingController(text: widget.lahan?.koordinat);
+    _selectedPetaniId = widget.lahan?.petaniId;
+    context.read<LahanFormBloc>().add(
+      LahanFormEvent.started(lahan: widget.lahan),
+    );
+    _loadPetaniOptions();
+  }
+
+  Future<void> _loadPetaniOptions() async {
+    setState(() => _loadingPetani = true);
+    try {
+      final options = await _lookup.getPetaniOptions();
+      if (!mounted) return;
+      setState(() {
+        _petaniOptions = options;
+        _loadingPetani = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loadingPetani = false);
+      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
+    }
+  }
+
+  String? _petaniNamaFor(String? id) {
+    if (id == null) return null;
+    return _petaniOptions
+        .where((o) => o.id == id)
+        .map((o) => o.label)
+        .firstOrNull;
+  }
 
   Future<void> _fetchGps() async {
     setState(() => _isFetchingGps = true);
@@ -38,6 +90,7 @@ class _LahanFormPageState extends State<LahanFormPage> {
       _koordinatController.text = sl<LocationService>().formatCoordinates(
         position,
       );
+      setState(() {});
       if (mounted) {
         UiFeedback.showSnackBar(
           context,
@@ -51,21 +104,6 @@ class _LahanFormPageState extends State<LahanFormPage> {
     } finally {
       if (mounted) setState(() => _isFetchingGps = false);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _kodeController = TextEditingController(text: widget.lahan?.kodeLahan);
-    _namaController = TextEditingController(text: widget.lahan?.namaLahan);
-    _luasController = TextEditingController(
-      text: widget.lahan?.luas.toString(),
-    );
-    _lokasiController = TextEditingController(text: widget.lahan?.lokasi);
-    _koordinatController = TextEditingController(text: widget.lahan?.koordinat);
-    context.read<LahanFormBloc>().add(
-      LahanFormEvent.started(lahan: widget.lahan),
-    );
   }
 
   @override
@@ -87,9 +125,14 @@ class _LahanFormPageState extends State<LahanFormPage> {
     final luas = _parseLuas(_luasController.text);
     if (luas == null) return;
 
+    final petaniNama = _petaniNamaFor(_selectedPetaniId);
+    if (petaniNama == null) return;
+
     final koordinat = _koordinatController.text.trim();
     context.read<LahanFormBloc>().add(
       LahanFormEvent.submitted(
+        petaniId: _selectedPetaniId!,
+        petaniNama: petaniNama,
         kodeLahan: _kodeController.text.trim(),
         namaLahan: _namaController.text.trim(),
         luas: luas,
@@ -133,6 +176,18 @@ class _LahanFormPageState extends State<LahanFormPage> {
               key: _formKey,
               child: Column(
                 children: [
+                  AppSelectField(
+                    label: 'Petani',
+                    prefixIcon: Icons.person_outline,
+                    options: _petaniOptions,
+                    value: _selectedPetaniId,
+                    isLoading: _loadingPetani,
+                    enabled: !isLoading,
+                    onChanged: (value) =>
+                        setState(() => _selectedPetaniId = value),
+                    validator: (v) => Validators.required(v, field: 'Petani'),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   AppTextField(
                     controller: _kodeController,
                     label: 'Kode Lahan',
@@ -169,7 +224,7 @@ class _LahanFormPageState extends State<LahanFormPage> {
                       Expanded(
                         child: AppTextField(
                           controller: _koordinatController,
-                          label: 'Koordinat (opsional)',
+                          label: 'Koordinat (geolokasi)',
                           hint: 'Contoh: -6.200000, 106.816666',
                         ),
                       ),
@@ -193,6 +248,23 @@ class _LahanFormPageState extends State<LahanFormPage> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  LahanMapPicker(
+                    key: ValueKey(_koordinatController.text),
+                    initialCoordinates: _koordinatController.text.trim().isEmpty
+                        ? null
+                        : _koordinatController.text.trim(),
+                    onChanged: (value) =>
+                        setState(() => _koordinatController.text = value),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  LahanMapView(
+                    key: ValueKey('view-${_koordinatController.text}'),
+                    coordinates: _koordinatController.text.trim().isEmpty
+                        ? null
+                        : _koordinatController.text.trim(),
+                    height: 180,
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(

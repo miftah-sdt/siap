@@ -19,6 +19,12 @@ _AsuransiModel _$AsuransiModelFromJson(Map<String, dynamic> json) =>
           .map((e) => e as String)
           .toList(),
       createdAt: DateTime.parse(json['created_at'] as String),
+      riskScore: (json['risk_score'] as num?)?.toInt(),
+      riskLevel: json['risk_level'] as String?,
+      scoreFactorsRaw: json['score_factors'] as List<dynamic>?,
+      scoredAt: json['scored_at'] as String?,
+      askrindoRef: json['askrindo_ref'] as String?,
+      askrindoStatus: json['askrindo_status'] as String?,
     );
 
 Map<String, dynamic> _$AsuransiModelToJson(_AsuransiModel instance) =>
@@ -32,6 +38,12 @@ Map<String, dynamic> _$AsuransiModelToJson(_AsuransiModel instance) =>
       'status': instance.status,
       'documents': instance.documents,
       'created_at': instance.createdAt.toIso8601String(),
+      'risk_score': instance.riskScore,
+      'risk_level': instance.riskLevel,
+      'score_factors': instance.scoreFactorsRaw,
+      'scored_at': instance.scoredAt,
+      'askrindo_ref': instance.askrindoRef,
+      'askrindo_status': instance.askrindoStatus,
     };
 
 _AsuransiRequestModel _$AsuransiRequestModelFromJson(

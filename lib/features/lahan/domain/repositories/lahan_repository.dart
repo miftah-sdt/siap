@@ -6,11 +6,14 @@ abstract class LahanRepository {
     required int page,
     required int limit,
     String? search,
+    String? petaniId,
   });
 
   Future<Result<Lahan>> getLahanDetail(String id);
 
   Future<Result<Lahan>> createLahan({
+    required String petaniId,
+    required String petaniNama,
     required String kodeLahan,
     required String namaLahan,
     required double luas,
@@ -20,6 +23,8 @@ abstract class LahanRepository {
 
   Future<Result<Lahan>> updateLahan({
     required String id,
+    required String petaniId,
+    required String petaniNama,
     required String kodeLahan,
     required String namaLahan,
     required double luas,

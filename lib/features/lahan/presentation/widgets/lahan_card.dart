@@ -24,6 +24,7 @@ class LahanCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('Petani: ${lahan.petaniNama}'),
             Text('Kode: ${lahan.kodeLahan}'),
             Text('Luas: ${Formatter.decimal(lahan.luas)} ha'),
             Text('Lokasi: ${lahan.lokasi}'),

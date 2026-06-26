@@ -41,6 +41,8 @@ class LahanFormBloc extends Bloc<LahanFormEvent, LahanFormState> {
       result = await _updateLahanUseCase(
         UpdateLahanParams(
           id: _editingLahan!.id,
+          petaniId: event.petaniId,
+          petaniNama: event.petaniNama,
           kodeLahan: event.kodeLahan,
           namaLahan: event.namaLahan,
           luas: event.luas,
@@ -51,6 +53,8 @@ class LahanFormBloc extends Bloc<LahanFormEvent, LahanFormState> {
     } else {
       result = await _createLahanUseCase(
         CreateLahanParams(
+          petaniId: event.petaniId,
+          petaniNama: event.petaniNama,
           kodeLahan: event.kodeLahan,
           namaLahan: event.namaLahan,
           luas: event.luas,

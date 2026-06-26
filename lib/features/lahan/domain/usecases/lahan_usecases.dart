@@ -4,11 +4,17 @@ import 'package:siap/features/lahan/domain/entities/lahan.dart';
 import 'package:siap/features/lahan/domain/repositories/lahan_repository.dart';
 
 class GetLahanListParams {
-  const GetLahanListParams({required this.page, this.limit = 10, this.search});
+  const GetLahanListParams({
+    required this.page,
+    this.limit = 10,
+    this.search,
+    this.petaniId,
+  });
 
   final int page;
   final int limit;
   final String? search;
+  final String? petaniId;
 }
 
 class GetLahanListUseCase
@@ -23,6 +29,7 @@ class GetLahanListUseCase
       page: params.page,
       limit: params.limit,
       search: params.search,
+      petaniId: params.petaniId,
     );
   }
 }
@@ -38,6 +45,8 @@ class GetLahanDetailUseCase implements UseCase<Result<Lahan>, String> {
 
 class CreateLahanParams {
   const CreateLahanParams({
+    required this.petaniId,
+    required this.petaniNama,
     required this.kodeLahan,
     required this.namaLahan,
     required this.luas,
@@ -45,6 +54,8 @@ class CreateLahanParams {
     this.koordinat,
   });
 
+  final String petaniId;
+  final String petaniNama;
   final String kodeLahan;
   final String namaLahan;
   final double luas;
@@ -60,6 +71,8 @@ class CreateLahanUseCase implements UseCase<Result<Lahan>, CreateLahanParams> {
   @override
   Future<Result<Lahan>> call(CreateLahanParams params) {
     return _repository.createLahan(
+      petaniId: params.petaniId,
+      petaniNama: params.petaniNama,
       kodeLahan: params.kodeLahan,
       namaLahan: params.namaLahan,
       luas: params.luas,
@@ -72,6 +85,8 @@ class CreateLahanUseCase implements UseCase<Result<Lahan>, CreateLahanParams> {
 class UpdateLahanParams {
   const UpdateLahanParams({
     required this.id,
+    required this.petaniId,
+    required this.petaniNama,
     required this.kodeLahan,
     required this.namaLahan,
     required this.luas,
@@ -80,6 +95,8 @@ class UpdateLahanParams {
   });
 
   final String id;
+  final String petaniId;
+  final String petaniNama;
   final String kodeLahan;
   final String namaLahan;
   final double luas;
@@ -96,6 +113,8 @@ class UpdateLahanUseCase implements UseCase<Result<Lahan>, UpdateLahanParams> {
   Future<Result<Lahan>> call(UpdateLahanParams params) {
     return _repository.updateLahan(
       id: params.id,
+      petaniId: params.petaniId,
+      petaniNama: params.petaniNama,
       kodeLahan: params.kodeLahan,
       namaLahan: params.namaLahan,
       luas: params.luas,

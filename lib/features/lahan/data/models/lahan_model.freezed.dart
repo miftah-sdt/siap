@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LahanModel {
 
- String get id;@JsonKey(name: 'kode_lahan') String get kodeLahan;@JsonKey(name: 'nama_lahan') String get namaLahan; double get luas; String get lokasi; String? get koordinat;
+ String get id;@JsonKey(name: 'petani_id') String get petaniId;@JsonKey(name: 'petani_nama') String get petaniNama;@JsonKey(name: 'kode_lahan') String get kodeLahan;@JsonKey(name: 'nama_lahan') String get namaLahan; double get luas; String get lokasi; String? get koordinat;
 /// Create a copy of LahanModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $LahanModelCopyWith<LahanModel> get copyWith => _$LahanModelCopyWithImpl<LahanMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.petaniId, petaniId) || other.petaniId == petaniId)&&(identical(other.petaniNama, petaniNama) || other.petaniNama == petaniNama)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,kodeLahan,namaLahan,luas,lokasi,koordinat);
+int get hashCode => Object.hash(runtimeType,id,petaniId,petaniNama,kodeLahan,namaLahan,luas,lokasi,koordinat);
 
 @override
 String toString() {
-  return 'LahanModel(id: $id, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
+  return 'LahanModel(id: $id, petaniId: $petaniId, petaniNama: $petaniNama, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $LahanModelCopyWith<$Res>  {
   factory $LahanModelCopyWith(LahanModel value, $Res Function(LahanModel) _then) = _$LahanModelCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
+ String id,@JsonKey(name: 'petani_id') String petaniId,@JsonKey(name: 'petani_nama') String petaniNama,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
 });
 
 
@@ -65,9 +65,11 @@ class _$LahanModelCopyWithImpl<$Res>
 
 /// Create a copy of LahanModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? petaniId = null,Object? petaniNama = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,petaniId: null == petaniId ? _self.petaniId : petaniId // ignore: cast_nullable_to_non_nullable
+as String,petaniNama: null == petaniNama ? _self.petaniNama : petaniNama // ignore: cast_nullable_to_non_nullable
 as String,kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
 as String,namaLahan: null == namaLahan ? _self.namaLahan : namaLahan // ignore: cast_nullable_to_non_nullable
 as String,luas: null == luas ? _self.luas : luas // ignore: cast_nullable_to_non_nullable
@@ -158,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LahanModel() when $default != null:
-return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.id,_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return orElse();
 
 }
@@ -179,10 +181,10 @@ return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)  $default,) {final _that = this;
 switch (_that) {
 case _LahanModel():
-return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.id,_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +201,10 @@ return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,) {final _that = this;
 switch (_that) {
 case _LahanModel() when $default != null:
-return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.id,_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return null;
 
 }
@@ -214,10 +216,12 @@ return $default(_that.id,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi
 @JsonSerializable()
 
 class _LahanModel extends LahanModel {
-  const _LahanModel({required this.id, @JsonKey(name: 'kode_lahan') required this.kodeLahan, @JsonKey(name: 'nama_lahan') required this.namaLahan, required this.luas, required this.lokasi, this.koordinat}): super._();
+  const _LahanModel({required this.id, @JsonKey(name: 'petani_id') required this.petaniId, @JsonKey(name: 'petani_nama') required this.petaniNama, @JsonKey(name: 'kode_lahan') required this.kodeLahan, @JsonKey(name: 'nama_lahan') required this.namaLahan, required this.luas, required this.lokasi, this.koordinat}): super._();
   factory _LahanModel.fromJson(Map<String, dynamic> json) => _$LahanModelFromJson(json);
 
 @override final  String id;
+@override@JsonKey(name: 'petani_id') final  String petaniId;
+@override@JsonKey(name: 'petani_nama') final  String petaniNama;
 @override@JsonKey(name: 'kode_lahan') final  String kodeLahan;
 @override@JsonKey(name: 'nama_lahan') final  String namaLahan;
 @override final  double luas;
@@ -237,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LahanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LahanModel&&(identical(other.id, id) || other.id == id)&&(identical(other.petaniId, petaniId) || other.petaniId == petaniId)&&(identical(other.petaniNama, petaniNama) || other.petaniNama == petaniNama)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,kodeLahan,namaLahan,luas,lokasi,koordinat);
+int get hashCode => Object.hash(runtimeType,id,petaniId,petaniNama,kodeLahan,namaLahan,luas,lokasi,koordinat);
 
 @override
 String toString() {
-  return 'LahanModel(id: $id, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
+  return 'LahanModel(id: $id, petaniId: $petaniId, petaniNama: $petaniNama, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
 }
 
 
@@ -257,7 +261,7 @@ abstract mixin class _$LahanModelCopyWith<$Res> implements $LahanModelCopyWith<$
   factory _$LahanModelCopyWith(_LahanModel value, $Res Function(_LahanModel) _then) = __$LahanModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
+ String id,@JsonKey(name: 'petani_id') String petaniId,@JsonKey(name: 'petani_nama') String petaniNama,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
 });
 
 
@@ -274,9 +278,11 @@ class __$LahanModelCopyWithImpl<$Res>
 
 /// Create a copy of LahanModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? petaniId = null,Object? petaniNama = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
   return _then(_LahanModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,petaniId: null == petaniId ? _self.petaniId : petaniId // ignore: cast_nullable_to_non_nullable
+as String,petaniNama: null == petaniNama ? _self.petaniNama : petaniNama // ignore: cast_nullable_to_non_nullable
 as String,kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
 as String,namaLahan: null == namaLahan ? _self.namaLahan : namaLahan // ignore: cast_nullable_to_non_nullable
 as String,luas: null == luas ? _self.luas : luas // ignore: cast_nullable_to_non_nullable
@@ -293,7 +299,7 @@ as String?,
 /// @nodoc
 mixin _$LahanRequestModel {
 
-@JsonKey(name: 'kode_lahan') String get kodeLahan;@JsonKey(name: 'nama_lahan') String get namaLahan; double get luas; String get lokasi; String? get koordinat;
+@JsonKey(name: 'petani_id') String get petaniId;@JsonKey(name: 'petani_nama') String get petaniNama;@JsonKey(name: 'kode_lahan') String get kodeLahan;@JsonKey(name: 'nama_lahan') String get namaLahan; double get luas; String get lokasi; String? get koordinat;
 /// Create a copy of LahanRequestModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -306,16 +312,16 @@ $LahanRequestModelCopyWith<LahanRequestModel> get copyWith => _$LahanRequestMode
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanRequestModel&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanRequestModel&&(identical(other.petaniId, petaniId) || other.petaniId == petaniId)&&(identical(other.petaniNama, petaniNama) || other.petaniNama == petaniNama)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,kodeLahan,namaLahan,luas,lokasi,koordinat);
+int get hashCode => Object.hash(runtimeType,petaniId,petaniNama,kodeLahan,namaLahan,luas,lokasi,koordinat);
 
 @override
 String toString() {
-  return 'LahanRequestModel(kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
+  return 'LahanRequestModel(petaniId: $petaniId, petaniNama: $petaniNama, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
 }
 
 
@@ -326,7 +332,7 @@ abstract mixin class $LahanRequestModelCopyWith<$Res>  {
   factory $LahanRequestModelCopyWith(LahanRequestModel value, $Res Function(LahanRequestModel) _then) = _$LahanRequestModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
+@JsonKey(name: 'petani_id') String petaniId,@JsonKey(name: 'petani_nama') String petaniNama,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
 });
 
 
@@ -343,9 +349,11 @@ class _$LahanRequestModelCopyWithImpl<$Res>
 
 /// Create a copy of LahanRequestModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? petaniId = null,Object? petaniNama = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
   return _then(_self.copyWith(
-kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
+petaniId: null == petaniId ? _self.petaniId : petaniId // ignore: cast_nullable_to_non_nullable
+as String,petaniNama: null == petaniNama ? _self.petaniNama : petaniNama // ignore: cast_nullable_to_non_nullable
+as String,kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
 as String,namaLahan: null == namaLahan ? _self.namaLahan : namaLahan // ignore: cast_nullable_to_non_nullable
 as String,luas: null == luas ? _self.luas : luas // ignore: cast_nullable_to_non_nullable
 as double,lokasi: null == lokasi ? _self.lokasi : lokasi // ignore: cast_nullable_to_non_nullable
@@ -435,10 +443,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LahanRequestModel() when $default != null:
-return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return orElse();
 
 }
@@ -456,10 +464,10 @@ return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.ko
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)  $default,) {final _that = this;
 switch (_that) {
 case _LahanRequestModel():
-return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -476,10 +484,10 @@ return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.ko
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'petani_id')  String petaniId, @JsonKey(name: 'petani_nama')  String petaniNama, @JsonKey(name: 'kode_lahan')  String kodeLahan, @JsonKey(name: 'nama_lahan')  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  $default,) {final _that = this;
 switch (_that) {
 case _LahanRequestModel() when $default != null:
-return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return $default(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return null;
 
 }
@@ -491,9 +499,11 @@ return $default(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.ko
 @JsonSerializable()
 
 class _LahanRequestModel implements LahanRequestModel {
-  const _LahanRequestModel({@JsonKey(name: 'kode_lahan') required this.kodeLahan, @JsonKey(name: 'nama_lahan') required this.namaLahan, required this.luas, required this.lokasi, this.koordinat});
+  const _LahanRequestModel({@JsonKey(name: 'petani_id') required this.petaniId, @JsonKey(name: 'petani_nama') required this.petaniNama, @JsonKey(name: 'kode_lahan') required this.kodeLahan, @JsonKey(name: 'nama_lahan') required this.namaLahan, required this.luas, required this.lokasi, this.koordinat});
   factory _LahanRequestModel.fromJson(Map<String, dynamic> json) => _$LahanRequestModelFromJson(json);
 
+@override@JsonKey(name: 'petani_id') final  String petaniId;
+@override@JsonKey(name: 'petani_nama') final  String petaniNama;
 @override@JsonKey(name: 'kode_lahan') final  String kodeLahan;
 @override@JsonKey(name: 'nama_lahan') final  String namaLahan;
 @override final  double luas;
@@ -513,16 +523,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LahanRequestModel&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LahanRequestModel&&(identical(other.petaniId, petaniId) || other.petaniId == petaniId)&&(identical(other.petaniNama, petaniNama) || other.petaniNama == petaniNama)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,kodeLahan,namaLahan,luas,lokasi,koordinat);
+int get hashCode => Object.hash(runtimeType,petaniId,petaniNama,kodeLahan,namaLahan,luas,lokasi,koordinat);
 
 @override
 String toString() {
-  return 'LahanRequestModel(kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
+  return 'LahanRequestModel(petaniId: $petaniId, petaniNama: $petaniNama, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
 }
 
 
@@ -533,7 +543,7 @@ abstract mixin class _$LahanRequestModelCopyWith<$Res> implements $LahanRequestM
   factory _$LahanRequestModelCopyWith(_LahanRequestModel value, $Res Function(_LahanRequestModel) _then) = __$LahanRequestModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
+@JsonKey(name: 'petani_id') String petaniId,@JsonKey(name: 'petani_nama') String petaniNama,@JsonKey(name: 'kode_lahan') String kodeLahan,@JsonKey(name: 'nama_lahan') String namaLahan, double luas, String lokasi, String? koordinat
 });
 
 
@@ -550,9 +560,11 @@ class __$LahanRequestModelCopyWithImpl<$Res>
 
 /// Create a copy of LahanRequestModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? petaniId = null,Object? petaniNama = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
   return _then(_LahanRequestModel(
-kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
+petaniId: null == petaniId ? _self.petaniId : petaniId // ignore: cast_nullable_to_non_nullable
+as String,petaniNama: null == petaniNama ? _self.petaniNama : petaniNama // ignore: cast_nullable_to_non_nullable
+as String,kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
 as String,namaLahan: null == namaLahan ? _self.namaLahan : namaLahan // ignore: cast_nullable_to_non_nullable
 as String,luas: null == luas ? _self.luas : luas // ignore: cast_nullable_to_non_nullable
 as double,lokasi: null == lokasi ? _self.lokasi : lokasi // ignore: cast_nullable_to_non_nullable

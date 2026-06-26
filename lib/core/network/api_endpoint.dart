@@ -35,6 +35,11 @@ class ApiEndpoint {
   // Files
   static const String fileUpload = '/files/upload';
 
+  // RFI phase 2
+  static const String underwritingScore = '/underwriting/score';
+  static const String optAlerts = '/opt/alerts';
+  static const String askrindoPolicies = '/askrindo/policies';
+
   // Pengguna
   static const String pengguna = '/pengguna';
   static String penggunaDetail(String id) => '/pengguna/$id';

@@ -10,6 +10,8 @@ abstract class LahanModel with _$LahanModel {
 
   const factory LahanModel({
     required String id,
+    @JsonKey(name: 'petani_id') required String petaniId,
+    @JsonKey(name: 'petani_nama') required String petaniNama,
     @JsonKey(name: 'kode_lahan') required String kodeLahan,
     @JsonKey(name: 'nama_lahan') required String namaLahan,
     required double luas,
@@ -22,6 +24,8 @@ abstract class LahanModel with _$LahanModel {
 
   Lahan toEntity() => Lahan(
     id: id,
+    petaniId: petaniId,
+    petaniNama: petaniNama,
     kodeLahan: kodeLahan,
     namaLahan: namaLahan,
     luas: luas,
@@ -31,6 +35,8 @@ abstract class LahanModel with _$LahanModel {
 
   factory LahanModel.fromEntity(Lahan entity) => LahanModel(
     id: entity.id,
+    petaniId: entity.petaniId,
+    petaniNama: entity.petaniNama,
     kodeLahan: entity.kodeLahan,
     namaLahan: entity.namaLahan,
     luas: entity.luas,
@@ -42,6 +48,8 @@ abstract class LahanModel with _$LahanModel {
 @freezed
 abstract class LahanRequestModel with _$LahanRequestModel {
   const factory LahanRequestModel({
+    @JsonKey(name: 'petani_id') required String petaniId,
+    @JsonKey(name: 'petani_nama') required String petaniNama,
     @JsonKey(name: 'kode_lahan') required String kodeLahan,
     @JsonKey(name: 'nama_lahan') required String namaLahan,
     required double luas,

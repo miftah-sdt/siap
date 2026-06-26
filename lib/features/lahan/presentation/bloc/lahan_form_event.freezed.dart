@@ -122,11 +122,11 @@ return submitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Lahan? lahan)?  started,TResult Function( String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  submitted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Lahan? lahan)?  started,TResult Function( String petaniId,  String petaniNama,  String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  submitted,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LahanFormStarted() when started != null:
 return started(_that.lahan);case LahanFormSubmitted() when submitted != null:
-return submitted(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return submitted(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return orElse();
 
 }
@@ -144,11 +144,11 @@ return submitted(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.k
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Lahan? lahan)  started,required TResult Function( String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)  submitted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Lahan? lahan)  started,required TResult Function( String petaniId,  String petaniNama,  String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)  submitted,}) {final _that = this;
 switch (_that) {
 case LahanFormStarted():
 return started(_that.lahan);case LahanFormSubmitted():
-return submitted(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return submitted(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -165,11 +165,11 @@ return submitted(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.k
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Lahan? lahan)?  started,TResult? Function( String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  submitted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Lahan? lahan)?  started,TResult? Function( String petaniId,  String petaniNama,  String kodeLahan,  String namaLahan,  double luas,  String lokasi,  String? koordinat)?  submitted,}) {final _that = this;
 switch (_that) {
 case LahanFormStarted() when started != null:
 return started(_that.lahan);case LahanFormSubmitted() when submitted != null:
-return submitted(_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
+return submitted(_that.petaniId,_that.petaniNama,_that.kodeLahan,_that.namaLahan,_that.luas,_that.lokasi,_that.koordinat);case _:
   return null;
 
 }
@@ -247,9 +247,11 @@ as Lahan?,
 
 
 class LahanFormSubmitted implements LahanFormEvent {
-  const LahanFormSubmitted({required this.kodeLahan, required this.namaLahan, required this.luas, required this.lokasi, this.koordinat});
+  const LahanFormSubmitted({required this.petaniId, required this.petaniNama, required this.kodeLahan, required this.namaLahan, required this.luas, required this.lokasi, this.koordinat});
   
 
+ final  String petaniId;
+ final  String petaniNama;
  final  String kodeLahan;
  final  String namaLahan;
  final  double luas;
@@ -266,16 +268,16 @@ $LahanFormSubmittedCopyWith<LahanFormSubmitted> get copyWith => _$LahanFormSubmi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanFormSubmitted&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LahanFormSubmitted&&(identical(other.petaniId, petaniId) || other.petaniId == petaniId)&&(identical(other.petaniNama, petaniNama) || other.petaniNama == petaniNama)&&(identical(other.kodeLahan, kodeLahan) || other.kodeLahan == kodeLahan)&&(identical(other.namaLahan, namaLahan) || other.namaLahan == namaLahan)&&(identical(other.luas, luas) || other.luas == luas)&&(identical(other.lokasi, lokasi) || other.lokasi == lokasi)&&(identical(other.koordinat, koordinat) || other.koordinat == koordinat));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,kodeLahan,namaLahan,luas,lokasi,koordinat);
+int get hashCode => Object.hash(runtimeType,petaniId,petaniNama,kodeLahan,namaLahan,luas,lokasi,koordinat);
 
 @override
 String toString() {
-  return 'LahanFormEvent.submitted(kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
+  return 'LahanFormEvent.submitted(petaniId: $petaniId, petaniNama: $petaniNama, kodeLahan: $kodeLahan, namaLahan: $namaLahan, luas: $luas, lokasi: $lokasi, koordinat: $koordinat)';
 }
 
 
@@ -286,7 +288,7 @@ abstract mixin class $LahanFormSubmittedCopyWith<$Res> implements $LahanFormEven
   factory $LahanFormSubmittedCopyWith(LahanFormSubmitted value, $Res Function(LahanFormSubmitted) _then) = _$LahanFormSubmittedCopyWithImpl;
 @useResult
 $Res call({
- String kodeLahan, String namaLahan, double luas, String lokasi, String? koordinat
+ String petaniId, String petaniNama, String kodeLahan, String namaLahan, double luas, String lokasi, String? koordinat
 });
 
 
@@ -303,9 +305,11 @@ class _$LahanFormSubmittedCopyWithImpl<$Res>
 
 /// Create a copy of LahanFormEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? petaniId = null,Object? petaniNama = null,Object? kodeLahan = null,Object? namaLahan = null,Object? luas = null,Object? lokasi = null,Object? koordinat = freezed,}) {
   return _then(LahanFormSubmitted(
-kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
+petaniId: null == petaniId ? _self.petaniId : petaniId // ignore: cast_nullable_to_non_nullable
+as String,petaniNama: null == petaniNama ? _self.petaniNama : petaniNama // ignore: cast_nullable_to_non_nullable
+as String,kodeLahan: null == kodeLahan ? _self.kodeLahan : kodeLahan // ignore: cast_nullable_to_non_nullable
 as String,namaLahan: null == namaLahan ? _self.namaLahan : namaLahan // ignore: cast_nullable_to_non_nullable
 as String,luas: null == luas ? _self.luas : luas // ignore: cast_nullable_to_non_nullable
 as double,lokasi: null == lokasi ? _self.lokasi : lokasi // ignore: cast_nullable_to_non_nullable

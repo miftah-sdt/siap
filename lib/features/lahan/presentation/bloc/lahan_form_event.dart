@@ -7,6 +7,8 @@ part 'lahan_form_event.freezed.dart';
 abstract class LahanFormEvent with _$LahanFormEvent {
   const factory LahanFormEvent.started({Lahan? lahan}) = LahanFormStarted;
   const factory LahanFormEvent.submitted({
+    required String petaniId,
+    required String petaniNama,
     required String kodeLahan,
     required String namaLahan,
     required double luas,

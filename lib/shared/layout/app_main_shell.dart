@@ -36,7 +36,7 @@ class AppMainShell extends StatelessWidget {
       allowedRoles: [UserRole.admin, UserRole.operator, UserRole.verifikator],
     ),
     const NavigationItem(
-      label: 'Asuransi',
+      label: 'Akseptasi',
       icon: Icons.description_outlined,
       route: RouteNames.asuransi,
       allowedRoles: [
@@ -50,6 +50,17 @@ class AppMainShell extends StatelessWidget {
       label: 'Klaim',
       icon: Icons.report_outlined,
       route: RouteNames.klaim,
+      allowedRoles: [
+        UserRole.admin,
+        UserRole.operator,
+        UserRole.verifikator,
+        UserRole.petani,
+      ],
+    ),
+    const NavigationItem(
+      label: 'Monitoring',
+      icon: Icons.map_outlined,
+      route: RouteNames.monitoring,
       allowedRoles: [
         UserRole.admin,
         UserRole.operator,

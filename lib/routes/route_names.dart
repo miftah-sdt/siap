@@ -30,6 +30,8 @@ class RouteNames {
 
   static const String laporan = '/laporan';
 
+  static const String monitoring = '/monitoring';
+
   static const String pengguna = '/pengguna';
   static const String penggunaCreate = '/pengguna/create';
 

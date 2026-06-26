@@ -28,6 +28,7 @@ import 'package:siap/features/lahan/presentation/pages/lahan_form_page.dart';
 import 'package:siap/features/lahan/presentation/pages/lahan_list_page.dart';
 import 'package:siap/features/laporan/presentation/bloc/laporan_bloc.dart';
 import 'package:siap/features/laporan/presentation/pages/laporan_page.dart';
+import 'package:siap/features/monitoring/presentation/pages/monitoring_page.dart';
 import 'package:siap/features/pengguna/domain/entities/pengguna.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_form_bloc.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_list_bloc.dart';
@@ -111,7 +112,8 @@ class AppRouter {
         }
 
         if (location.startsWith(RouteNames.asuransi) ||
-            location.startsWith(RouteNames.klaim)) {
+            location.startsWith(RouteNames.klaim) ||
+            location.startsWith(RouteNames.monitoring)) {
           final role = UserRole.fromString(
             sharedPrefService.getUserRole() ?? UserRole.petani.name,
           );
@@ -372,6 +374,11 @@ class AppRouter {
                   ],
                 ),
               ],
+            ),
+            GoRoute(
+              path: RouteNames.monitoring,
+              name: RouteNames.monitoring,
+              builder: (context, state) => const MonitoringPage(),
             ),
             GoRoute(
               path: RouteNames.laporan,

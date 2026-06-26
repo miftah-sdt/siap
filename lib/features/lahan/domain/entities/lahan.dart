@@ -1,6 +1,8 @@
 class Lahan {
   const Lahan({
     required this.id,
+    required this.petaniId,
+    required this.petaniNama,
     required this.kodeLahan,
     required this.namaLahan,
     required this.luas,
@@ -9,6 +11,8 @@ class Lahan {
   });
 
   final String id;
+  final String petaniId;
+  final String petaniNama;
   final String kodeLahan;
   final String namaLahan;
   final double luas;

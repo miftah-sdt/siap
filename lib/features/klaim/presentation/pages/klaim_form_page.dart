@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/models/select_option.dart';
+import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
@@ -11,6 +13,7 @@ import 'package:siap/features/klaim/presentation/bloc/klaim_form_event.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_state.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
+import 'package:siap/shared/widgets/app_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
@@ -26,10 +29,14 @@ class KlaimFormPage extends StatefulWidget {
 class _KlaimFormPageState extends State<KlaimFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomorKlaimController;
-  late final TextEditingController _polisIdController;
-  late final TextEditingController _polisNomorController;
   late final TextEditingController _deskripsiController;
   final List<String> _buktiKerusakan = [];
+
+  List<SelectOption> _polisOptions = [];
+  String? _selectedPolisId;
+  bool _loadingPolis = true;
+
+  LookupService get _lookup => sl<LookupService>();
 
   @override
   void initState() {
@@ -37,35 +44,57 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
     _nomorKlaimController = TextEditingController(
       text: widget.klaim?.nomorKlaim,
     );
-    _polisIdController = TextEditingController(text: widget.klaim?.polisId);
-    _polisNomorController = TextEditingController(
-      text: widget.klaim?.polisNomor,
-    );
     _deskripsiController = TextEditingController(text: widget.klaim?.deskripsi);
+    _selectedPolisId = widget.klaim?.polisId;
     if (widget.klaim != null) {
       _buktiKerusakan.addAll(widget.klaim!.buktiKerusakan);
     }
     context.read<KlaimFormBloc>().add(
       KlaimFormEvent.started(klaim: widget.klaim),
     );
+    _loadPolisOptions();
+  }
+
+  Future<void> _loadPolisOptions() async {
+    setState(() => _loadingPolis = true);
+    try {
+      final options = await _lookup.getPolisOptions();
+      if (!mounted) return;
+      setState(() {
+        _polisOptions = options;
+        _loadingPolis = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loadingPolis = false);
+      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
+    }
+  }
+
+  SelectOption? get _selectedPolis {
+    if (_selectedPolisId == null) return null;
+    return _polisOptions.where((o) => o.id == _selectedPolisId).firstOrNull;
   }
 
   @override
   void dispose() {
     _nomorKlaimController.dispose();
-    _polisIdController.dispose();
-    _polisNomorController.dispose();
     _deskripsiController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+
+    final polis = _selectedPolis;
+    if (polis == null) return;
+
+    final nomorPolis = polis.extra?['nomor_polis'] ?? polis.label;
     context.read<KlaimFormBloc>().add(
       KlaimFormEvent.submitted(
         nomorKlaim: _nomorKlaimController.text.trim(),
-        polisId: _polisIdController.text.trim(),
-        polisNomor: _polisNomorController.text.trim(),
+        polisId: polis.id,
+        polisNomor: nomorPolis,
         deskripsi: _deskripsiController.text.trim(),
         buktiKerusakan: List.unmodifiable(_buktiKerusakan),
       ),
@@ -75,9 +104,10 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.klaim != null;
+    final selectedPolis = _selectedPolis;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? 'Edit Klaim' : 'Ajukan Klaim')),
+      appBar: AppBar(title: Text(isEdit ? 'Edit Klaim' : 'Pengajuan Klaim')),
       body: BlocConsumer<KlaimFormBloc, KlaimFormState>(
         listener: (context, state) {
           if (state is KlaimFormSuccess) {
@@ -88,7 +118,7 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
               context,
               message: isEdit
                   ? 'Data klaim berhasil diperbarui.'
-                  : 'Pengajuan klaim berhasil.',
+                  : 'Pengajuan klaim berhasil dikirim.',
             );
             context.pop(true);
           }
@@ -117,18 +147,28 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
                         Validators.required(v, field: 'Nomor Klaim'),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  AppTextField(
-                    controller: _polisIdController,
-                    label: 'ID Polis',
-                    validator: (v) => Validators.required(v, field: 'ID Polis'),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppTextField(
-                    controller: _polisNomorController,
-                    label: 'Nomor Polis',
+                  AppSelectField(
+                    label: 'Polis Asuransi',
+                    prefixIcon: Icons.description_outlined,
+                    options: _polisOptions,
+                    value: _selectedPolisId,
+                    isLoading: _loadingPolis,
+                    enabled: !isLoading,
+                    onChanged: (value) =>
+                        setState(() => _selectedPolisId = value),
                     validator: (v) =>
-                        Validators.required(v, field: 'Nomor Polis'),
+                        Validators.required(v, field: 'Polis Asuransi'),
                   ),
+                  if (selectedPolis != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: Text(selectedPolis.label),
+                        subtitle: Text(selectedPolis.subtitle ?? ''),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.md),
                   AppTextField(
                     controller: _deskripsiController,
@@ -151,7 +191,7 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(
-                    label: isEdit ? 'Simpan Perubahan' : 'Simpan',
+                    label: isEdit ? 'Simpan Perubahan' : 'Ajukan Klaim',
                     onPressed: isLoading ? null : _submit,
                     isLoading: isLoading,
                     isExpanded: true,

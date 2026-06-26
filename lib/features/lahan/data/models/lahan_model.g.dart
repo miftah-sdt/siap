@@ -8,6 +8,8 @@ part of 'lahan_model.dart';
 
 _LahanModel _$LahanModelFromJson(Map<String, dynamic> json) => _LahanModel(
   id: json['id'] as String,
+  petaniId: json['petani_id'] as String,
+  petaniNama: json['petani_nama'] as String,
   kodeLahan: json['kode_lahan'] as String,
   namaLahan: json['nama_lahan'] as String,
   luas: (json['luas'] as num).toDouble(),
@@ -18,6 +20,8 @@ _LahanModel _$LahanModelFromJson(Map<String, dynamic> json) => _LahanModel(
 Map<String, dynamic> _$LahanModelToJson(_LahanModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'petani_id': instance.petaniId,
+      'petani_nama': instance.petaniNama,
       'kode_lahan': instance.kodeLahan,
       'nama_lahan': instance.namaLahan,
       'luas': instance.luas,
@@ -27,6 +31,8 @@ Map<String, dynamic> _$LahanModelToJson(_LahanModel instance) =>
 
 _LahanRequestModel _$LahanRequestModelFromJson(Map<String, dynamic> json) =>
     _LahanRequestModel(
+      petaniId: json['petani_id'] as String,
+      petaniNama: json['petani_nama'] as String,
       kodeLahan: json['kode_lahan'] as String,
       namaLahan: json['nama_lahan'] as String,
       luas: (json['luas'] as num).toDouble(),
@@ -36,6 +42,8 @@ _LahanRequestModel _$LahanRequestModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$LahanRequestModelToJson(_LahanRequestModel instance) =>
     <String, dynamic>{
+      'petani_id': instance.petaniId,
+      'petani_nama': instance.petaniNama,
       'kode_lahan': instance.kodeLahan,
       'nama_lahan': instance.namaLahan,
       'luas': instance.luas,

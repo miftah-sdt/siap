@@ -10,7 +10,9 @@ class NotificationService {
   Future<void> init() async {
     if (_initialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -18,16 +20,15 @@ class NotificationService {
     );
 
     await _plugin.initialize(
-      const InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      ),
+      const InitializationSettings(android: androidSettings, iOS: iosSettings),
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
 
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      final android = _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final android = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       await android?.requestNotificationsPermission();
     }
 
@@ -66,16 +67,16 @@ class NotificationService {
   }
 
   Future<void> notifyKlaimSubmitted(String nomorKlaim) => show(
-        id: 1001,
-        title: 'Klaim Terkirim',
-        body: 'Pengajuan klaim $nomorKlaim berhasil dikirim.',
-        payload: 'klaim',
-      );
+    id: 1001,
+    title: 'Klaim Terkirim',
+    body: 'Pengajuan klaim $nomorKlaim berhasil dikirim.',
+    payload: 'klaim',
+  );
 
   Future<void> notifyAsuransiRegistered(String nomorPolis) => show(
-        id: 1002,
-        title: 'Asuransi Terdaftar',
-        body: 'Polis $nomorPolis berhasil didaftarkan.',
-        payload: 'asuransi',
-      );
+    id: 1002,
+    title: 'Asuransi Terdaftar',
+    body: 'Polis $nomorPolis berhasil didaftarkan.',
+    payload: 'asuransi',
+  );
 }

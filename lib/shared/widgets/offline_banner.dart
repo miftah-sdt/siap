@@ -44,10 +44,7 @@ class _OfflineBannerState extends State<OfflineBanner> {
             leading: const Icon(Icons.cloud_off_outlined),
             backgroundColor: Theme.of(context).colorScheme.errorContainer,
             actions: [
-              TextButton(
-                onPressed: _check,
-                child: const Text('Cek lagi'),
-              ),
+              TextButton(onPressed: _check, child: const Text('Cek lagi')),
             ],
           ),
         Expanded(child: widget.child),

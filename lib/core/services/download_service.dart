@@ -22,11 +22,7 @@ class DownloadService {
     final savePath = '${dir.path}${Platform.pathSeparator}$fileName';
 
     try {
-      await _client.dio.download(
-        url,
-        savePath,
-        onReceiveProgress: onProgress,
-      );
+      await _client.dio.download(url, savePath, onReceiveProgress: onProgress);
       return File(savePath);
     } on DioException catch (error) {
       throw NetworkExceptionHandler.handle(error);

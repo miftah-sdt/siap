@@ -74,11 +74,7 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
       }
     } catch (e) {
       if (mounted) {
-        UiFeedback.showSnackBar(
-          context,
-          message: e.toString(),
-          isError: true,
-        );
+        UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
       }
     } finally {
       if (mounted) {
@@ -119,10 +115,7 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
         Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
         if (widget.hint != null) ...[
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.hint!,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          Text(widget.hint!, style: Theme.of(context).textTheme.bodySmall),
         ],
         const SizedBox(height: AppSpacing.sm),
         Wrap(

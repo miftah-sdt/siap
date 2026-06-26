@@ -241,7 +241,7 @@ class _LaporanPageState extends State<LaporanPage> {
 
   Future<void> _showDownloadDialog(LaporanExportResult result) async {
     var isDownloading = false;
-  double downloadProgress = 0;
+    double downloadProgress = 0;
 
     await showDialog<void>(
       context: context,

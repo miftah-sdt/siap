@@ -35,8 +35,9 @@ class _LahanFormPageState extends State<LahanFormPage> {
     setState(() => _isFetchingGps = true);
     try {
       final position = await sl<LocationService>().getCurrentPosition();
-      _koordinatController.text =
-          sl<LocationService>().formatCoordinates(position);
+      _koordinatController.text = sl<LocationService>().formatCoordinates(
+        position,
+      );
       if (mounted) {
         UiFeedback.showSnackBar(
           context,
@@ -45,16 +46,13 @@ class _LahanFormPageState extends State<LahanFormPage> {
       }
     } catch (e) {
       if (mounted) {
-        UiFeedback.showSnackBar(
-          context,
-          message: e.toString(),
-          isError: true,
-        );
+        UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
       }
     } finally {
       if (mounted) setState(() => _isFetchingGps = false);
     }
   }
+
   @override
   void initState() {
     super.initState();

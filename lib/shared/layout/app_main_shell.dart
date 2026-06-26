@@ -10,6 +10,7 @@ import 'package:siap/features/auth/presentation/bloc/auth_event.dart';
 import 'package:siap/features/auth/presentation/bloc/auth_state.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/layout/navigation_item.dart';
+import 'package:siap/shared/widgets/offline_banner.dart';
 
 class AppMainShell extends StatelessWidget {
   AppMainShell({super.key, required this.child});
@@ -145,9 +146,11 @@ class AppMainShell extends StatelessWidget {
                   ),
                 ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: child,
+                child: OfflineBanner(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: child,
+                  ),
                 ),
               ),
             ],

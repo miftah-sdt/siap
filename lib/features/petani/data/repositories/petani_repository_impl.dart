@@ -1,3 +1,4 @@
+import 'package:siap/core/database/local_cache_service.dart';
 import 'package:siap/core/errors/exception.dart';
 import 'package:siap/core/errors/failure.dart';
 import 'package:siap/core/utils/exception_mapper.dart';
@@ -8,9 +9,13 @@ import 'package:siap/features/petani/domain/entities/petani.dart';
 import 'package:siap/features/petani/domain/repositories/petani_repository.dart';
 
 class PetaniRepositoryImpl implements PetaniRepository {
-  PetaniRepositoryImpl(this._remote);
+  PetaniRepositoryImpl(this._remote, this._cache);
 
   final PetaniRemoteDataSource _remote;
+  final LocalCacheService _cache;
+
+  static String _listCacheKey(int page, int limit, String? search) =>
+      'petani_list_${page}_${limit}_${search ?? ''}';
 
   @override
   Future<Result<PetaniListResult>> getPetaniList({
@@ -24,12 +29,38 @@ class PetaniRepositoryImpl implements PetaniRepository {
         limit: limit,
         search: search,
       );
+      await _cache.putJson(_listCacheKey(page, limit, search), {
+        'items': result.items
+            .map((e) => PetaniModel.fromEntity(e).toJson())
+            .toList(),
+        'page': result.page,
+        'total_pages': result.totalPages,
+        'total': result.total,
+      });
       return Success(result);
     } on AppException catch (e) {
+      final cached = _readListCache(page, limit, search);
+      if (cached != null) return Success(cached);
       return ErrorResult(mapExceptionToFailure(e));
     } catch (e) {
+      final cached = _readListCache(page, limit, search);
+      if (cached != null) return Success(cached);
       return ErrorResult(UnknownFailure(message: e.toString()));
     }
+  }
+
+  PetaniListResult? _readListCache(int page, int limit, String? search) {
+    final raw = _cache.getJson(_listCacheKey(page, limit, search));
+    if (raw == null) return null;
+    final items = (raw['items'] as List<dynamic>)
+        .map((e) => PetaniModel.fromJson(e as Map<String, dynamic>).toEntity())
+        .toList();
+    return PetaniListResult(
+      items: items,
+      page: raw['page'] as int? ?? page,
+      totalPages: raw['total_pages'] as int? ?? 1,
+      total: raw['total'] as int? ?? items.length,
+    );
   }
 
   @override

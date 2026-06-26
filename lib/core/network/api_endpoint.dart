@@ -32,6 +32,9 @@ class ApiEndpoint {
   static const String laporan = '/laporan';
   static const String laporanExport = '/laporan/export';
 
+  // Files
+  static const String fileUpload = '/files/upload';
+
   // Pengguna
   static const String pengguna = '/pengguna';
   static String penggunaDetail(String id) => '/pengguna/$id';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/core/utils/validators.dart';
@@ -8,8 +9,10 @@ import 'package:siap/features/asuransi/domain/entities/asuransi.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_bloc.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_event.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_state.dart';
+import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
+import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
 class AsuransiFormPage extends StatefulWidget {
   const AsuransiFormPage({super.key, this.asuransi});
@@ -27,7 +30,6 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
   late final TextEditingController _petaniNamaController;
   late final TextEditingController _lahanIdController;
   late final TextEditingController _lahanNamaController;
-  late final TextEditingController _documentController;
   final List<String> _documents = [];
 
   @override
@@ -46,7 +48,6 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     _lahanNamaController = TextEditingController(
       text: widget.asuransi?.lahanNama,
     );
-    _documentController = TextEditingController();
     if (widget.asuransi != null) {
       _documents.addAll(widget.asuransi!.documents);
     }
@@ -62,21 +63,7 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     _petaniNamaController.dispose();
     _lahanIdController.dispose();
     _lahanNamaController.dispose();
-    _documentController.dispose();
     super.dispose();
-  }
-
-  void _addDocument() {
-    final name = _documentController.text.trim();
-    if (name.isEmpty) return;
-    setState(() {
-      _documents.add(name);
-      _documentController.clear();
-    });
-  }
-
-  void _removeDocument(int index) {
-    setState(() => _documents.removeAt(index));
   }
 
   void _submit() {
@@ -102,6 +89,9 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
       body: BlocConsumer<AsuransiFormBloc, AsuransiFormState>(
         listener: (context, state) {
           if (state is AsuransiFormSuccess) {
+            sl<NotificationService>().notifyAsuransiRegistered(
+              _nomorPolisController.text.trim(),
+            );
             UiFeedback.showSnackBar(
               context,
               message: isEdit
@@ -162,49 +152,17 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
                         Validators.required(v, field: 'Nama Lahan'),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    'Dokumen',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          controller: _documentController,
-                          label: 'Nama Dokumen',
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _addDocument(),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.sm),
-                        child: IconButton.filled(
-                          onPressed: _addDocument,
-                          icon: const Icon(Icons.add),
-                          tooltip: 'Tambah Dokumen',
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_documents.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    ...List.generate(_documents.length, (index) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                        child: ListTile(
-                          leading: const Icon(Icons.description_outlined),
-                          title: Text(_documents[index]),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => _removeDocument(index),
-                          ),
-                        ),
-                      );
+                  AttachmentPickerSection(
+                    title: 'Dokumen',
+                    hint: 'Unggah KTP, surat tanah, atau dokumen pendukung.',
+                    attachments: _documents,
+                    enableCamera: true,
+                    onChanged: (files) => setState(() {
+                      _documents
+                        ..clear()
+                        ..addAll(files);
                     }),
-                  ],
+                  ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(
                     label: isEdit ? 'Simpan Perubahan' : 'Simpan',

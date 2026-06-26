@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/core/utils/validators.dart';
@@ -8,8 +9,10 @@ import 'package:siap/features/klaim/domain/entities/klaim.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_bloc.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_event.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_state.dart';
+import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
+import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
 class KlaimFormPage extends StatefulWidget {
   const KlaimFormPage({super.key, this.klaim});
@@ -26,7 +29,6 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
   late final TextEditingController _polisIdController;
   late final TextEditingController _polisNomorController;
   late final TextEditingController _deskripsiController;
-  late final TextEditingController _buktiController;
   final List<String> _buktiKerusakan = [];
 
   @override
@@ -40,7 +42,6 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
       text: widget.klaim?.polisNomor,
     );
     _deskripsiController = TextEditingController(text: widget.klaim?.deskripsi);
-    _buktiController = TextEditingController();
     if (widget.klaim != null) {
       _buktiKerusakan.addAll(widget.klaim!.buktiKerusakan);
     }
@@ -55,21 +56,7 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
     _polisIdController.dispose();
     _polisNomorController.dispose();
     _deskripsiController.dispose();
-    _buktiController.dispose();
     super.dispose();
-  }
-
-  void _addBukti() {
-    final name = _buktiController.text.trim();
-    if (name.isEmpty) return;
-    setState(() {
-      _buktiKerusakan.add(name);
-      _buktiController.clear();
-    });
-  }
-
-  void _removeBukti(int index) {
-    setState(() => _buktiKerusakan.removeAt(index));
   }
 
   void _submit() {
@@ -94,6 +81,9 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
       body: BlocConsumer<KlaimFormBloc, KlaimFormState>(
         listener: (context, state) {
           if (state is KlaimFormSuccess) {
+            sl<NotificationService>().notifyKlaimSubmitted(
+              _nomorKlaimController.text.trim(),
+            );
             UiFeedback.showSnackBar(
               context,
               message: isEdit
@@ -148,49 +138,17 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
                         Validators.required(v, field: 'Deskripsi'),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    'Bukti Kerusakan',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          controller: _buktiController,
-                          label: 'Nama Bukti',
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _addBukti(),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.sm),
-                        child: IconButton.filled(
-                          onPressed: _addBukti,
-                          icon: const Icon(Icons.add),
-                          tooltip: 'Tambah Bukti',
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_buktiKerusakan.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    ...List.generate(_buktiKerusakan.length, (index) {
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                        child: ListTile(
-                          leading: const Icon(Icons.image_outlined),
-                          title: Text(_buktiKerusakan[index]),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => _removeBukti(index),
-                          ),
-                        ),
-                      );
+                  AttachmentPickerSection(
+                    title: 'Bukti Kerusakan',
+                    hint: 'Ambil foto dari kamera atau unggah bukti kerusakan.',
+                    attachments: _buktiKerusakan,
+                    enableCamera: true,
+                    onChanged: (files) => setState(() {
+                      _buktiKerusakan
+                        ..clear()
+                        ..addAll(files);
                     }),
-                  ],
+                  ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(
                     label: isEdit ? 'Simpan Perubahan' : 'Simpan',

@@ -467,7 +467,7 @@ flutter build apk --release ^
 | `database: disconnected` | Cek `DATABASE_URL` di Koyeb, pastikan `DATABASE_SSL=true` |
 | API tidak bisa connect ke Neon | Gunakan connection string dengan `?sslmode=require` |
 | CORS error di browser | Set `CORS_ORIGIN` ke URL GitHub Pages (tanpa slash akhir) |
-| Web halaman putih / 404 `flutter_bootstrap.js` | Re-deploy dengan `--base-href "/siap/"` (sudah di workflow) |
+| Web halaman putih / 404 `flutter_bootstrap.js` di root | Jalankan **Actions → Deploy GitHub Pages Only**; pastikan `index.html` punya `base href="/siap/"` |
 | Web 404 di GitHub Pages | Pastikan branch `gh-pages` ada dan Pages mengarah ke branch itu |
 | APK tidak connect ke API | Rebuild dengan `--dart-define=API_BASE_URL=.../v1` |
 | Koyeb sleep / lambat | Free tier bisa cold start; buka `/health` dulu |

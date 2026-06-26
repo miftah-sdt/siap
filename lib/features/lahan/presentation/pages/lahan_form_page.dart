@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/services/location_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/core/utils/validators.dart';
@@ -8,6 +9,7 @@ import 'package:siap/features/lahan/domain/entities/lahan.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_form_bloc.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_form_event.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_form_state.dart';
+import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 
@@ -27,7 +29,32 @@ class _LahanFormPageState extends State<LahanFormPage> {
   late final TextEditingController _luasController;
   late final TextEditingController _lokasiController;
   late final TextEditingController _koordinatController;
+  bool _isFetchingGps = false;
 
+  Future<void> _fetchGps() async {
+    setState(() => _isFetchingGps = true);
+    try {
+      final position = await sl<LocationService>().getCurrentPosition();
+      _koordinatController.text =
+          sl<LocationService>().formatCoordinates(position);
+      if (mounted) {
+        UiFeedback.showSnackBar(
+          context,
+          message: 'Koordinat GPS berhasil diambil.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        UiFeedback.showSnackBar(
+          context,
+          message: e.toString(),
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isFetchingGps = false);
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -138,10 +165,36 @@ class _LahanFormPageState extends State<LahanFormPage> {
                     validator: (v) => Validators.required(v, field: 'Lokasi'),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  AppTextField(
-                    controller: _koordinatController,
-                    label: 'Koordinat (opsional)',
-                    hint: 'Contoh: -6.200000, 106.816666',
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          controller: _koordinatController,
+                          label: 'Koordinat (opsional)',
+                          hint: 'Contoh: -6.200000, 106.816666',
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.sm),
+                        child: IconButton.filled(
+                          onPressed: _isFetchingGps || isLoading
+                              ? null
+                              : _fetchGps,
+                          icon: _isFetchingGps
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.my_location),
+                          tooltip: 'Ambil GPS',
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(

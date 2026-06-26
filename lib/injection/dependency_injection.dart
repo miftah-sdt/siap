@@ -1,7 +1,14 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:siap/core/config/app_config.dart';
+import 'package:siap/core/database/local_cache_service.dart';
 import 'package:siap/core/network/dio_client.dart';
+import 'package:siap/core/network/file_remote_datasource.dart';
+import 'package:siap/core/services/connectivity_service.dart';
+import 'package:siap/core/services/download_service.dart';
+import 'package:siap/core/services/location_service.dart';
+import 'package:siap/core/services/media_picker_service.dart';
+import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/storage/shared_pref_service.dart';
 import 'package:siap/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:siap/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -59,6 +66,16 @@ Future<void> configureDependencies() async {
   // Config
   sl.registerLazySingleton<AppConfig>(AppConfig.fromEnv);
 
+  // Local database (Hive cache)
+  final cacheService = LocalCacheService();
+  await cacheService.init();
+  sl.registerLazySingleton<LocalCacheService>(() => cacheService);
+
+  // Platform services
+  sl.registerLazySingleton(NotificationService.new);
+  sl.registerLazySingleton(ConnectivityService.new);
+  sl.registerLazySingleton(LocationService.new);
+
   // Storage
   final prefs = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => prefs);
@@ -72,6 +89,15 @@ Future<void> configureDependencies() async {
       appConfig: sl<AppConfig>(),
       sharedPrefService: sl<SharedPrefService>(),
     ),
+  );
+  sl.registerLazySingleton<FileRemoteDataSource>(
+    () => FileRemoteDataSource(sl<DioClient>()),
+  );
+  sl.registerLazySingleton<MediaPickerService>(
+    () => MediaPickerService(sl<FileRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<DownloadService>(
+    () => DownloadService(sl<DioClient>()),
   );
 
   // Auth
@@ -125,7 +151,10 @@ Future<void> configureDependencies() async {
     () => PetaniRemoteDataSourceImpl(sl<DioClient>()),
   );
   sl.registerLazySingleton<PetaniRepository>(
-    () => PetaniRepositoryImpl(sl<PetaniRemoteDataSource>()),
+    () => PetaniRepositoryImpl(
+      sl<PetaniRemoteDataSource>(),
+      sl<LocalCacheService>(),
+    ),
   );
   sl.registerLazySingleton(() => GetPetaniListUseCase(sl<PetaniRepository>()));
   sl.registerLazySingleton(

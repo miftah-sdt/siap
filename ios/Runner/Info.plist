@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>SIAP membutuhkan kamera untuk mengambil bukti kerusakan dan dokumen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SIAP membutuhkan akses galeri untuk memilih dokumen.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SIAP membutuhkan lokasi GPS untuk mencatat koordinat lahan.</string>
 </dict>
 </plist>

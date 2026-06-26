@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:siap/core/constants/app_constants.dart';
+import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/storage/shared_pref_service.dart';
 import 'package:siap/core/theme/dark_theme.dart';
 import 'package:siap/core/theme/light_theme.dart';
@@ -12,6 +13,7 @@ import 'package:siap/routes/app_router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  await sl<NotificationService>().init();
   runApp(const SiapApp());
 }
 

@@ -39,8 +39,13 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> logout() async {
     try {
-      await _remote.logout();
+      // Hapus sesi lokal dulu agar redirect & API lain tidak pakai token lama.
       await _local.clearAuth();
+      try {
+        await _remote.logout();
+      } catch (_) {
+        // Server logout opsional — sesi lokal sudah dibersihkan.
+      }
       return const Success(null);
     } on AppException catch (e) {
       await _local.clearAuth();

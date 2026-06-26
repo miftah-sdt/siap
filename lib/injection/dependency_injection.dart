@@ -59,6 +59,7 @@ import 'package:siap/features/klaim/domain/repositories/klaim_repository.dart';
 import 'package:siap/features/klaim/domain/usecases/klaim_usecases.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_bloc.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_list_bloc.dart';
+import 'package:siap/routes/auth_router_refresh.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -100,6 +101,9 @@ Future<void> configureDependencies() async {
     () => DownloadService(sl<DioClient>()),
   );
 
+  // Router auth refresh
+  sl.registerLazySingleton(AuthRouterRefresh.new);
+
   // Auth
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(sl<DioClient>()),
@@ -123,6 +127,7 @@ Future<void> configureDependencies() async {
       logoutUseCase: sl<LogoutUseCase>(),
       forgotPasswordUseCase: sl<ForgotPasswordUseCase>(),
       getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+      authRouterRefresh: sl<AuthRouterRefresh>(),
     ),
   );
 

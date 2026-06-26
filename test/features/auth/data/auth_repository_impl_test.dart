@@ -78,15 +78,16 @@ void main() {
 
   group('AuthRepositoryImpl.logout', () {
     test('clears local session even when remote fails', () async {
+      when(() => local.clearAuth()).thenAnswer((_) async {});
       when(
         () => remote.logout(),
       ).thenThrow(const NetworkException(message: 'Offline'));
-      when(() => local.clearAuth()).thenAnswer((_) async {});
 
       final result = await repository.logout();
 
-      expect(result, isA<ErrorResult>());
+      expect(result, isA<Success>());
       verify(() => local.clearAuth()).called(1);
+      verify(() => remote.logout()).called(1);
     });
   });
 }

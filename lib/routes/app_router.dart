@@ -41,6 +41,7 @@ import 'package:siap/features/petani/presentation/pages/petani_detail_page.dart'
 import 'package:siap/features/petani/presentation/pages/petani_form_page.dart';
 import 'package:siap/features/petani/presentation/pages/petani_list_page.dart';
 import 'package:siap/injection/dependency_injection.dart';
+import 'package:siap/routes/auth_router_refresh.dart';
 import 'package:siap/routes/role_guard.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/layout/app_main_shell.dart';
@@ -52,12 +53,13 @@ class AppRouter {
   static final GlobalKey<NavigatorState> rootNavigatorKey =
       GlobalKey<NavigatorState>();
 
-  static GoRouter createRouter() {
+  static GoRouter createRouter({required AuthRouterRefresh authRefresh}) {
     final sharedPrefService = sl<SharedPrefService>();
 
     return GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: RouteNames.splash,
+      refreshListenable: authRefresh,
       redirect: (context, state) {
         final isLoggedIn = sharedPrefService.isLoggedIn;
         final location = state.matchedLocation;

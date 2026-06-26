@@ -85,8 +85,14 @@ class AppMainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) =>
+          current is AuthUnauthenticated && previous is! AuthUnauthenticated,
+      listener: (context, state) {
+        context.go(RouteNames.login);
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
         final user = authState is AuthAuthenticated ? authState.user : null;
         final role = user?.role ?? UserRole.petani;
         final visibleItems = _visibleItems(role);
@@ -117,7 +123,6 @@ class AppMainShell extends StatelessWidget {
                   context.read<AuthBloc>().add(
                     const AuthEvent.logoutRequested(),
                   );
-                  context.go(RouteNames.login);
                 },
               ),
             ],
@@ -174,7 +179,8 @@ class AppMainShell extends StatelessWidget {
                 )
               : null,
         );
-      },
+        },
+      ),
     );
   }
 }

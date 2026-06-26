@@ -8,16 +8,20 @@ import 'package:siap/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:siap/features/auth/presentation/bloc/auth_event.dart';
 import 'package:siap/features/auth/presentation/bloc/auth_state.dart';
 
+import 'package:siap/routes/auth_router_refresh.dart';
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required LoginUseCase loginUseCase,
     required LogoutUseCase logoutUseCase,
     required ForgotPasswordUseCase forgotPasswordUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    AuthRouterRefresh? authRouterRefresh,
   }) : _loginUseCase = loginUseCase,
        _logoutUseCase = logoutUseCase,
        _forgotPasswordUseCase = forgotPasswordUseCase,
        _getCurrentUserUseCase = getCurrentUserUseCase,
+       _authRouterRefresh = authRouterRefresh,
        super(const AuthState.initial()) {
     on<AuthCheckStatus>(_onCheckStatus);
     on<AuthLoginSubmitted>(_onLoginSubmitted);
@@ -29,6 +33,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LogoutUseCase _logoutUseCase;
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final AuthRouterRefresh? _authRouterRefresh;
+
+  void _notifyRouter() => _authRouterRefresh?.notifyAuthChanged();
 
   Future<void> _onCheckStatus(
     AuthCheckStatus event,
@@ -41,11 +48,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       case Success(:final data):
         if (data != null) {
           emit(AuthState.authenticated(data));
+          _notifyRouter();
         } else {
           emit(const AuthState.unauthenticated());
+          _notifyRouter();
         }
       case ErrorResult():
         emit(const AuthState.unauthenticated());
+        _notifyRouter();
     }
   }
 
@@ -61,6 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     switch (result) {
       case Success(:final data):
         emit(AuthState.authenticated(data));
+        _notifyRouter();
       case ErrorResult(:final failure):
         emit(AuthState.error(failure.message));
     }
@@ -70,9 +81,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthState.loading());
     await _logoutUseCase(const NoParams());
     emit(const AuthState.unauthenticated());
+    _notifyRouter();
   }
 
   Future<void> _onForgotPasswordSubmitted(

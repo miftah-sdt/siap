@@ -9,6 +9,7 @@ import 'package:siap/core/theme/light_theme.dart';
 import 'package:siap/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/routes/app_router.dart';
+import 'package:siap/routes/auth_router_refresh.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,9 @@ class SiapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final sharedPrefService = sl<SharedPrefService>();
     final themeMode = sharedPrefService.getThemeMode();
-    final router = AppRouter.createRouter();
+    final router = AppRouter.createRouter(
+      authRefresh: sl<AuthRouterRefresh>(),
+    );
 
     return ScreenUtilInit(
       designSize: const Size(390, 844),

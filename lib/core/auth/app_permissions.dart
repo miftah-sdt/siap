@@ -60,8 +60,7 @@ class AppPermissions {
 
   static bool _canCreate(UserRole role, AppModule module) {
     return switch (module) {
-      AppModule.petani =>
-        role == UserRole.admin || role == UserRole.operator,
+      AppModule.petani => role == UserRole.admin || role == UserRole.operator,
       AppModule.lahan =>
         role == UserRole.admin ||
             role == UserRole.operator ||

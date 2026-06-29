@@ -1,4 +1,5 @@
 import 'package:siap/core/config/env.dart';
+import 'package:siap/core/network/ssl_pinning_config.dart';
 
 class AppConfig {
   const AppConfig({
@@ -7,6 +8,7 @@ class AppConfig {
     required this.connectTimeout,
     required this.receiveTimeout,
     required this.enableNetworkLogging,
+    required this.sslPinningConfig,
   });
 
   final String appName;
@@ -14,14 +16,20 @@ class AppConfig {
   final Duration connectTimeout;
   final Duration receiveTimeout;
   final bool enableNetworkLogging;
+  final SslPinningConfig sslPinningConfig;
 
   factory AppConfig.fromEnv() {
+    final baseUrl = Env.baseUrl;
     return AppConfig(
       appName: 'SIAP',
-      baseUrl: Env.baseUrl,
+      baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       enableNetworkLogging: Env.enableNetworkLogging,
+      sslPinningConfig: SslPinningConfig.forApiHost(
+        enabled: Env.enableSslPinning,
+        apiBaseUrl: baseUrl,
+      ),
     );
   }
 }

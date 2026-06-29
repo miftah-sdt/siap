@@ -49,4 +49,17 @@ class Env {
   }
 
   static bool get enableNetworkLogging => !kReleaseMode;
+
+  /// Nonaktifkan saat debug lokal: `--dart-define=ENABLE_SSL_PINNING=false`
+  static const bool _sslPinningOverride = bool.fromEnvironment(
+    'ENABLE_SSL_PINNING',
+    defaultValue: true,
+  );
+
+  static bool get enableSslPinning {
+    if (!_sslPinningOverride) return false;
+    if (kIsWeb) return false;
+    final url = baseUrl.toLowerCase();
+    return url.startsWith('https://');
+  }
 }

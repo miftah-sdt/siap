@@ -27,7 +27,8 @@ class NetworkExceptionHandler {
         return _handleBadResponse(error);
       case DioExceptionType.badCertificate:
         return const NetworkException(
-          message: 'Sertifikat server tidak valid.',
+          message:
+              'Sertifikat server tidak valid atau tidak cocok dengan pin keamanan.',
           code: 'BAD_CERTIFICATE',
         );
       case DioExceptionType.unknown:

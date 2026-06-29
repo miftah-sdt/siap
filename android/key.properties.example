@@ -1,0 +1,7 @@
+# Salin ke key.properties dan isi password keystore Anda.
+# key.properties tidak di-commit (lihat android/.gitignore).
+
+storePassword=GANTI_PASSWORD_STORE
+keyPassword=GANTI_PASSWORD_KEY
+keyAlias=siap
+storeFile=siap-release.keystore

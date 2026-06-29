@@ -22,6 +22,7 @@ class AppMainShell extends StatelessWidget {
       label: 'Dashboard',
       icon: Icons.dashboard_outlined,
       route: RouteNames.dashboard,
+      includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Petani',
@@ -45,6 +46,7 @@ class AppMainShell extends StatelessWidget {
         UserRole.verifikator,
         UserRole.petani,
       ],
+      includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Klaim',
@@ -56,6 +58,7 @@ class AppMainShell extends StatelessWidget {
         UserRole.verifikator,
         UserRole.petani,
       ],
+      includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Monitoring',
@@ -82,16 +85,28 @@ class AppMainShell extends StatelessWidget {
     ),
   ];
 
-  int _selectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
-    for (var i = 0; i < _items.length; i++) {
-      if (location.startsWith(_items[i].route)) return i;
-    }
-    return 0;
-  }
-
   List<NavigationItem> _visibleItems(UserRole role) {
     return _items.where((item) => item.isVisibleFor(role)).toList();
+  }
+
+  List<NavigationItem> _mobileBottomItems(UserRole role) {
+    return _visibleItems(
+      role,
+    ).where((item) => item.includeInMobileBottomNav).toList();
+  }
+
+  bool _isRouteSelected(String route, BuildContext context) {
+    return GoRouterState.of(context).uri.toString().startsWith(route);
+  }
+
+  int _mobileBottomSelectedIndex(
+    List<NavigationItem> bottomItems,
+    BuildContext context,
+  ) {
+    for (var i = 0; i < bottomItems.length; i++) {
+      if (_isRouteSelected(bottomItems[i].route, context)) return i;
+    }
+    return bottomItems.length;
   }
 
   @override
@@ -107,9 +122,9 @@ class AppMainShell extends StatelessWidget {
           final user = authState is AuthAuthenticated ? authState.user : null;
           final role = user?.role ?? UserRole.petani;
           final visibleItems = _visibleItems(role);
+          final bottomItems = _mobileBottomItems(role);
           final isDesktop = Responsive.isDesktop(context);
           final isMobile = Responsive.isMobile(context);
-          final selectedIndex = _selectedIndex(context);
 
           return Scaffold(
             appBar: AppBar(
@@ -143,7 +158,7 @@ class AppMainShell extends StatelessWidget {
                 : Drawer(
                     child: _Sidebar(
                       items: visibleItems,
-                      selectedIndex: selectedIndex,
+                      isSelected: (route) => _isRouteSelected(route, context),
                       onSelected: (route) {
                         Navigator.pop(context);
                         context.go(route);
@@ -157,7 +172,7 @@ class AppMainShell extends StatelessWidget {
                     width: 260,
                     child: _Sidebar(
                       items: visibleItems,
-                      selectedIndex: selectedIndex,
+                      isSelected: (route) => _isRouteSelected(route, context),
                       onSelected: (route) => context.go(route),
                     ),
                   ),
@@ -171,22 +186,34 @@ class AppMainShell extends StatelessWidget {
                 ),
               ],
             ),
-            bottomNavigationBar: isMobile
-                ? NavigationBar(
-                    selectedIndex: selectedIndex.clamp(
-                      0,
-                      visibleItems.length - 1,
-                    ),
-                    onDestinationSelected: (index) {
-                      context.go(visibleItems[index].route);
-                    },
-                    destinations: [
-                      for (final item in visibleItems)
-                        NavigationDestination(
-                          icon: Icon(item.icon),
-                          label: item.label,
+            bottomNavigationBar: isMobile && bottomItems.isNotEmpty
+                ? Builder(
+                    builder: (scaffoldContext) => NavigationBar(
+                      labelBehavior:
+                          NavigationDestinationLabelBehavior.onlyShowSelected,
+                      selectedIndex: _mobileBottomSelectedIndex(
+                        bottomItems,
+                        context,
+                      ),
+                      onDestinationSelected: (index) {
+                        if (index >= bottomItems.length) {
+                          Scaffold.of(scaffoldContext).openDrawer();
+                          return;
+                        }
+                        context.go(bottomItems[index].route);
+                      },
+                      destinations: [
+                        for (final item in bottomItems)
+                          NavigationDestination(
+                            icon: Icon(item.icon),
+                            label: item.label,
+                          ),
+                        const NavigationDestination(
+                          icon: Icon(Icons.menu_outlined),
+                          label: 'Menu',
                         ),
-                    ],
+                      ],
+                    ),
                   )
                 : null,
           );
@@ -199,12 +226,12 @@ class AppMainShell extends StatelessWidget {
 class _Sidebar extends StatelessWidget {
   const _Sidebar({
     required this.items,
-    required this.selectedIndex,
+    required this.isSelected,
     required this.onSelected,
   });
 
   final List<NavigationItem> items;
-  final int selectedIndex;
+  final bool Function(String route) isSelected;
   final ValueChanged<String> onSelected;
 
   @override
@@ -236,7 +263,7 @@ class _Sidebar extends StatelessWidget {
                 return ListTile(
                   leading: Icon(item.icon),
                   title: Text(item.label),
-                  selected: selectedIndex == index,
+                  selected: isSelected(item.route),
                   onTap: () => onSelected(item.route),
                 );
               },

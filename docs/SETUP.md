@@ -73,6 +73,9 @@ flutter run -d chrome
 # Android emulator
 flutter run -d android
 
+# android debug
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://siap-api-production.up.railway.app/v1
+
 # Hot reload: tekan r
 # Hot restart: tekan R
 ```

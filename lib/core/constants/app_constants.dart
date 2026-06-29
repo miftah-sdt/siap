@@ -9,6 +9,7 @@ class AppConstants {
   static const String refreshTokenKey = 'refresh_token';
   static const String userSessionKey = 'user_session';
   static const String userRoleKey = 'user_role';
+  static const String userPetaniIdKey = 'user_petani_id';
   static const String themeModeKey = 'theme_mode';
 
   // Pagination

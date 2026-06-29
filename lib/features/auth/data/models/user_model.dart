@@ -14,6 +14,8 @@ abstract class UserModel with _$UserModel {
     required String email,
     required String role,
     @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'petani_id') String? petaniId,
+    @JsonKey(name: 'approval_status') String? approvalStatus,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -26,6 +28,8 @@ abstract class UserModel with _$UserModel {
       email: email,
       role: UserRole.fromString(role),
       avatarUrl: avatarUrl,
+      petaniId: petaniId,
+      approvalStatus: UserApprovalStatus.fromString(approvalStatus),
     );
   }
 }

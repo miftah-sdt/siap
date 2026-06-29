@@ -1,3 +1,22 @@
+enum PetaniRegistrationStatus {
+  pending,
+  approved,
+  rejected;
+
+  String get label => switch (this) {
+    PetaniRegistrationStatus.pending => 'Menunggu',
+    PetaniRegistrationStatus.approved => 'Disetujui',
+    PetaniRegistrationStatus.rejected => 'Ditolak',
+  };
+
+  static PetaniRegistrationStatus fromString(String? value) {
+    return PetaniRegistrationStatus.values.firstWhere(
+      (status) => status.name == value?.toLowerCase(),
+      orElse: () => PetaniRegistrationStatus.approved,
+    );
+  }
+}
+
 class Petani {
   const Petani({
     required this.id,
@@ -6,6 +25,8 @@ class Petani {
     required this.alamat,
     required this.noHp,
     required this.kelompokTani,
+    this.registrationStatus = PetaniRegistrationStatus.approved,
+    this.userId,
   });
 
   final String id;
@@ -14,6 +35,8 @@ class Petani {
   final String alamat;
   final String noHp;
   final String kelompokTani;
+  final PetaniRegistrationStatus registrationStatus;
+  final String? userId;
 }
 
 class PetaniListResult {

@@ -129,6 +129,12 @@ class AppMainShell extends StatelessWidget {
                       label: Text(user.role.label),
                     ),
                   ),
+                if (user != null)
+                  IconButton(
+                    icon: const Icon(Icons.lock_outline),
+                    tooltip: 'Ganti Password',
+                    onPressed: () => context.push(RouteNames.changePassword),
+                  ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   tooltip: 'Keluar',

@@ -5,11 +5,14 @@ import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
+import 'package:siap/features/petani/domain/entities/petani.dart';
 import 'package:siap/features/petani/presentation/bloc/petani_list_bloc.dart';
 import 'package:siap/features/petani/presentation/bloc/petani_list_event.dart';
 import 'package:siap/features/petani/presentation/bloc/petani_list_state.dart';
 import 'package:siap/features/petani/presentation/widgets/petani_card.dart';
-import 'package:siap/features/petani/presentation/widgets/petani_search_bar.dart';
+import 'package:siap/core/services/registration_service.dart';
+import 'package:siap/injection/dependency_injection.dart';
+import 'package:siap/features/auth/domain/entities/user.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
@@ -78,6 +81,50 @@ class _PetaniListPageState extends State<PetaniListPage> {
     }
   }
 
+  Future<void> _approvePetani(Petani petani) async {
+    try {
+      await sl<RegistrationService>().approvePetani(petani.id);
+      if (!mounted) return;
+      UiFeedback.showSnackBar(context, message: '${petani.nama} disetujui');
+      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+    } catch (e) {
+      if (!mounted) return;
+      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
+    }
+  }
+
+  Future<void> _rejectPetani(Petani petani) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tolak Pendaftaran'),
+        content: Text('Tolak pendaftaran ${petani.nama}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Tolak'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await sl<RegistrationService>().rejectPetani(petani.id);
+      if (!mounted) return;
+      UiFeedback.showSnackBar(context, message: '${petani.nama} ditolak');
+      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+    } catch (e) {
+      if (!mounted) return;
+      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final role = context.userRole;
@@ -91,6 +138,8 @@ class _PetaniListPageState extends State<PetaniListPage> {
       AppModule.petani,
       PermissionAction.delete,
     );
+    final canApproveRegistration =
+        role == UserRole.admin || role == UserRole.verifikator;
 
     return Scaffold(
       floatingActionButton: PermissionFab(
@@ -183,6 +232,18 @@ class _PetaniListPageState extends State<PetaniListPage> {
                                 onDelete: canDelete
                                     ? () =>
                                           _confirmDelete(petani.id, petani.nama)
+                                    : null,
+                                onApprove:
+                                    canApproveRegistration &&
+                                        petani.registrationStatus ==
+                                            PetaniRegistrationStatus.pending
+                                    ? () => _approvePetani(petani)
+                                    : null,
+                                onReject:
+                                    canApproveRegistration &&
+                                        petani.registrationStatus ==
+                                            PetaniRegistrationStatus.pending
+                                    ? () => _rejectPetani(petani)
                                     : null,
                               );
                             },

@@ -6,6 +6,9 @@ class ApiEndpoint {
   static const String logout = '/auth/logout';
   static const String refreshToken = '/auth/refresh';
   static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
+  static const String changePassword = '/auth/change-password';
+  static const String registerPetani = '/auth/register-petani';
   static const String profile = '/auth/profile';
 
   // Dashboard
@@ -15,6 +18,8 @@ class ApiEndpoint {
   // Petani
   static const String petani = '/petani';
   static String petaniDetail(String id) => '/petani/$id';
+  static String petaniApprove(String id) => '/petani/$id/approve';
+  static String petaniReject(String id) => '/petani/$id/reject';
 
   // Lahan
   static const String lahan = '/lahan';

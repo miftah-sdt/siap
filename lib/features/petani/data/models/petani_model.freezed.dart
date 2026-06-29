@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PetaniModel {
 
- String get id; String get nik; String get nama; String get alamat;@JsonKey(name: 'no_hp') String get noHp;@JsonKey(name: 'kelompok_tani') String get kelompokTani;
+ String get id; String get nik; String get nama; String get alamat;@JsonKey(name: 'no_hp') String get noHp;@JsonKey(name: 'kelompok_tani') String get kelompokTani;@JsonKey(name: 'registration_status') String? get registrationStatus;@JsonKey(name: 'user_id') String? get userId;
 /// Create a copy of PetaniModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $PetaniModelCopyWith<PetaniModel> get copyWith => _$PetaniModelCopyWithImpl<Peta
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PetaniModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.noHp, noHp) || other.noHp == noHp)&&(identical(other.kelompokTani, kelompokTani) || other.kelompokTani == kelompokTani));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PetaniModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.noHp, noHp) || other.noHp == noHp)&&(identical(other.kelompokTani, kelompokTani) || other.kelompokTani == kelompokTani)&&(identical(other.registrationStatus, registrationStatus) || other.registrationStatus == registrationStatus)&&(identical(other.userId, userId) || other.userId == userId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,nik,nama,alamat,noHp,kelompokTani);
+int get hashCode => Object.hash(runtimeType,id,nik,nama,alamat,noHp,kelompokTani,registrationStatus,userId);
 
 @override
 String toString() {
-  return 'PetaniModel(id: $id, nik: $nik, nama: $nama, alamat: $alamat, noHp: $noHp, kelompokTani: $kelompokTani)';
+  return 'PetaniModel(id: $id, nik: $nik, nama: $nama, alamat: $alamat, noHp: $noHp, kelompokTani: $kelompokTani, registrationStatus: $registrationStatus, userId: $userId)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $PetaniModelCopyWith<$Res>  {
   factory $PetaniModelCopyWith(PetaniModel value, $Res Function(PetaniModel) _then) = _$PetaniModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String nik, String nama, String alamat,@JsonKey(name: 'no_hp') String noHp,@JsonKey(name: 'kelompok_tani') String kelompokTani
+ String id, String nik, String nama, String alamat,@JsonKey(name: 'no_hp') String noHp,@JsonKey(name: 'kelompok_tani') String kelompokTani,@JsonKey(name: 'registration_status') String? registrationStatus,@JsonKey(name: 'user_id') String? userId
 });
 
 
@@ -65,7 +65,7 @@ class _$PetaniModelCopyWithImpl<$Res>
 
 /// Create a copy of PetaniModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? nik = null,Object? nama = null,Object? alamat = null,Object? noHp = null,Object? kelompokTani = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? nik = null,Object? nama = null,Object? alamat = null,Object? noHp = null,Object? kelompokTani = null,Object? registrationStatus = freezed,Object? userId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,nik: null == nik ? _self.nik : nik // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,9 @@ as String,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non
 as String,alamat: null == alamat ? _self.alamat : alamat // ignore: cast_nullable_to_non_nullable
 as String,noHp: null == noHp ? _self.noHp : noHp // ignore: cast_nullable_to_non_nullable
 as String,kelompokTani: null == kelompokTani ? _self.kelompokTani : kelompokTani // ignore: cast_nullable_to_non_nullable
-as String,
+as String,registrationStatus: freezed == registrationStatus ? _self.registrationStatus : registrationStatus // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -158,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani, @JsonKey(name: 'registration_status')  String? registrationStatus, @JsonKey(name: 'user_id')  String? userId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PetaniModel() when $default != null:
-return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani);case _:
+return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani,_that.registrationStatus,_that.userId);case _:
   return orElse();
 
 }
@@ -179,10 +181,10 @@ return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani, @JsonKey(name: 'registration_status')  String? registrationStatus, @JsonKey(name: 'user_id')  String? userId)  $default,) {final _that = this;
 switch (_that) {
 case _PetaniModel():
-return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani);case _:
+return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani,_that.registrationStatus,_that.userId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +201,10 @@ return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String nik,  String nama,  String alamat, @JsonKey(name: 'no_hp')  String noHp, @JsonKey(name: 'kelompok_tani')  String kelompokTani, @JsonKey(name: 'registration_status')  String? registrationStatus, @JsonKey(name: 'user_id')  String? userId)?  $default,) {final _that = this;
 switch (_that) {
 case _PetaniModel() when $default != null:
-return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani);case _:
+return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelompokTani,_that.registrationStatus,_that.userId);case _:
   return null;
 
 }
@@ -214,7 +216,7 @@ return $default(_that.id,_that.nik,_that.nama,_that.alamat,_that.noHp,_that.kelo
 @JsonSerializable()
 
 class _PetaniModel extends PetaniModel {
-  const _PetaniModel({required this.id, required this.nik, required this.nama, required this.alamat, @JsonKey(name: 'no_hp') required this.noHp, @JsonKey(name: 'kelompok_tani') required this.kelompokTani}): super._();
+  const _PetaniModel({required this.id, required this.nik, required this.nama, required this.alamat, @JsonKey(name: 'no_hp') required this.noHp, @JsonKey(name: 'kelompok_tani') required this.kelompokTani, @JsonKey(name: 'registration_status') this.registrationStatus, @JsonKey(name: 'user_id') this.userId}): super._();
   factory _PetaniModel.fromJson(Map<String, dynamic> json) => _$PetaniModelFromJson(json);
 
 @override final  String id;
@@ -223,6 +225,8 @@ class _PetaniModel extends PetaniModel {
 @override final  String alamat;
 @override@JsonKey(name: 'no_hp') final  String noHp;
 @override@JsonKey(name: 'kelompok_tani') final  String kelompokTani;
+@override@JsonKey(name: 'registration_status') final  String? registrationStatus;
+@override@JsonKey(name: 'user_id') final  String? userId;
 
 /// Create a copy of PetaniModel
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PetaniModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.noHp, noHp) || other.noHp == noHp)&&(identical(other.kelompokTani, kelompokTani) || other.kelompokTani == kelompokTani));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PetaniModel&&(identical(other.id, id) || other.id == id)&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.nama, nama) || other.nama == nama)&&(identical(other.alamat, alamat) || other.alamat == alamat)&&(identical(other.noHp, noHp) || other.noHp == noHp)&&(identical(other.kelompokTani, kelompokTani) || other.kelompokTani == kelompokTani)&&(identical(other.registrationStatus, registrationStatus) || other.registrationStatus == registrationStatus)&&(identical(other.userId, userId) || other.userId == userId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,nik,nama,alamat,noHp,kelompokTani);
+int get hashCode => Object.hash(runtimeType,id,nik,nama,alamat,noHp,kelompokTani,registrationStatus,userId);
 
 @override
 String toString() {
-  return 'PetaniModel(id: $id, nik: $nik, nama: $nama, alamat: $alamat, noHp: $noHp, kelompokTani: $kelompokTani)';
+  return 'PetaniModel(id: $id, nik: $nik, nama: $nama, alamat: $alamat, noHp: $noHp, kelompokTani: $kelompokTani, registrationStatus: $registrationStatus, userId: $userId)';
 }
 
 
@@ -257,7 +261,7 @@ abstract mixin class _$PetaniModelCopyWith<$Res> implements $PetaniModelCopyWith
   factory _$PetaniModelCopyWith(_PetaniModel value, $Res Function(_PetaniModel) _then) = __$PetaniModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String nik, String nama, String alamat,@JsonKey(name: 'no_hp') String noHp,@JsonKey(name: 'kelompok_tani') String kelompokTani
+ String id, String nik, String nama, String alamat,@JsonKey(name: 'no_hp') String noHp,@JsonKey(name: 'kelompok_tani') String kelompokTani,@JsonKey(name: 'registration_status') String? registrationStatus,@JsonKey(name: 'user_id') String? userId
 });
 
 
@@ -274,7 +278,7 @@ class __$PetaniModelCopyWithImpl<$Res>
 
 /// Create a copy of PetaniModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? nik = null,Object? nama = null,Object? alamat = null,Object? noHp = null,Object? kelompokTani = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? nik = null,Object? nama = null,Object? alamat = null,Object? noHp = null,Object? kelompokTani = null,Object? registrationStatus = freezed,Object? userId = freezed,}) {
   return _then(_PetaniModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,nik: null == nik ? _self.nik : nik // ignore: cast_nullable_to_non_nullable
@@ -282,7 +286,9 @@ as String,nama: null == nama ? _self.nama : nama // ignore: cast_nullable_to_non
 as String,alamat: null == alamat ? _self.alamat : alamat // ignore: cast_nullable_to_non_nullable
 as String,noHp: null == noHp ? _self.noHp : noHp // ignore: cast_nullable_to_non_nullable
 as String,kelompokTani: null == kelompokTani ? _self.kelompokTani : kelompokTani // ignore: cast_nullable_to_non_nullable
-as String,
+as String,registrationStatus: freezed == registrationStatus ? _self.registrationStatus : registrationStatus // ignore: cast_nullable_to_non_nullable
+as String?,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

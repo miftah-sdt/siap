@@ -8,6 +8,11 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponseModel> login(LoginRequestModel request);
   Future<void> logout();
   Future<void> forgotPassword(String email);
+  Future<void> resetPassword({required String token, required String password});
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
   Future<UserModel> getProfile();
 }
 
@@ -47,6 +52,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       fromJsonT: (json) => json as Map<String, dynamic>,
     );
 
+    if (!response.success) {
+      throw Exception(response.message);
+    }
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      ApiEndpoint.resetPassword,
+      data: {'token': token, 'password': password},
+      fromJsonT: (json) => json as Map<String, dynamic>,
+    );
+    if (!response.success) {
+      throw Exception(response.message);
+    }
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      ApiEndpoint.changePassword,
+      data: {'current_password': currentPassword, 'new_password': newPassword},
+      fromJsonT: (json) => json as Map<String, dynamic>,
+    );
     if (!response.success) {
       throw Exception(response.message);
     }

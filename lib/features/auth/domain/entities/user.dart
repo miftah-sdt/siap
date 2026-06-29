@@ -1,3 +1,22 @@
+enum UserApprovalStatus {
+  pending,
+  approved,
+  rejected;
+
+  String get label => switch (this) {
+    UserApprovalStatus.pending => 'Menunggu Persetujuan',
+    UserApprovalStatus.approved => 'Disetujui',
+    UserApprovalStatus.rejected => 'Ditolak',
+  };
+
+  static UserApprovalStatus fromString(String? value) {
+    return UserApprovalStatus.values.firstWhere(
+      (status) => status.name == value?.toLowerCase(),
+      orElse: () => UserApprovalStatus.approved,
+    );
+  }
+}
+
 enum UserRole {
   admin,
   operator,
@@ -26,6 +45,8 @@ class User {
     required this.email,
     required this.role,
     this.avatarUrl,
+    this.petaniId,
+    this.approvalStatus = UserApprovalStatus.approved,
   });
 
   final String id;
@@ -33,4 +54,6 @@ class User {
   final String email;
   final UserRole role;
   final String? avatarUrl;
+  final String? petaniId;
+  final UserApprovalStatus approvalStatus;
 }

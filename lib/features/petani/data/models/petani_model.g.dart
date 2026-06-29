@@ -13,6 +13,8 @@ _PetaniModel _$PetaniModelFromJson(Map<String, dynamic> json) => _PetaniModel(
   alamat: json['alamat'] as String,
   noHp: json['no_hp'] as String,
   kelompokTani: json['kelompok_tani'] as String,
+  registrationStatus: json['registration_status'] as String?,
+  userId: json['user_id'] as String?,
 );
 
 Map<String, dynamic> _$PetaniModelToJson(_PetaniModel instance) =>
@@ -23,6 +25,8 @@ Map<String, dynamic> _$PetaniModelToJson(_PetaniModel instance) =>
       'alamat': instance.alamat,
       'no_hp': instance.noHp,
       'kelompok_tani': instance.kelompokTani,
+      'registration_status': instance.registrationStatus,
+      'user_id': instance.userId,
     };
 
 _PetaniRequestModel _$PetaniRequestModelFromJson(Map<String, dynamic> json) =>

@@ -43,10 +43,15 @@ class AppPermissions {
   static bool canViewMenu(UserRole role, AppModule module) {
     return switch (module) {
       AppModule.dashboard => true,
-      AppModule.petani || AppModule.lahan =>
+      AppModule.petani =>
         role == UserRole.admin ||
             role == UserRole.operator ||
             role == UserRole.verifikator,
+      AppModule.lahan =>
+        role == UserRole.admin ||
+            role == UserRole.operator ||
+            role == UserRole.verifikator ||
+            role == UserRole.petani,
       AppModule.asuransi || AppModule.klaim || AppModule.monitoring => true,
       AppModule.laporan => role != UserRole.petani,
       AppModule.pengguna => role == UserRole.admin || role == UserRole.operator,

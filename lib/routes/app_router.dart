@@ -5,6 +5,9 @@ import 'package:siap/core/storage/shared_pref_service.dart';
 import 'package:siap/features/auth/domain/entities/user.dart';
 import 'package:siap/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:siap/features/auth/presentation/pages/login_page.dart';
+import 'package:siap/features/auth/presentation/pages/register_petani_page.dart';
+import 'package:siap/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:siap/features/auth/presentation/pages/change_password_page.dart';
 import 'package:siap/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:siap/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:siap/features/dashboard/presentation/pages/dashboard_page.dart';
@@ -66,7 +69,9 @@ class AppRouter {
         final location = state.matchedLocation;
         final isAuthRoute =
             location == RouteNames.login ||
-            location == RouteNames.forgotPassword;
+            location == RouteNames.forgotPassword ||
+            location == RouteNames.registerPetani ||
+            location.startsWith(RouteNames.resetPassword);
         final isSplash = location == RouteNames.splash;
 
         if (isSplash) return null;
@@ -105,6 +110,25 @@ class AppRouter {
           path: RouteNames.forgotPassword,
           name: RouteNames.forgotPassword,
           builder: (context, state) => const ForgotPasswordPage(),
+        ),
+        GoRoute(
+          path: RouteNames.registerPetani,
+          name: RouteNames.registerPetani,
+          builder: (context, state) => const RegisterPetaniPage(),
+        ),
+        GoRoute(
+          path: RouteNames.resetPassword,
+          name: RouteNames.resetPassword,
+          builder: (context, state) {
+            final token = state.uri.queryParameters['token'] ?? '';
+            return ResetPasswordPage(token: token);
+          },
+        ),
+        GoRoute(
+          path: RouteNames.changePassword,
+          name: RouteNames.changePassword,
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) => const ChangePasswordPage(),
         ),
         ShellRoute(
           builder: (context, state, child) => AppMainShell(child: child),

@@ -6,6 +6,7 @@ import 'package:siap/core/network/dio_client.dart';
 import 'package:siap/core/network/file_remote_datasource.dart';
 import 'package:siap/core/services/connectivity_service.dart';
 import 'package:siap/core/services/download_service.dart';
+import 'package:siap/core/services/registration_service.dart';
 import 'package:siap/core/services/report_export_service.dart';
 import 'package:siap/core/services/workflow_service.dart';
 import 'package:siap/core/services/location_service.dart';
@@ -107,6 +108,9 @@ Future<void> configureDependencies() async {
   );
   sl.registerLazySingleton<WorkflowService>(
     () => WorkflowService(sl<DioClient>()),
+  );
+  sl.registerLazySingleton<RegistrationService>(
+    () => RegistrationService(sl<DioClient>()),
   );
   sl.registerLazySingleton<ReportExportService>(
     () => ReportExportService(sl<DioClient>()),

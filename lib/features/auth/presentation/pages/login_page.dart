@@ -125,6 +125,13 @@ class _LoginPageState extends State<LoginPage> {
                         isLoading: isLoading,
                         isExpanded: true,
                       ),
+                      const SizedBox(height: AppSpacing.md),
+                      OutlinedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => context.push(RouteNames.registerPetani),
+                        child: const Text('Daftar sebagai Petani'),
+                      ),
                     ],
                   ),
                 ),

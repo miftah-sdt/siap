@@ -67,7 +67,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 children: [
                   Text(
                     'Masukkan email terdaftar. Kami akan mengirimkan '
-                    'link untuk reset password.',
+                    'link reset password ke email Anda jika terdaftar.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: AppSpacing.lg),

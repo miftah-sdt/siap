@@ -29,8 +29,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       'email': user.email,
       'role': user.role.name,
       'avatar_url': user.avatarUrl,
+      'petani_id': user.petaniId,
+      'approval_status': user.approvalStatus.name,
     });
     await _prefs.saveUserRole(user.role.name);
+    if (user.petaniId != null) {
+      await _prefs.saveUserPetaniId(user.petaniId!);
+    }
   }
 
   @override
@@ -44,6 +49,10 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       email: session['email'] as String,
       role: UserRole.fromString(session['role'] as String),
       avatarUrl: session['avatar_url'] as String?,
+      petaniId: session['petani_id'] as String?,
+      approvalStatus: UserApprovalStatus.fromString(
+        session['approval_status'] as String?,
+      ),
     );
   }
 

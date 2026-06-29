@@ -38,7 +38,7 @@ void main() {
       );
       expect(
         AppPermissions.canViewMenu(UserRole.petani, AppModule.lahan),
-        isFalse,
+        isTrue,
       );
       expect(
         AppPermissions.canViewMenu(UserRole.petani, AppModule.laporan),
@@ -162,6 +162,13 @@ void main() {
   });
 
   group('AppPermissions route guard', () {
+    test('allows petani to view own lahan list', () {
+      expect(
+        AppPermissions.redirectIfDenied(UserRole.petani, RouteNames.lahan),
+        isNull,
+      );
+    });
+
     test('blocks petani from petani module routes', () {
       expect(
         AppPermissions.redirectIfDenied(UserRole.petani, RouteNames.petani),

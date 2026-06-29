@@ -33,6 +33,11 @@ class SharedPrefService {
 
   String? getUserRole() => _prefs.getString(AppConstants.userRoleKey);
 
+  Future<bool> saveUserPetaniId(String petaniId) =>
+      _prefs.setString(AppConstants.userPetaniIdKey, petaniId);
+
+  String? getUserPetaniId() => _prefs.getString(AppConstants.userPetaniIdKey);
+
   Future<bool> saveThemeMode(ThemeMode mode) =>
       _prefs.setString(AppConstants.themeModeKey, mode.name);
 
@@ -54,6 +59,7 @@ class SharedPrefService {
     await _prefs.remove(AppConstants.refreshTokenKey);
     await _prefs.remove(AppConstants.userSessionKey);
     await _prefs.remove(AppConstants.userRoleKey);
+    await _prefs.remove(AppConstants.userPetaniIdKey);
   }
 
   Future<bool> clearAll() => _prefs.clear();

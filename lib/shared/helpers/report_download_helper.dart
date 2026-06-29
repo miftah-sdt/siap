@@ -110,6 +110,13 @@ class ReportDownloadHelper {
               'Disimpan di:\n${downloadResult.directoryLabel}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            const SizedBox(height: AppSpacing.sm),
+            SelectableText(
+              downloadResult.savedPath,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
+            ),
           ],
         ),
         actions: [

@@ -15,6 +15,8 @@ abstract class PetaniModel with _$PetaniModel {
     required String alamat,
     @JsonKey(name: 'no_hp') required String noHp,
     @JsonKey(name: 'kelompok_tani') required String kelompokTani,
+    @JsonKey(name: 'registration_status') String? registrationStatus,
+    @JsonKey(name: 'user_id') String? userId,
   }) = _PetaniModel;
 
   factory PetaniModel.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +29,8 @@ abstract class PetaniModel with _$PetaniModel {
     alamat: alamat,
     noHp: noHp,
     kelompokTani: kelompokTani,
+    registrationStatus: PetaniRegistrationStatus.fromString(registrationStatus),
+    userId: userId,
   );
 
   factory PetaniModel.fromEntity(Petani entity) => PetaniModel(
@@ -36,6 +40,8 @@ abstract class PetaniModel with _$PetaniModel {
     alamat: entity.alamat,
     noHp: entity.noHp,
     kelompokTani: entity.kelompokTani,
+    registrationStatus: entity.registrationStatus.name,
+    userId: entity.userId,
   );
 }
 

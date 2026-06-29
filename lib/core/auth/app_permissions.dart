@@ -22,9 +22,9 @@ enum PermissionAction { view, create, edit, delete }
 /// |-------------|-------|----------|-------------|-------------|
 /// | Dashboard   | ✓     | ✓        | ✓           | ✓           |
 /// | Petani      | CRUD  | CRU      | R           | —           |
-/// | Lahan       | CRUD  | CRU      | R           | —           |
-/// | Akseptasi   | CRUD  | CRU      | RU          | CR          |
-/// | Klaim       | CRUD  | CRU      | RU          | CR          |
+/// | Lahan       | CRUD  | CRU      | R           | C           |
+/// | Akseptasi   | CRUD  | CRU      | RU          | CRU (draft) |
+/// | Klaim       | CRUD  | CRU      | RU          | CRU (draft) |
 /// | Monitoring  | ✓     | ✓        | ✓           | ✓           |
 /// | Laporan     | ✓     | ✓        | ✓           | —           |
 /// | Pengguna    | CRUD  | CRU      | —           | —           |
@@ -60,8 +60,12 @@ class AppPermissions {
 
   static bool _canCreate(UserRole role, AppModule module) {
     return switch (module) {
-      AppModule.petani ||
-      AppModule.lahan => role == UserRole.admin || role == UserRole.operator,
+      AppModule.petani =>
+        role == UserRole.admin || role == UserRole.operator,
+      AppModule.lahan =>
+        role == UserRole.admin ||
+            role == UserRole.operator ||
+            role == UserRole.petani,
       AppModule.asuransi || AppModule.klaim =>
         role == UserRole.admin ||
             role == UserRole.operator ||
@@ -78,7 +82,8 @@ class AppPermissions {
       AppModule.asuransi || AppModule.klaim =>
         role == UserRole.admin ||
             role == UserRole.operator ||
-            role == UserRole.verifikator,
+            role == UserRole.verifikator ||
+            role == UserRole.petani,
       AppModule.pengguna => role == UserRole.admin || role == UserRole.operator,
       _ => false,
     };

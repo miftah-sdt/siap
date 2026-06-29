@@ -10,4 +10,10 @@ extension RoleContext on BuildContext {
     if (authState is AuthAuthenticated) return authState.user.role;
     return UserRole.petani;
   }
+
+  User? get currentUser {
+    final authState = read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) return authState.user;
+    return null;
+  }
 }

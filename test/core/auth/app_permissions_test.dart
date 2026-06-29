@@ -133,7 +133,15 @@ void main() {
       );
     });
 
-    test('petani can create klaim and asuransi', () {
+    test('petani can create lahan, klaim, and asuransi', () {
+      expect(
+        AppPermissions.can(
+          UserRole.petani,
+          AppModule.lahan,
+          PermissionAction.create,
+        ),
+        isTrue,
+      );
       expect(
         AppPermissions.can(
           UserRole.petani,
@@ -165,6 +173,16 @@ void main() {
     test('allows petani to view own lahan list', () {
       expect(
         AppPermissions.redirectIfDenied(UserRole.petani, RouteNames.lahan),
+        isNull,
+      );
+    });
+
+    test('allows petani to create lahan', () {
+      expect(
+        AppPermissions.redirectIfDenied(
+          UserRole.petani,
+          RouteNames.lahanCreate,
+        ),
         isNull,
       );
     });

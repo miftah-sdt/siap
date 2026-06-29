@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/models/select_option.dart';
+import 'package:siap/features/auth/domain/entities/user.dart';
 import 'package:siap/core/services/location_service.dart';
 import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
@@ -56,7 +58,24 @@ class _LahanFormPageState extends State<LahanFormPage> {
     context.read<LahanFormBloc>().add(
       LahanFormEvent.started(lahan: widget.lahan),
     );
-    _loadPetaniOptions();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initForRole());
+  }
+
+  bool get _isPetani => context.userRole == UserRole.petani;
+
+  Future<void> _initForRole() async {
+    if (_isPetani) {
+      final user = context.currentUser;
+      if (user?.petaniId != null) {
+        setState(() {
+          _selectedPetaniId = user!.petaniId;
+          _loadingPetani = false;
+        });
+      }
+      return;
+    }
+
+    await _loadPetaniOptions();
   }
 
   Future<void> _loadPetaniOptions() async {
@@ -125,8 +144,17 @@ class _LahanFormPageState extends State<LahanFormPage> {
     final luas = _parseLuas(_luasController.text);
     if (luas == null) return;
 
-    final petaniNama = _petaniNamaFor(_selectedPetaniId);
-    if (petaniNama == null) return;
+    final petaniNama =
+        _petaniNamaFor(_selectedPetaniId) ??
+        (_isPetani ? context.currentUser?.name : null);
+    if (petaniNama == null || _selectedPetaniId == null) {
+      UiFeedback.showSnackBar(
+        context,
+        message: 'Data petani tidak ditemukan.',
+        isError: true,
+      );
+      return;
+    }
 
     final koordinat = _koordinatController.text.trim();
     context.read<LahanFormBloc>().add(
@@ -176,17 +204,25 @@ class _LahanFormPageState extends State<LahanFormPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  AppSelectField(
-                    label: 'Petani',
-                    prefixIcon: Icons.person_outline,
-                    options: _petaniOptions,
-                    value: _selectedPetaniId,
-                    isLoading: _loadingPetani,
-                    enabled: !isLoading,
-                    onChanged: (value) =>
-                        setState(() => _selectedPetaniId = value),
-                    validator: (v) => Validators.required(v, field: 'Petani'),
-                  ),
+                  if (_isPetani)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.person_outline),
+                      title: const Text('Petani'),
+                      subtitle: Text(context.currentUser?.name ?? '-'),
+                    )
+                  else
+                    AppSelectField(
+                      label: 'Petani',
+                      prefixIcon: Icons.person_outline,
+                      options: _petaniOptions,
+                      value: _selectedPetaniId,
+                      isLoading: _loadingPetani,
+                      enabled: !isLoading,
+                      onChanged: (value) =>
+                          setState(() => _selectedPetaniId = value),
+                      validator: (v) => Validators.required(v, field: 'Petani'),
+                    ),
                   const SizedBox(height: AppSpacing.md),
                   AppTextField(
                     controller: _kodeController,

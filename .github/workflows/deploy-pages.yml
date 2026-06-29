@@ -48,10 +48,12 @@ jobs:
       - run: flutter pub get
 
       - name: Build Web for GitHub Pages
+        env:
+          API_BASE_URL: ${{ steps.api.outputs.url }}
         run: |
           flutter build web --release \
             --base-href "/siap/" \
-            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+            --dart-define=API_BASE_URL="$API_BASE_URL"
           sed -i 's|<base href="[^"]*"|<base href="/siap/"|' build/web/index.html
           cp build/web/index.html build/web/404.html
           touch build/web/.nojekyll

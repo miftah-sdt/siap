@@ -83,10 +83,12 @@ jobs:
 
       - name: Build Web
         if: steps.api.outputs.skip != 'true'
+        env:
+          API_BASE_URL: ${{ steps.api.outputs.url }}
         run: |
           flutter build web --release \
             --base-href "/siap/" \
-            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+            --dart-define=API_BASE_URL="$API_BASE_URL"
 
       - name: Prepare GitHub Pages output
         if: steps.api.outputs.skip != 'true'
@@ -102,9 +104,11 @@ jobs:
 
       - name: Build APK
         if: steps.api.outputs.skip != 'true'
+        env:
+          API_BASE_URL: ${{ steps.api.outputs.url }}
         run: |
           flutter build apk --release \
-            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }}
+            --dart-define=API_BASE_URL="$API_BASE_URL"
 
       - name: Package downloads
         if: steps.api.outputs.skip != 'true'

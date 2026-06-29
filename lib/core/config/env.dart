@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 enum AppEnvironment { development, staging, production }
 
@@ -19,11 +20,10 @@ class Env {
       'https://siap-api-production.up.railway.app/v1';
 
   static String get baseUrl {
-    if (_apiBaseUrlOverride.isNotEmpty) {
-      return _apiBaseUrlOverride;
-    }
+    final override = _sanitizeApiBaseUrl(_apiBaseUrlOverride);
+    if (override != null) return override;
 
-    // APK/IPA release tanpa dart-define tetap pakai server production.
+    // APK/IPA/Web release tanpa dart-define tetap pakai server production.
     if (kReleaseMode) {
       return productionBaseUrl;
     }
@@ -36,6 +36,29 @@ class Env {
         return productionBaseUrl;
     }
   }
+
+  /// Perbaiki URL API yang rusak akibat shell CI (mis. `https:` tanpa `//`).
+  static String? _sanitizeApiBaseUrl(String raw) {
+    var url = raw.trim();
+    if (url.isEmpty) return null;
+
+    if (url.startsWith('https:') && !url.startsWith('https://')) {
+      url = url.replaceFirst('https:', 'https://');
+    }
+    if (url.startsWith('http:') && !url.startsWith('http://')) {
+      url = url.replaceFirst('http:', 'http://');
+    }
+    url = url.replaceAll('.appv1', '.app/v1');
+
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme || uri.host.isEmpty) return null;
+    if (uri.scheme != 'http' && uri.scheme != 'https') return null;
+    return url;
+  }
+
+  @visibleForTesting
+  static String? sanitizeApiBaseUrlForTest(String raw) =>
+      _sanitizeApiBaseUrl(raw);
 
   static String get _developmentBaseUrl {
     if (kIsWeb) {

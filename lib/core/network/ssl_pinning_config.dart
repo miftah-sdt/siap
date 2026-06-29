@@ -17,7 +17,7 @@ class SslPinningConfig {
   static const String railwayApiHost = 'siap-api-production.up.railway.app';
 
   static const List<String> railwayApiPins = [
-    'd0971986fdb19fe936da41e20dffff66ced9754c1ba65660dd7b805cd69b7b31',
+    'd0971986fdb19fe936da41e20dfff66ced9754c1ba65660dd7b805cd69b7b131',
   ];
 
   factory SslPinningConfig.forApiHost({

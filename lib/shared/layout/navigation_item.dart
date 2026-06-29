@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/features/auth/domain/entities/user.dart';
 
 class NavigationItem {
@@ -6,20 +7,17 @@ class NavigationItem {
     required this.label,
     required this.icon,
     required this.route,
-    this.allowedRoles,
+    required this.module,
     this.includeInMobileBottomNav = false,
   });
 
   final String label;
   final IconData icon;
   final String route;
-  final List<UserRole>? allowedRoles;
+  final AppModule module;
 
   /// Hanya item utama yang tampil di bottom navigation mobile.
   final bool includeInMobileBottomNav;
 
-  bool isVisibleFor(UserRole role) {
-    if (allowedRoles == null || allowedRoles!.isEmpty) return true;
-    return allowedRoles!.contains(role);
-  }
+  bool isVisibleFor(UserRole role) => AppPermissions.canViewMenu(role, module);
 }

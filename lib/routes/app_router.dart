@@ -79,81 +79,14 @@ class AppRouter {
           return RouteNames.dashboard;
         }
 
-        if (location.startsWith(RouteNames.petani)) {
-          final role = UserRole.fromString(
-            sharedPrefService.getUserRole() ?? UserRole.petani.name,
-          );
-          if (!RoleGuard.canAccess(
-            userRole: role,
-            allowedRoles: const [
-              UserRole.admin,
-              UserRole.operator,
-              UserRole.verifikator,
-            ],
-          )) {
-            return RouteNames.dashboard;
-          }
-        }
-
-        if (location.startsWith(RouteNames.lahan)) {
-          final role = UserRole.fromString(
-            sharedPrefService.getUserRole() ?? UserRole.petani.name,
-          );
-          if (!RoleGuard.canAccess(
-            userRole: role,
-            allowedRoles: const [
-              UserRole.admin,
-              UserRole.operator,
-              UserRole.verifikator,
-            ],
-          )) {
-            return RouteNames.dashboard;
-          }
-        }
-
-        if (location.startsWith(RouteNames.asuransi) ||
-            location.startsWith(RouteNames.klaim) ||
-            location.startsWith(RouteNames.monitoring)) {
-          final role = UserRole.fromString(
-            sharedPrefService.getUserRole() ?? UserRole.petani.name,
-          );
-          if (!RoleGuard.canAccess(
-            userRole: role,
-            allowedRoles: const [
-              UserRole.admin,
-              UserRole.operator,
-              UserRole.verifikator,
-              UserRole.petani,
-            ],
-          )) {
-            return RouteNames.dashboard;
-          }
-        }
-
-        if (location.startsWith(RouteNames.laporan)) {
-          final role = UserRole.fromString(
-            sharedPrefService.getUserRole() ?? UserRole.petani.name,
-          );
-          if (!RoleGuard.canAccess(
-            userRole: role,
-            allowedRoles: const [
-              UserRole.admin,
-              UserRole.operator,
-              UserRole.verifikator,
-            ],
-          )) {
-            return RouteNames.dashboard;
-          }
-        }
-
-        if (location.startsWith(RouteNames.pengguna)) {
-          final role = UserRole.fromString(
-            sharedPrefService.getUserRole() ?? UserRole.petani.name,
-          );
-          if (!RoleGuard.canManageUsers(role)) {
-            return RouteNames.dashboard;
-          }
-        }
+        final role = UserRole.fromString(
+          sharedPrefService.getUserRole() ?? UserRole.petani.name,
+        );
+        final denied = RoleGuard.redirectIfDenied(
+          userRole: role,
+          location: location,
+        );
+        if (denied != null) return denied;
 
         return null;
       },

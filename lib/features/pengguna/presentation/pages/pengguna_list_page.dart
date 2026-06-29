@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_list_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
+import 'package:siap/shared/widgets/permission_fab.dart';
 
 class PenggunaListPage extends StatefulWidget {
   const PenggunaListPage({super.key});
@@ -77,11 +80,22 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.userRole;
+    final canCreate = AppPermissions.can(
+      role,
+      AppModule.pengguna,
+      PermissionAction.create,
+    );
+    final canDelete = AppPermissions.can(
+      role,
+      AppModule.pengguna,
+      PermissionAction.delete,
+    );
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: PermissionFab(
+        module: AppModule.pengguna,
         onPressed: () => context.push(RouteNames.penggunaCreate),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
       ),
       body: BlocConsumer<PenggunaListBloc, PenggunaListState>(
         listener: (context, state) {
@@ -135,9 +149,10 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
                           return AppEmptyState(
                             title: 'Belum ada pengguna',
                             message: 'Tambahkan data pengguna pertama.',
-                            actionLabel: 'Tambah Pengguna',
-                            onAction: () =>
-                                context.push(RouteNames.penggunaCreate),
+                            actionLabel: canCreate ? 'Tambah Pengguna' : null,
+                            onAction: canCreate
+                                ? () => context.push(RouteNames.penggunaCreate)
+                                : null,
                           );
                         }
 
@@ -168,8 +183,12 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
                                   RouteNames.penggunaDetail(pengguna.id),
                                   extra: pengguna,
                                 ),
-                                onDelete: () =>
-                                    _confirmDelete(pengguna.id, pengguna.name),
+                                onDelete: canDelete
+                                    ? () => _confirmDelete(
+                                        pengguna.id,
+                                        pengguna.name,
+                                      )
+                                    : null,
                               );
                             },
                           ),

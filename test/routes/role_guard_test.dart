@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/features/auth/domain/entities/user.dart';
+import 'package:siap/routes/route_names.dart';
 import 'package:siap/routes/role_guard.dart';
 
 void main() {
@@ -31,10 +33,21 @@ void main() {
       );
     });
 
-    test('canManageUsers allows admin and operator', () {
+    test('canManageUsers uses pengguna menu permission', () {
       expect(RoleGuard.canManageUsers(UserRole.admin), isTrue);
       expect(RoleGuard.canManageUsers(UserRole.operator), isTrue);
+      expect(RoleGuard.canManageUsers(UserRole.verifikator), isFalse);
       expect(RoleGuard.canManageUsers(UserRole.petani), isFalse);
+    });
+
+    test('redirectIfDenied delegates to AppPermissions', () {
+      expect(
+        RoleGuard.redirectIfDenied(
+          userRole: UserRole.petani,
+          location: RouteNames.laporan,
+        ),
+        RouteNames.dashboard,
+      );
     });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/models/rfi_models.dart';
 import 'package:siap/core/services/open_meteo_service.dart';
 import 'package:siap/core/services/rfi_remote_service.dart';
@@ -10,6 +11,7 @@ import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/lahan_map_view.dart';
 import 'package:siap/shared/widgets/opt_alerts_card.dart';
+import 'package:siap/shared/widgets/permission_edit_action.dart';
 import 'package:siap/shared/widgets/weather_card.dart';
 
 class LahanDetailPage extends StatefulWidget {
@@ -61,8 +63,8 @@ class _LahanDetailPageState extends State<LahanDetailPage> {
       appBar: AppBar(
         title: const Text('Detail Lahan'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
+          PermissionEditAction(
+            module: AppModule.lahan,
             onPressed: () async {
               final updated = await context.push<bool>(
                 RouteNames.lahanEdit(lahan.id),

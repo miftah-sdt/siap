@@ -6,6 +6,8 @@ import 'package:siap/core/network/dio_client.dart';
 import 'package:siap/core/network/file_remote_datasource.dart';
 import 'package:siap/core/services/connectivity_service.dart';
 import 'package:siap/core/services/download_service.dart';
+import 'package:siap/core/services/report_export_service.dart';
+import 'package:siap/core/services/workflow_service.dart';
 import 'package:siap/core/services/location_service.dart';
 import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/services/open_meteo_service.dart';
@@ -102,6 +104,12 @@ Future<void> configureDependencies() async {
   );
   sl.registerLazySingleton<DownloadService>(
     () => DownloadService(sl<DioClient>()),
+  );
+  sl.registerLazySingleton<WorkflowService>(
+    () => WorkflowService(sl<DioClient>()),
+  );
+  sl.registerLazySingleton<ReportExportService>(
+    () => ReportExportService(sl<DioClient>()),
   );
   sl.registerLazySingleton<LookupService>(() => LookupService(sl<DioClient>()));
   sl.registerLazySingleton<OpenMeteoService>(OpenMeteoService.new);

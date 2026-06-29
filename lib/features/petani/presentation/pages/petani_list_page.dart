@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/petani/presentation/bloc/petani_list_bloc.dart';
@@ -10,6 +12,7 @@ import 'package:siap/features/petani/presentation/widgets/petani_card.dart';
 import 'package:siap/features/petani/presentation/widgets/petani_search_bar.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
+import 'package:siap/shared/widgets/permission_fab.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
 
@@ -77,11 +80,22 @@ class _PetaniListPageState extends State<PetaniListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.userRole;
+    final canCreate = AppPermissions.can(
+      role,
+      AppModule.petani,
+      PermissionAction.create,
+    );
+    final canDelete = AppPermissions.can(
+      role,
+      AppModule.petani,
+      PermissionAction.delete,
+    );
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: PermissionFab(
+        module: AppModule.petani,
         onPressed: () => context.push(RouteNames.petaniCreate),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
       ),
       body: BlocConsumer<PetaniListBloc, PetaniListState>(
         listener: (context, state) {
@@ -132,9 +146,10 @@ class _PetaniListPageState extends State<PetaniListPage> {
                           return AppEmptyState(
                             title: 'Belum ada petani',
                             message: 'Tambahkan data petani pertama.',
-                            actionLabel: 'Tambah Petani',
-                            onAction: () =>
-                                context.push(RouteNames.petaniCreate),
+                            actionLabel: canCreate ? 'Tambah Petani' : null,
+                            onAction: canCreate
+                                ? () => context.push(RouteNames.petaniCreate)
+                                : null,
                           );
                         }
 
@@ -165,8 +180,10 @@ class _PetaniListPageState extends State<PetaniListPage> {
                                   RouteNames.petaniDetail(petani.id),
                                   extra: petani,
                                 ),
-                                onDelete: () =>
-                                    _confirmDelete(petani.id, petani.nama),
+                                onDelete: canDelete
+                                    ? () =>
+                                          _confirmDelete(petani.id, petani.nama)
+                                    : null,
                               );
                             },
                           ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/features/pengguna/domain/entities/pengguna.dart';
 import 'package:siap/routes/route_names.dart';
+import 'package:siap/shared/widgets/permission_edit_action.dart';
 
 class PenggunaDetailPage extends StatelessWidget {
   const PenggunaDetailPage({super.key, required this.pengguna});
@@ -15,8 +17,8 @@ class PenggunaDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Detail Pengguna'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
+          PermissionEditAction(
+            module: AppModule.pengguna,
             onPressed: () async {
               final updated = await context.push<bool>(
                 RouteNames.penggunaEdit(pengguna.id),

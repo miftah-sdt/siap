@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:siap/core/services/download_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/laporan/domain/entities/laporan.dart';
 import 'package:siap/features/laporan/presentation/bloc/laporan_bloc.dart';
 import 'package:siap/features/laporan/presentation/bloc/laporan_event.dart';
 import 'package:siap/features/laporan/presentation/bloc/laporan_state.dart';
-import 'package:siap/injection/dependency_injection.dart';
+import 'package:siap/shared/helpers/report_download_helper.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 
@@ -98,11 +97,11 @@ class _LaporanPageState extends State<LaporanPage> {
       body: BlocConsumer<LaporanBloc, LaporanState>(
         listener: (context, state) {
           if (state is LaporanSuccess) {
-            UiFeedback.showSnackBar(
-              context,
-              message: 'Laporan berhasil diekspor: ${state.result.fileName}',
+            ReportDownloadHelper.exportAndDownload(
+              context: context,
+              result: state.result,
+              successTitle: 'Laporan Terunduh',
             );
-            _showDownloadDialog(state.result);
           }
           if (state is LaporanError) {
             UiFeedback.showSnackBar(
@@ -127,7 +126,7 @@ class _LaporanPageState extends State<LaporanPage> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Filter dan ekspor data ke PDF atau Excel.',
+                    'Filter dan ekspor data detail ke PDF atau Excel.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -233,89 +232,6 @@ class _LaporanPageState extends State<LaporanPage> {
                 ],
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _showDownloadDialog(LaporanExportResult result) async {
-    var isDownloading = false;
-    double downloadProgress = 0;
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          Future<void> download() async {
-            setDialogState(() => isDownloading = true);
-            try {
-              final file = await sl<DownloadService>().downloadToDevice(
-                url: result.downloadUrl,
-                fileName: result.fileName,
-                onProgress: (received, total) {
-                  if (total > 0) {
-                    setDialogState(() => downloadProgress = received / total);
-                  }
-                },
-              );
-              if (context.mounted) {
-                Navigator.pop(context);
-                await sl<DownloadService>().openFile(file);
-                UiFeedback.showSnackBar(
-                  this.context,
-                  message: 'File disimpan: ${result.fileName}',
-                );
-              }
-            } catch (e) {
-              setDialogState(() => isDownloading = false);
-              if (context.mounted) {
-                UiFeedback.showSnackBar(
-                  context,
-                  message: e.toString(),
-                  isError: true,
-                );
-              }
-            }
-          }
-
-          return AlertDialog(
-            title: const Text('Unduh Laporan'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('File: ${result.fileName}'),
-                const SizedBox(height: AppSpacing.sm),
-                SelectableText(result.downloadUrl),
-                if (isDownloading) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  LinearProgressIndicator(
-                    value: downloadProgress > 0 ? downloadProgress : null,
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: isDownloading ? null : () => Navigator.pop(context),
-                child: const Text('Tutup'),
-              ),
-              TextButton(
-                onPressed: isDownloading
-                    ? null
-                    : () async {
-                        await sl<DownloadService>().openInBrowser(
-                          result.downloadUrl,
-                        );
-                      },
-                child: const Text('Buka Browser'),
-              ),
-              FilledButton(
-                onPressed: isDownloading ? null : download,
-                child: Text(isDownloading ? 'Mengunduh...' : 'Unduh'),
-              ),
-            ],
           );
         },
       ),

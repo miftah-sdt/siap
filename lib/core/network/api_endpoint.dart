@@ -23,14 +23,19 @@ class ApiEndpoint {
   // Asuransi
   static const String asuransi = '/asuransi';
   static String asuransiDetail(String id) => '/asuransi/$id';
+  static String asuransiWorkflow(String id, String action) =>
+      '/asuransi/$id/workflow/$action';
 
   // Klaim
   static const String klaim = '/klaim';
   static String klaimDetail(String id) => '/klaim/$id';
+  static String klaimWorkflow(String id, String action) =>
+      '/klaim/$id/workflow/$action';
 
   // Laporan
   static const String laporan = '/laporan';
   static const String laporanExport = '/laporan/export';
+  static const String laporanExportDetail = '/laporan/export-detail';
 
   // Files
   static const String fileUpload = '/files/upload';

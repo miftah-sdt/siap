@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_list_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
+import 'package:siap/shared/widgets/permission_fab.dart';
 
 class KlaimListPage extends StatefulWidget {
   const KlaimListPage({super.key});
@@ -77,11 +80,22 @@ class _KlaimListPageState extends State<KlaimListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.userRole;
+    final canCreate = AppPermissions.can(
+      role,
+      AppModule.klaim,
+      PermissionAction.create,
+    );
+    final canDelete = AppPermissions.can(
+      role,
+      AppModule.klaim,
+      PermissionAction.delete,
+    );
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: PermissionFab(
+        module: AppModule.klaim,
         onPressed: () => context.push(RouteNames.klaimCreate),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
       ),
       body: BlocConsumer<KlaimListBloc, KlaimListState>(
         listener: (context, state) {
@@ -132,9 +146,10 @@ class _KlaimListPageState extends State<KlaimListPage> {
                           return AppEmptyState(
                             title: 'Belum ada klaim',
                             message: 'Ajukan klaim pertama.',
-                            actionLabel: 'Tambah Klaim',
-                            onAction: () =>
-                                context.push(RouteNames.klaimCreate),
+                            actionLabel: canCreate ? 'Tambah Klaim' : null,
+                            onAction: canCreate
+                                ? () => context.push(RouteNames.klaimCreate)
+                                : null,
                           );
                         }
 
@@ -165,8 +180,12 @@ class _KlaimListPageState extends State<KlaimListPage> {
                                   RouteNames.klaimDetail(klaim.id),
                                   extra: klaim,
                                 ),
-                                onDelete: () =>
-                                    _confirmDelete(klaim.id, klaim.nomorKlaim),
+                                onDelete: canDelete
+                                    ? () => _confirmDelete(
+                                        klaim.id,
+                                        klaim.nomorKlaim,
+                                      )
+                                    : null,
                               );
                             },
                           ),

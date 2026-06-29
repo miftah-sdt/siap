@@ -1,3 +1,4 @@
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/features/auth/domain/entities/user.dart';
 
 class RoleGuard {
@@ -14,5 +15,10 @@ class RoleGuard {
   static bool isAdmin(UserRole role) => role == UserRole.admin;
 
   static bool canManageUsers(UserRole role) =>
-      role == UserRole.admin || role == UserRole.operator;
+      AppPermissions.canViewMenu(role, AppModule.pengguna);
+
+  static String? redirectIfDenied({
+    required UserRole userRole,
+    required String location,
+  }) => AppPermissions.redirectIfDenied(userRole, location);
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/formatter.dart';
 import 'package:siap/features/petani/domain/entities/petani.dart';
 import 'package:siap/routes/route_names.dart';
+import 'package:siap/shared/widgets/permission_edit_action.dart';
 
 class PetaniDetailPage extends StatelessWidget {
   const PetaniDetailPage({super.key, required this.petani});
@@ -16,8 +18,8 @@ class PetaniDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Detail Petani'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
+          PermissionEditAction(
+            module: AppModule.petani,
             onPressed: () async {
               final updated = await context.push<bool>(
                 RouteNames.petaniEdit(petani.id),

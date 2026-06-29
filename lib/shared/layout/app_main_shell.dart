@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/constants/app_constants.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/responsive.dart';
@@ -22,66 +23,52 @@ class AppMainShell extends StatelessWidget {
       label: 'Dashboard',
       icon: Icons.dashboard_outlined,
       route: RouteNames.dashboard,
+      module: AppModule.dashboard,
       includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Petani',
       icon: Icons.people_outline,
       route: RouteNames.petani,
-      allowedRoles: [UserRole.admin, UserRole.operator, UserRole.verifikator],
+      module: AppModule.petani,
     ),
     const NavigationItem(
       label: 'Lahan',
       icon: Icons.landscape_outlined,
       route: RouteNames.lahan,
-      allowedRoles: [UserRole.admin, UserRole.operator, UserRole.verifikator],
+      module: AppModule.lahan,
     ),
     const NavigationItem(
       label: 'Akseptasi',
       icon: Icons.description_outlined,
       route: RouteNames.asuransi,
-      allowedRoles: [
-        UserRole.admin,
-        UserRole.operator,
-        UserRole.verifikator,
-        UserRole.petani,
-      ],
+      module: AppModule.asuransi,
       includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Klaim',
       icon: Icons.report_outlined,
       route: RouteNames.klaim,
-      allowedRoles: [
-        UserRole.admin,
-        UserRole.operator,
-        UserRole.verifikator,
-        UserRole.petani,
-      ],
+      module: AppModule.klaim,
       includeInMobileBottomNav: true,
     ),
     const NavigationItem(
       label: 'Monitoring',
       icon: Icons.map_outlined,
       route: RouteNames.monitoring,
-      allowedRoles: [
-        UserRole.admin,
-        UserRole.operator,
-        UserRole.verifikator,
-        UserRole.petani,
-      ],
+      module: AppModule.monitoring,
     ),
     const NavigationItem(
       label: 'Laporan',
       icon: Icons.summarize_outlined,
       route: RouteNames.laporan,
-      allowedRoles: [UserRole.admin, UserRole.operator, UserRole.verifikator],
+      module: AppModule.laporan,
     ),
     const NavigationItem(
       label: 'Pengguna',
       icon: Icons.manage_accounts_outlined,
       route: RouteNames.pengguna,
-      allowedRoles: [UserRole.admin, UserRole.operator],
+      module: AppModule.pengguna,
     ),
   ];
 

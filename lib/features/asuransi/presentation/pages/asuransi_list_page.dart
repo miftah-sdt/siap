@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_list_bloc.dart';
@@ -12,6 +14,7 @@ import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
+import 'package:siap/shared/widgets/permission_fab.dart';
 
 class AsuransiListPage extends StatefulWidget {
   const AsuransiListPage({super.key});
@@ -77,11 +80,22 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.userRole;
+    final canCreate = AppPermissions.can(
+      role,
+      AppModule.asuransi,
+      PermissionAction.create,
+    );
+    final canDelete = AppPermissions.can(
+      role,
+      AppModule.asuransi,
+      PermissionAction.delete,
+    );
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: PermissionFab(
+        module: AppModule.asuransi,
         onPressed: () => context.push(RouteNames.asuransiCreate),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
       ),
       body: BlocConsumer<AsuransiListBloc, AsuransiListState>(
         listener: (context, state) {
@@ -132,9 +146,10 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
                           return AppEmptyState(
                             title: 'Belum ada asuransi',
                             message: 'Daftarkan asuransi pertama.',
-                            actionLabel: 'Tambah Asuransi',
-                            onAction: () =>
-                                context.push(RouteNames.asuransiCreate),
+                            actionLabel: canCreate ? 'Tambah Asuransi' : null,
+                            onAction: canCreate
+                                ? () => context.push(RouteNames.asuransiCreate)
+                                : null,
                           );
                         }
 
@@ -165,10 +180,12 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
                                   RouteNames.asuransiDetail(asuransi.id),
                                   extra: asuransi,
                                 ),
-                                onDelete: () => _confirmDelete(
-                                  asuransi.id,
-                                  asuransi.nomorPolis,
-                                ),
+                                onDelete: canDelete
+                                    ? () => _confirmDelete(
+                                        asuransi.id,
+                                        asuransi.nomorPolis,
+                                      )
+                                    : null,
                               );
                             },
                           ),

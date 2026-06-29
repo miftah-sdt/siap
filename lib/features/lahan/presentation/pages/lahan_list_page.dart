@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/auth/app_permissions.dart';
+import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_list_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
+import 'package:siap/shared/widgets/permission_fab.dart';
 
 class LahanListPage extends StatefulWidget {
   const LahanListPage({super.key});
@@ -76,11 +79,22 @@ class _LahanListPageState extends State<LahanListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.userRole;
+    final canCreate = AppPermissions.can(
+      role,
+      AppModule.lahan,
+      PermissionAction.create,
+    );
+    final canDelete = AppPermissions.can(
+      role,
+      AppModule.lahan,
+      PermissionAction.delete,
+    );
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: PermissionFab(
+        module: AppModule.lahan,
         onPressed: () => context.push(RouteNames.lahanCreate),
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
       ),
       body: BlocConsumer<LahanListBloc, LahanListState>(
         listener: (context, state) {
@@ -149,9 +163,10 @@ class _LahanListPageState extends State<LahanListPage> {
                           return AppEmptyState(
                             title: 'Belum ada lahan',
                             message: 'Tambahkan data lahan pertama.',
-                            actionLabel: 'Tambah Lahan',
-                            onAction: () =>
-                                context.push(RouteNames.lahanCreate),
+                            actionLabel: canCreate ? 'Tambah Lahan' : null,
+                            onAction: canCreate
+                                ? () => context.push(RouteNames.lahanCreate)
+                                : null,
                           );
                         }
 
@@ -182,8 +197,12 @@ class _LahanListPageState extends State<LahanListPage> {
                                   RouteNames.lahanDetail(lahan.id),
                                   extra: lahan,
                                 ),
-                                onDelete: () =>
-                                    _confirmDelete(lahan.id, lahan.namaLahan),
+                                onDelete: canDelete
+                                    ? () => _confirmDelete(
+                                        lahan.id,
+                                        lahan.namaLahan,
+                                      )
+                                    : null,
                               );
                             },
                           ),

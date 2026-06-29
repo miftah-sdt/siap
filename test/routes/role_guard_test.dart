@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/features/auth/domain/entities/user.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/routes/role_guard.dart';

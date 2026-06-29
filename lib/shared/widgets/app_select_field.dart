@@ -45,6 +45,14 @@ class AppSelectField extends StatelessWidget {
       ),
       hint: Text(isLoading ? 'Memuat...' : hint),
       isExpanded: true,
+      selectedItemBuilder: (context) => options
+          .map(
+            (option) => Align(
+              alignment: Alignment.centerLeft,
+              child: Text(option.label, overflow: TextOverflow.ellipsis),
+            ),
+          )
+          .toList(),
       items: options
           .map(
             (option) => DropdownMenuItem<String>(

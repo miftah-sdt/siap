@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siap/core/models/rfi_models.dart';
 import 'package:siap/core/models/select_option.dart';
 import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/services/notification_service.dart';
+import 'package:siap/core/services/rfi_remote_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/core/utils/validators.dart';
@@ -11,13 +13,11 @@ import 'package:siap/features/asuransi/domain/entities/asuransi.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_bloc.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_event.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_state.dart';
+import 'package:siap/features/asuransi/presentation/widgets/underwriting_score_card.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/app_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
-import 'package:siap/core/models/rfi_models.dart';
-import 'package:siap/core/services/rfi_remote_service.dart';
-import 'package:siap/features/asuransi/presentation/widgets/underwriting_score_card.dart';
 import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
 class AsuransiFormPage extends StatefulWidget {
@@ -34,16 +34,18 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
   late final TextEditingController _nomorPolisController;
   final List<String> _documents = [];
 
-  List<SelectOption> _petaniOptions = [];
   List<SelectOption> _lahanOptions = [];
-  String? _selectedPetaniId;
   String? _selectedLahanId;
-  bool _loadingPetani = true;
-  bool _loadingLahan = false;
+  bool _loadingLahan = true;
   bool _scoring = false;
   UnderwritingScore? _score;
 
   LookupService get _lookup => sl<LookupService>();
+
+  SelectOption? get _selectedLahan {
+    if (_selectedLahanId == null) return null;
+    return _lahanOptions.where((o) => o.id == _selectedLahanId).firstOrNull;
+  }
 
   @override
   void initState() {
@@ -51,7 +53,6 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     _nomorPolisController = TextEditingController(
       text: widget.asuransi?.nomorPolis,
     );
-    _selectedPetaniId = widget.asuransi?.petaniId;
     _selectedLahanId = widget.asuransi?.lahanId;
     if (widget.asuransi != null) {
       _documents.addAll(widget.asuransi!.documents);
@@ -67,36 +68,13 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     context.read<AsuransiFormBloc>().add(
       AsuransiFormEvent.started(asuransi: widget.asuransi),
     );
-    _initOptions();
+    _loadLahanOptions();
   }
 
-  Future<void> _initOptions() async {
-    await _loadPetaniOptions();
-    if (_selectedPetaniId != null) {
-      await _loadLahanOptions(_selectedPetaniId!);
-    }
-  }
-
-  Future<void> _loadPetaniOptions() async {
-    setState(() => _loadingPetani = true);
-    try {
-      final options = await _lookup.getPetaniOptions();
-      if (!mounted) return;
-      setState(() {
-        _petaniOptions = options;
-        _loadingPetani = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingPetani = false);
-      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
-    }
-  }
-
-  Future<void> _loadLahanOptions(String petaniId) async {
+  Future<void> _loadLahanOptions() async {
     setState(() => _loadingLahan = true);
     try {
-      final options = await _lookup.getLahanOptions(petaniId: petaniId);
+      final options = await _lookup.getLahanOptions();
       if (!mounted) return;
       setState(() {
         _lahanOptions = options;
@@ -111,22 +89,6 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
       setState(() => _loadingLahan = false);
       UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
     }
-  }
-
-  void _onPetaniChanged(String? petaniId) {
-    setState(() {
-      _selectedPetaniId = petaniId;
-      _selectedLahanId = null;
-      _lahanOptions = [];
-    });
-    if (petaniId != null) {
-      _loadLahanOptions(petaniId);
-    }
-  }
-
-  String? _labelFor(List<SelectOption> options, String? id) {
-    if (id == null) return null;
-    return options.where((o) => o.id == id).map((o) => o.label).firstOrNull;
   }
 
   Future<void> _calculateScore() async {
@@ -162,16 +124,30 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
-    final petaniNama = _labelFor(_petaniOptions, _selectedPetaniId);
-    final lahanNama = _labelFor(_lahanOptions, _selectedLahanId);
-    if (petaniNama == null || lahanNama == null) return;
+    final lahan = _selectedLahan;
+    if (lahan == null) return;
+
+    final petaniId = lahan.extra?['petani_id'];
+    final petaniNama = lahan.extra?['petani_nama'];
+    final lahanNama = lahan.extra?['nama_lahan'] ?? lahan.label;
+    if (petaniId == null ||
+        petaniId.isEmpty ||
+        petaniNama == null ||
+        petaniNama.isEmpty) {
+      UiFeedback.showSnackBar(
+        context,
+        message: 'Data petani pada lahan tidak lengkap.',
+        isError: true,
+      );
+      return;
+    }
 
     context.read<AsuransiFormBloc>().add(
       AsuransiFormEvent.submitted(
         nomorPolis: _nomorPolisController.text.trim(),
-        petaniId: _selectedPetaniId!,
+        petaniId: petaniId,
         petaniNama: petaniNama,
-        lahanId: _selectedLahanId!,
+        lahanId: lahan.id,
         lahanNama: lahanNama,
         documents: List.unmodifiable(_documents),
       ),
@@ -181,6 +157,7 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.asuransi != null;
+    final selectedLahan = _selectedLahan;
 
     return Scaffold(
       appBar: AppBar(
@@ -226,34 +203,42 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppSelectField(
-                    label: 'Petani',
-                    prefixIcon: Icons.person_outline,
-                    options: _petaniOptions,
-                    value: _selectedPetaniId,
-                    isLoading: _loadingPetani,
-                    enabled: !isLoading,
-                    onChanged: _onPetaniChanged,
-                    validator: (v) => Validators.required(v, field: 'Petani'),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppSelectField(
-                    label: 'Lahan',
+                    label: 'Lahan Petani',
                     prefixIcon: Icons.landscape_outlined,
                     options: _lahanOptions,
                     value: _selectedLahanId,
                     isLoading: _loadingLahan,
-                    enabled: !isLoading && _selectedPetaniId != null,
-                    hint: _selectedPetaniId == null
-                        ? 'Pilih petani terlebih dahulu'
-                        : 'Pilih lahan',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLahanId = value;
-                        _score = null;
-                      });
-                    },
-                    validator: (v) => Validators.required(v, field: 'Lahan'),
+                    enabled: !isLoading,
+                    hint: _lahanOptions.isEmpty && !_loadingLahan
+                        ? 'Belum ada data lahan'
+                        : 'Pilih lahan petani',
+                    onChanged: (value) => setState(() {
+                      _selectedLahanId = value;
+                      _score = null;
+                    }),
+                    validator: (v) =>
+                        Validators.required(v, field: 'Lahan Petani'),
                   ),
+                  if (!_loadingLahan && _lahanOptions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.sm),
+                      child: Text(
+                        'Tambahkan data lahan terlebih dahulu di menu Lahan.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  if (selectedLahan != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: Text(selectedLahan.label),
+                        subtitle: Text(selectedLahan.subtitle ?? ''),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.lg),
                   UnderwritingScoreCard(
                     score: _score,

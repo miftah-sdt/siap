@@ -124,12 +124,12 @@ class _AsuransiDetailPageState extends State<AsuransiDetailPage> {
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: const Text('Petani'),
-            subtitle: Text('${_asuransi.petaniNama} (${_asuransi.petaniId})'),
+            subtitle: Text(_asuransi.petaniNama),
           ),
           ListTile(
             leading: const Icon(Icons.landscape_outlined),
             title: const Text('Lahan'),
-            subtitle: Text('${_asuransi.lahanNama} (${_asuransi.lahanId})'),
+            subtitle: Text(_asuransi.lahanNama),
           ),
           ListTile(
             leading: const Icon(Icons.calendar_today_outlined),

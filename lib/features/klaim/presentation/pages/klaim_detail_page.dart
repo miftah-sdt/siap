@@ -50,7 +50,7 @@ class KlaimDetailPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.policy_outlined),
             title: const Text('Polis'),
-            subtitle: Text('${klaim.polisNomor} (${klaim.polisId})'),
+            subtitle: Text(klaim.polisNomor),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),

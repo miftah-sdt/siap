@@ -45,20 +45,38 @@ class LookupService {
 
     return response.data!.map((raw) {
       final item = raw as Map<String, dynamic>;
+      final petaniNama = item['petani_nama'] as String? ?? '-';
+      final namaLahan = item['nama_lahan'] as String;
       return SelectOption(
         id: item['id'] as String,
-        label: item['nama_lahan'] as String,
+        label: '$petaniNama — $namaLahan',
         subtitle:
             '${item['kode_lahan']} • ${item['luas']} ha • ${item['lokasi']}',
         extra: {
-          'nama_lahan': item['nama_lahan'] as String,
-          'petani_nama': item['petani_nama'] as String? ?? '',
+          'nama_lahan': namaLahan,
+          'petani_id': item['petani_id'] as String? ?? '',
+          'petani_nama': petaniNama,
         },
       );
     }).toList();
   }
 
-  Future<List<SelectOption>> getPolisOptions({String? status}) async {
+  Future<List<SelectOption>> getPolisOptions({
+    String? status,
+    List<String>? statuses,
+  }) async {
+    if (statuses != null && statuses.isNotEmpty) {
+      final merged = <SelectOption>[];
+      final seen = <String>{};
+      for (final itemStatus in statuses) {
+        final options = await getPolisOptions(status: itemStatus);
+        for (final option in options) {
+          if (seen.add(option.id)) merged.add(option);
+        }
+      }
+      return merged;
+    }
+
     final response = await _client.get<List<dynamic>>(
       ApiEndpoint.asuransi,
       queryParameters: {

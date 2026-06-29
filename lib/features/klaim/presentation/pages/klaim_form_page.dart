@@ -58,7 +58,9 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
   Future<void> _loadPolisOptions() async {
     setState(() => _loadingPolis = true);
     try {
-      final options = await _lookup.getPolisOptions();
+      final options = await _lookup.getPolisOptions(
+        statuses: const ['approved', 'verified', 'submitted'],
+      );
       if (!mounted) return;
       setState(() {
         _polisOptions = options;
@@ -154,11 +156,24 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
                     value: _selectedPolisId,
                     isLoading: _loadingPolis,
                     enabled: !isLoading,
+                    hint: _polisOptions.isEmpty && !_loadingPolis
+                        ? 'Belum ada polis tersedia'
+                        : 'Pilih nomor polis',
                     onChanged: (value) =>
                         setState(() => _selectedPolisId = value),
                     validator: (v) =>
                         Validators.required(v, field: 'Polis Asuransi'),
                   ),
+                  if (!_loadingPolis && _polisOptions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.sm),
+                      child: Text(
+                        'Ajukan akseptasi asuransi terlebih dahulu.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
                   if (selectedPolis != null) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Card(

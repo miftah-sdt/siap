@@ -430,8 +430,7 @@ flutter build web --release ^
   --dart-define=API_BASE_URL=https://siap-api-production.up.railway.app/v1
 
 # APK untuk Nox
-flutter build apk --release ^
-  --dart-define=API_BASE_URL=https://siap-api-production.up.railway.app/v1
+flutter build apk --release --dart-define=API_BASE_URL=https://siap-api-production.up.railway.app/v1
 ```
 
 ---

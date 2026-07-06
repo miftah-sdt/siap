@@ -17,6 +17,9 @@ class SslPinningConfig {
   static const String railwayApiHost = 'siap-api-production.up.railway.app';
 
   static const List<String> railwayApiPins = [
+    // Perbarui Jul 2026 — Railway memutar sertifikat Let's Encrypt
+    '351ec21cc7a43f881a86f3ce2f4872cf307244cd042bbcf69bbeb7e639d310b6',
+    // Pin sebelumnya (cadangan jika rollback)
     'd0971986fdb19fe936da41e20dfff66ced9754c1ba65660dd7b805cd69b7b131',
   ];
 

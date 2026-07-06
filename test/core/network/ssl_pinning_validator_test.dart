@@ -6,7 +6,7 @@ void main() {
   group('SslPinningValidator', () {
     test('normalizeSha256Fingerprint matches Railway production cert', () {
       const opensslOutput =
-          'SHA256 Fingerprint=D0:97:19:86:FD:B1:9F:E9:36:DA:41:E2:0D:FF:F6:6C:ED:97:54:C1:BA:65:66:0D:D7:B8:05:CD:69:B7:B1:31';
+          'SHA256 Fingerprint=35:1E:C2:1C:C7:A4:3F:88:1A:86:F3:CE:2F:48:72:CF:30:72:44:CD:04:2B:BC:F6:9B:BE:B7:E6:39:D3:10:B6';
       expect(
         normalizeSha256Fingerprint(opensslOutput),
         SslPinningConfig.railwayApiPins.first,

@@ -52,3 +52,13 @@ ENABLE_THREAT_REPORTING=true
 ```
 
 Jalankan migrasi `api/migrations/005_security_threat_reports.sql` sebelum production.
+
+## Webhook DoveRunner (server-side)
+
+Endpoint webhook ada di repo `api` (bukan Flutter):
+
+```
+POST /v1/security/webhooks/doverunner
+```
+
+Panduan lengkap: `api/docs/DOVERUNNER_WEBHOOK.md`

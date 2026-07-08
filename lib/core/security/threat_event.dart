@@ -37,10 +37,7 @@ class ThreatEvent {
   final DateTime detectedAt;
   final Map<String, dynamic>? extra;
 
-  Map<String, dynamic> toApiPayload({
-    String? userId,
-    String? appVersion,
-  }) {
+  Map<String, dynamic> toApiPayload({String? userId, String? appVersion}) {
     return {
       'code': code,
       'message': message,

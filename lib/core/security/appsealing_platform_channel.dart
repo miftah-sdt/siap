@@ -9,9 +9,11 @@ class AppSealingPlatformChannel {
     EventChannel? eventChannel,
     MethodChannel? methodChannel,
   }) : _eventChannel =
-           eventChannel ?? const EventChannel(AppSealingPlatformChannel.channelName),
+           eventChannel ??
+           const EventChannel(AppSealingPlatformChannel.channelName),
        _methodChannel =
-           methodChannel ?? const MethodChannel(AppSealingPlatformChannel.channelName);
+           methodChannel ??
+           const MethodChannel(AppSealingPlatformChannel.channelName);
 
   static const String channelName = 'com.siap/appsealing_threats';
 
@@ -21,9 +23,9 @@ class AppSealingPlatformChannel {
   StreamSubscription<dynamic>? _subscription;
 
   Stream<ThreatEvent> threatStream() {
-    return _eventChannel
-        .receiveBroadcastStream()
-        .map((event) => ThreatEvent.fromMap(event as Map<dynamic, dynamic>));
+    return _eventChannel.receiveBroadcastStream().map(
+      (event) => ThreatEvent.fromMap(event as Map<dynamic, dynamic>),
+    );
   }
 
   void listen(void Function(ThreatEvent event) onThreat) {

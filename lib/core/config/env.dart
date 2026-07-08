@@ -85,4 +85,12 @@ class Env {
     final url = baseUrl.toLowerCase();
     return url.startsWith('https://');
   }
+
+  /// AppSealing threat reporting → REST API.
+  /// Aktifkan: `--dart-define=ENABLE_THREAT_REPORTING=true`
+  /// Rollback: hapus dart-define atau set `false` (default).
+  static const bool enableThreatReporting = bool.fromEnvironment(
+    'ENABLE_THREAT_REPORTING',
+    defaultValue: false,
+  );
 }

@@ -53,4 +53,7 @@ class ApiEndpoint {
   // Pengguna
   static const String pengguna = '/pengguna';
   static String penggunaDetail(String id) => '/pengguna/$id';
+
+  // Security (AppSealing threat reporting — rollback: hapus baris ini)
+  static const String securityThreats = '/security/threats';
 }

@@ -12,5 +12,11 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    // Rollback: hapus 2 baris di bawah + folder Runner/Security/
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AppSealingThreat") {
+      AppSealingThreatRegistrar.register(with: registrar)
+      AppSealingThreatRegistrar.registerAppSealingCallback()
+    }
   }
 }

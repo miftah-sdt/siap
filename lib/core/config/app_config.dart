@@ -9,6 +9,7 @@ class AppConfig {
     required this.receiveTimeout,
     required this.enableNetworkLogging,
     required this.sslPinningConfig,
+    required this.enableThreatReporting,
   });
 
   final String appName;
@@ -17,6 +18,7 @@ class AppConfig {
   final Duration receiveTimeout;
   final bool enableNetworkLogging;
   final SslPinningConfig sslPinningConfig;
+  final bool enableThreatReporting;
 
   factory AppConfig.fromEnv() {
     final baseUrl = Env.baseUrl;
@@ -30,6 +32,7 @@ class AppConfig {
         enabled: Env.enableSslPinning,
         apiBaseUrl: baseUrl,
       ),
+      enableThreatReporting: Env.enableThreatReporting,
     );
   }
 }

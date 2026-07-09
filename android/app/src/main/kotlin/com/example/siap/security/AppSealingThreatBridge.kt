@@ -3,6 +3,7 @@ package com.example.siap.security
 import android.os.Handler
 import android.os.Looper
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
@@ -63,7 +64,7 @@ object AppSealingThreatBridge {
         }
     }
 
-    fun handleMethodCall(call: MethodChannel.MethodCall, result: MethodChannel.Result) {
+    fun handleMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "acknowledgeThreat" -> {
                 val code = call.argument<Int>("code") ?: 0

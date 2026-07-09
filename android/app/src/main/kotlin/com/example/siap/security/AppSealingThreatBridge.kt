@@ -9,44 +9,51 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Bridge AppSealing threat callback → Flutter EventChannel.
- *
- * Panggil [onThreatDetected] dari listener AppSealing SDK (Applying Guide ADC).
+ * Bridge DoveRunner threat broadcast → Flutter EventChannel → Dio → REST API.
  */
 object AppSealingThreatBridge {
-    private const val KILL_DELAY_MS = 3_000L
-
     private var eventSink: EventChannel.EventSink? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val acknowledged = ConcurrentHashMap.newKeySet<Int>()
+    private val recentBroadcastKeys = ConcurrentHashMap.newKeySet<String>()
 
     fun setEventSink(sink: EventChannel.EventSink?) {
         eventSink = sink
     }
 
-    fun onThreatDetected(
-        code: Int,
-        message: String,
-        category: String,
-        willKillApp: Boolean,
-        extra: Map<String, Any?> = emptyMap(),
-    ) {
+    /**
+     * Entry point dari [ThreatReceiver] sesuai DoveRunner Monitoring Mode.
+     * Broadcast hanya mengirim threat_code + timestamp; app tidak di-kill.
+     */
+    fun onDoveRunnerThreatDiscovered(threatCode: String, timestampMillis: Long) {
+        val info = DoveRunnerThreatCatalog.resolve(threatCode)
+        val numericCode = DoveRunnerThreatCatalog.parseNumericCode(info.threatCode)
+        val detectedAtMillis = if (timestampMillis > 0L) timestampMillis else System.currentTimeMillis()
+
+        // DoveRunner mendeteksi berkala (~5 detik). Dedup per bucket 5 detik.
+        val dedupeKey = "${info.threatCode}-${detectedAtMillis / 5_000L}"
+        if (!recentBroadcastKeys.add(dedupeKey)) {
+            return
+        }
+
         val payload = linkedMapOf<String, Any?>(
-            "code" to code,
-            "message" to message,
-            "category" to category,
+            "threat_code" to info.threatCode,
+            "code" to numericCode,
+            "message" to info.message,
+            "category" to info.category,
+            "severity" to info.severity,
             "platform" to "android",
-            "will_kill_app" to willKillApp,
-            "detected_at" to Instant.now().toString(),
-            "extra" to extra,
+            "will_kill_app" to false,
+            "detected_at" to Instant.ofEpochMilli(detectedAtMillis).toString(),
+            "extra" to mapOf(
+                "source" to "doverunner_broadcast",
+                "raw_threat_code" to threatCode,
+                "timestamp_millis" to detectedAtMillis,
+            ),
         )
 
         mainHandler.post {
             eventSink?.success(payload)
-        }
-
-        if (willKillApp) {
-            scheduleKillAfterAck(code)
         }
     }
 
@@ -56,6 +63,19 @@ object AppSealingThreatBridge {
     }
 
     fun isAppSealingActive(): Boolean {
+        return isDoveRunnerSealed() || isLegacyAppSealingPresent()
+    }
+
+    private fun isDoveRunnerSealed(): Boolean {
+        return try {
+            Class.forName("com.doverunner.aos.security.AppSealingAlertDialog")
+            true
+        } catch (_: ClassNotFoundException) {
+            false
+        }
+    }
+
+    private fun isLegacyAppSealingPresent(): Boolean {
         return try {
             Class.forName("com.inka.appsealing.AppSealingAlertDialog")
             true
@@ -74,13 +94,5 @@ object AppSealingThreatBridge {
             "isAppSealingActive" -> result.success(isAppSealingActive())
             else -> result.notImplemented()
         }
-    }
-
-    private fun scheduleKillAfterAck(code: Int) {
-        mainHandler.postDelayed({
-            if (!acknowledged.contains(code)) {
-                android.os.Process.killProcess(android.os.Process.myPid())
-            }
-        }, KILL_DELAY_MS)
     }
 }

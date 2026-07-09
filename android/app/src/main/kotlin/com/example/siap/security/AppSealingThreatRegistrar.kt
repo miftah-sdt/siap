@@ -5,8 +5,8 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * Registrasi platform channel. Dipanggil dari [MainActivity].
- * Rollback: hapus file ini + folder security + baris register di MainActivity.
+ * Registrasi Flutter platform channel.
+ * Threat callback DoveRunner ditangani oleh [ThreatReceiver] (broadcast).
  */
 object AppSealingThreatRegistrar {
     const val CHANNEL = "com.siap/appsealing_threats"
@@ -29,15 +29,5 @@ object AppSealingThreatRegistrar {
                     }
                 },
             )
-    }
-
-    /**
-     * Daftarkan callback AppSealing SDK di sini (sesuaikan Applying Guide ADC).
-     */
-    fun registerAppSealingCallback() {
-        // Contoh ilustratif — ganti dengan API resmi AppSealing:
-        // AppSealing.setOnHackDetectedListener { code, message, category, willKill ->
-        //     AppSealingThreatBridge.onThreatDetected(code, message, category, willKill)
-        // }
     }
 }

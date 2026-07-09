@@ -53,6 +53,23 @@ ENABLE_THREAT_REPORTING=true
 
 Jalankan migrasi `api/migrations/005_security_threat_reports.sql` sebelum production.
 
+## DoveRunner Threat Detection Callback (Android)
+
+Integrasi mengikuti `Threat_Detection_Callback_Integration_Guide_Android_v1.0_EN` dan sample `BroadcastSampleAppF.zip`:
+
+- Broadcast action: `com.doverunner.aos.security.action.THREAT_DISCOVERED`
+- Permission: `com.doverunner.aos.security.permission.RECEIVE_ALERTS`
+- Receiver: `android/.../security/ThreatReceiver.kt`
+- Mapping kode: `DoveRunnerThreatCatalog.kt` (D10001, D11001, dst.)
+
+Saat sealing di DoveRunner Console, aktifkan opsi:
+**Use callback for threat handling instead of app termination** (Monitoring Mode).
+
+Uji di device sealed:
+```bash
+adb logcat | grep ThreatTracker
+```
+
 ## Webhook DoveRunner (server-side)
 
 Endpoint webhook ada di repo `api` (bukan Flutter):

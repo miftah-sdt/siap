@@ -23,7 +23,11 @@
 -keep class com.mr.flutter.plugin.filepicker.** { *; }
 -dontwarn androidx.lifecycle.**
 
-# Keep native methods
+# DoveRunner / AppSealing security bridge
+-keep class com.example.siap.security.** { *; }
+-dontwarn com.doverunner.aos.security.**
+-dontwarn com.inka.appsealing.**
+
 -keepclasseswithmembernames class * {
     native <methods>;
 }

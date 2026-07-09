@@ -9,8 +9,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Rollback: hapus 2 baris di bawah + folder security/
+        // Rollback: hapus baris di bawah + folder security/ + ThreatReceiver di manifest
         AppSealingThreatRegistrar.register(flutterEngine)
-        AppSealingThreatRegistrar.registerAppSealingCallback()
     }
 }

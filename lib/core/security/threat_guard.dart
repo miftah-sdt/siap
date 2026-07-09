@@ -20,7 +20,7 @@ class ThreatGuard {
   final String appVersion;
   final void Function(ThreatEvent event)? onThreatUi;
 
-  final Set<int> _reportedCodes = {};
+  final Set<String> _reportedKeys = {};
   bool _started = false;
 
   Future<void> start() async {
@@ -42,14 +42,13 @@ class ThreatGuard {
     debugPrint('[ThreatGuard] detected: $event');
     onThreatUi?.call(event);
 
-    if (_reportedCodes.contains(event.code)) {
+    if (_reportedKeys.contains(event.dedupeKey)) {
       return;
     }
-    _reportedCodes.add(event.code);
+    _reportedKeys.add(event.dedupeKey);
 
     final userId = await resolveUserId?.call();
-    final idempotencyKey =
-        '${event.code}-${event.detectedAt.millisecondsSinceEpoch}';
+    final idempotencyKey = event.dedupeKey;
 
     final result = await _reportService.reportThreat(
       event: event,

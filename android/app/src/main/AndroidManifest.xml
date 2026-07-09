@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- DoveRunner Threat Detection Callback (Monitoring Mode) -->
+    <permission
+        android:name="com.doverunner.aos.security.permission.RECEIVE_ALERTS"
+        android:protectionLevel="normal" />
+    <uses-permission android:name="com.doverunner.aos.security.permission.RECEIVE_ALERTS" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -38,6 +44,15 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <receiver
+            android:name=".security.ThreatReceiver"
+            android:exported="true"
+            android:permission="com.doverunner.aos.security.permission.RECEIVE_ALERTS">
+            <intent-filter>
+                <action android:name="com.doverunner.aos.security.action.THREAT_DISCOVERED" />
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -43,4 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
+/android/.gradle/
+/android/.kotlin/
+
+# Local scratch / unused artifacts
 Request For Information Pertanian.pdf
+bugreport-*.zip
+*.bugreport.zip
+generate.md
+structure.md
+PROJECT_REQUIREMENT.md

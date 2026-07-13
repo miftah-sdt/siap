@@ -16,6 +16,7 @@ import 'package:siap/core/services/rfi_remote_service.dart';
 import 'package:siap/core/security/threat_guard.dart';
 import 'package:siap/core/security/threat_report_service.dart';
 import 'package:siap/core/config/env.dart';
+import 'package:siap/core/constants/app_constants.dart';
 import 'package:siap/core/services/media_picker_service.dart';
 import 'package:siap/core/services/notification_service.dart';
 import 'package:siap/core/storage/shared_pref_service.dart';
@@ -136,7 +137,7 @@ Future<void> configureDependencies() async {
           final session = sl<SharedPrefService>().getUserSession();
           return session?['id'] as String?;
         },
-        appVersion: '1.0.0',
+        appVersion: AppConstants.appVersion,
       ),
     );
   }

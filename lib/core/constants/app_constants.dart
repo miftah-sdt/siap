@@ -3,6 +3,7 @@ class AppConstants {
 
   static const String appName = 'SIAP';
   static const String appFullName = 'Sistem Informasi Asuransi Pertanian';
+  static const String appVersion = '1.0.0';
 
   // Storage keys
   static const String accessTokenKey = 'access_token';

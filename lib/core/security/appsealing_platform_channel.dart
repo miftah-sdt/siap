@@ -16,6 +16,8 @@ class AppSealingPlatformChannel {
            const MethodChannel(AppSealingPlatformChannel.channelName);
 
   static const String channelName = 'com.siap/appsealing_threats';
+  static const String eventChannelName = channelName;
+  static const String methodChannelName = channelName;
 
   final EventChannel _eventChannel;
   final MethodChannel _methodChannel;

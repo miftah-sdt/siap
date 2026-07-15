@@ -53,8 +53,7 @@ jobs:
           API_BASE_URL: ${{ steps.api.outputs.url }}
         run: |
           flutter build ios --release --no-codesign \
-            --dart-define=API_BASE_URL="$API_BASE_URL" \
-            --dart-define=ENABLE_SSL_PINNING=false
+            --dart-define=API_BASE_URL="$API_BASE_URL"
 
       - name: Package unsigned IPA
         run: |

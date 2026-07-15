@@ -24,7 +24,7 @@
 -dontwarn androidx.lifecycle.**
 
 # DoveRunner / AppSealing security bridge
--keep class com.example.siap.security.** { *; }
+-keep class com.miftah.siap.security.** { *; }
 -dontwarn com.doverunner.aos.security.**
 -dontwarn com.inka.appsealing.**
 

@@ -23,6 +23,15 @@ class SslPinningConfig {
     'd0971986fdb19fe936da41e20dfff66ced9754c1ba65660dd7b805cd69b7b131',
   ];
 
+  static const String cloudflareTunnelHost =
+      'roof-mouse-specialties-stat.trycloudflare.com';
+
+  static const List<String> cloudflareTunnelPins = [
+    // Fingerprint sertifikat *.trycloudflare.com per 15 Jul 2026.
+    // Cloudflare memutar sertifikat edge secara berkala — perbarui saat gagal handshake.
+    '6faada4de84082b4256fb60f5f6172f3e1c5ee5e294b2775b367120278c65ad5',
+  ];
+
   factory SslPinningConfig.forApiHost({
     required bool enabled,
     required String apiBaseUrl,
@@ -38,6 +47,7 @@ class SslPinningConfig {
 
     final pins = switch (host) {
       railwayApiHost => railwayApiPins,
+      cloudflareTunnelHost => cloudflareTunnelPins,
       _ => <String>[],
     };
 

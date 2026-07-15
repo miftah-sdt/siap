@@ -8,7 +8,7 @@
 PRODUCT_NAME = siap
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.siap
+PRODUCT_BUNDLE_IDENTIFIER = com.miftah.siap
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.example. All rights reserved.

@@ -73,6 +73,17 @@ class Env {
 
   static bool get enableNetworkLogging => !kReleaseMode;
 
+  /// Arahkan Dio ke Burp/mitmproxy (Flutter tidak pakai proxy sistem Android).
+  /// Emulator: `--dart-define=BURP_PROXY=10.0.2.2:8080`
+  /// Wajib bersama `ENABLE_SSL_PINNING=false` agar sertifikat Burp diterima.
+  static const String _burpProxyOverride = String.fromEnvironment('BURP_PROXY');
+
+  static String? get burpProxy {
+    final raw = _burpProxyOverride.trim();
+    if (raw.isEmpty) return null;
+    return raw;
+  }
+
   /// Nonaktifkan saat debug lokal: `--dart-define=ENABLE_SSL_PINNING=false`
   static const bool _sslPinningOverride = bool.fromEnvironment(
     'ENABLE_SSL_PINNING',

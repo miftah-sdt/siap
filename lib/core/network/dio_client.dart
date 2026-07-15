@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:siap/core/config/app_config.dart';
+import 'package:siap/core/config/env.dart';
 import 'package:siap/core/network/dio_interceptor.dart';
 import 'package:siap/core/network/models/base_api_response.dart';
 import 'package:siap/core/network/network_exceptions.dart';
@@ -29,7 +30,11 @@ class DioClient {
       LoggingInterceptor(enabled: _appConfig.enableNetworkLogging),
     ]);
 
-    configureSslPinning(_dio, _appConfig.sslPinningConfig);
+    configureSslPinning(
+      _dio,
+      _appConfig.sslPinningConfig,
+      burpProxy: Env.burpProxy,
+    );
   }
 
   final AppConfig _appConfig;

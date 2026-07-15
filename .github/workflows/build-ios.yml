@@ -1,0 +1,73 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'API URL, contoh https://roof-mouse-specialties-stat.trycloudflare.com/v1'
+        required: false
+        type: string
+
+concurrency:
+  group: build-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    name: Build iOS (unsigned IPA)
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Resolve API URL
+        id: api
+        env:
+          INPUT_URL: ${{ github.event.inputs.api_base_url }}
+          SECRET_URL: ${{ secrets.SIAP_API_URL }}
+        run: |
+          RAW_URL="${INPUT_URL:-$SECRET_URL}"
+          RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+          if [ -z "$RAW_URL" ]; then
+            RAW_URL="https://roof-mouse-specialties-stat.trycloudflare.com/v1"
+            echo "::warning::SIAP_API_URL belum di-set, pakai default $RAW_URL"
+          fi
+          echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
+          echo "Using API_BASE_URL=$RAW_URL"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (release, no code signing)
+        env:
+          API_BASE_URL: ${{ steps.api.outputs.url }}
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=ENABLE_SSL_PINNING=false
+
+      - name: Package unsigned IPA
+        run: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -R Runner.app Payload/Runner.app
+          zip -qry siap-unsigned.ipa Payload
+          echo "=== isi IPA ==="
+          unzip -l siap-unsigned.ipa | head -n 20
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v5
+        with:
+          name: siap-ios-unsigned-ipa
+          path: build/ios/iphoneos/siap-unsigned.ipa
+          retention-days: 30

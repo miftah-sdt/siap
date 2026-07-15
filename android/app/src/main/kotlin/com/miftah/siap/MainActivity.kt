@@ -1,6 +1,6 @@
-package com.example.siap
+package com.miftah.siap
 
-import com.example.siap.security.AppSealingThreatRegistrar
+import com.miftah.siap.security.AppSealingThreatRegistrar
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 

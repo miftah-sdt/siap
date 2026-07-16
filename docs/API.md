@@ -4,11 +4,11 @@ Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
 Default development: `http://localhost:3000/v1`
 
-**Production (Railway):** `https://siap-api-production.up.railway.app/v1`
+**Production (Cloudflare Tunnel):** `https://roof-mouse-specialties-stat.trycloudflare.com/v1`
 
 | Endpoint | URL |
 |----------|-----|
-| Health | https://siap-api-production.up.railway.app/health |
+| Health | https://roof-mouse-specialties-stat.trycloudflare.com/health |
 | Login | `POST /v1/auth/login` |
 
 Jalankan backend lokal (PostgreSQL + API):

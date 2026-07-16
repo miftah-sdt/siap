@@ -4,12 +4,12 @@ import 'package:siap/core/network/ssl_pinning_validator.dart';
 
 void main() {
   group('SslPinningValidator', () {
-    test('normalizeSha256Fingerprint matches Railway production cert', () {
+    test('normalizeSha256Fingerprint matches Cloudflare tunnel cert', () {
       const opensslOutput =
-          'SHA256 Fingerprint=35:1E:C2:1C:C7:A4:3F:88:1A:86:F3:CE:2F:48:72:CF:30:72:44:CD:04:2B:BC:F6:9B:BE:B7:E6:39:D3:10:B6';
+          'SHA256 Fingerprint=6F:AA:DA:4D:E8:40:82:B4:25:6F:B6:0F:5F:61:72:F3:E1:C5:EE:5E:29:4B:27:75:B3:67:12:02:78:C6:5A:D5';
       expect(
         normalizeSha256Fingerprint(opensslOutput),
-        SslPinningConfig.railwayApiPins.first,
+        SslPinningConfig.cloudflareTunnelPins.first,
       );
     });
 
@@ -22,15 +22,21 @@ void main() {
       );
     });
 
-    test('forApiHost enables pinning for Railway production host', () {
+    test('forApiHost enables pinning for Cloudflare tunnel host', () {
       final config = SslPinningConfig.forApiHost(
         enabled: true,
-        apiBaseUrl: 'https://siap-api-production.up.railway.app/v1',
+        apiBaseUrl: 'https://roof-mouse-specialties-stat.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isTrue);
-      expect(config.shouldPinHost(SslPinningConfig.railwayApiHost), isTrue);
-      expect(config.pinsForHost(SslPinningConfig.railwayApiHost), isNotEmpty);
+      expect(
+        config.shouldPinHost(SslPinningConfig.cloudflareTunnelHost),
+        isTrue,
+      );
+      expect(
+        config.pinsForHost(SslPinningConfig.cloudflareTunnelHost),
+        SslPinningConfig.cloudflareTunnelPins,
+      );
     });
 
     test('forApiHost disables pinning for localhost', () {
@@ -45,7 +51,7 @@ void main() {
     test('forApiHost disables pinning when globally disabled', () {
       final config = SslPinningConfig.forApiHost(
         enabled: false,
-        apiBaseUrl: 'https://siap-api-production.up.railway.app/v1',
+        apiBaseUrl: 'https://roof-mouse-specialties-stat.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isFalse);

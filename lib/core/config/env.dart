@@ -49,6 +49,7 @@ class Env {
       url = url.replaceFirst('http:', 'http://');
     }
     url = url.replaceAll('.appv1', '.app/v1');
+    url = url.replaceAll('.comv1', '.com/v1');
 
     final uri = Uri.tryParse(url);
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) return null;

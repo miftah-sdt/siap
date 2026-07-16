@@ -3,15 +3,15 @@ import 'package:siap/core/config/env.dart';
 
 void main() {
   group('Env API base URL repair', () {
-    test('repairs CI-mangled Railway URL', () {
+    test('repairs CI-mangled Cloudflare URL', () {
       // Simulates broken compile-time override from GitHub Actions shell.
-      const broken = 'https:siap-api-production.up.railway.appv1';
+      const broken = 'https:roof-mouse-specialties-stat.trycloudflare.comv1';
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
-      expect(repaired, 'https://siap-api-production.up.railway.app/v1');
+      expect(repaired, 'https://roof-mouse-specialties-stat.trycloudflare.com/v1');
     });
 
     test('accepts valid https URL unchanged', () {
-      const valid = 'https://siap-api-production.up.railway.app/v1';
+      const valid = 'https://roof-mouse-specialties-stat.trycloudflare.com/v1';
       expect(Env.sanitizeApiBaseUrlForTest(valid), valid);
     });
 

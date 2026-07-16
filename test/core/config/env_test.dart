@@ -7,7 +7,10 @@ void main() {
       // Simulates broken compile-time override from GitHub Actions shell.
       const broken = 'https:roof-mouse-specialties-stat.trycloudflare.comv1';
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
-      expect(repaired, 'https://roof-mouse-specialties-stat.trycloudflare.com/v1');
+      expect(
+        repaired,
+        'https://roof-mouse-specialties-stat.trycloudflare.com/v1',
+      );
     });
 
     test('accepts valid https URL unchanged', () {

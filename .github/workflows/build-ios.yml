@@ -1,5 +1,8 @@
 name: Build iOS
 
+# Menghasilkan IPA UNSIGNED & TANPA sealing (jalur gratis: sign via AltStore/SideStore).
+# Untuk IPA ter-seal DoveRunner (butuh akun Apple berbayar), pakai build-ios-sealed.yml.
+
 on:
   push:
     branches: [main, master]

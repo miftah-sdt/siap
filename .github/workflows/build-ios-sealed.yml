@@ -1,0 +1,196 @@
+name: Build iOS (DoveRunner sealed)
+
+# Pipeline untuk IPA ter-SEAL DoveRunner (enkripsi kode + proteksi runtime).
+#
+# WAJIB (tidak bisa gratis):
+#   - Akun Apple Developer berbayar ($99/thn) -> distribution/ad-hoc certificate + provisioning profile
+#   - Lisensi DoveRunner + folder ios/AppSealingSDK tersedia saat CI
+#     (di-git-ignore; untuk repo PRIVATE: `git add -f ios/AppSealingSDK`)
+#
+# Alur: build Flutter -> integrasi SDK (apply_appsealing.sh) -> archive+sign
+#       -> export IPA -> seal (generate_hash) -> artifact.
+#
+# Jalankan manual: tab Actions -> "Build iOS (DoveRunner sealed)" -> Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      export_method:
+        description: 'Export method: release-testing (ad-hoc) / app-store-connect'
+        required: true
+        default: 'release-testing'
+        type: choice
+        options:
+          - release-testing
+          - app-store-connect
+      api_base_url:
+        description: 'API URL (opsional), contoh https://.../v1'
+        required: false
+        type: string
+
+concurrency:
+  group: build-ios-sealed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-sealed:
+    name: Build & seal IPA
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Cek prasyarat (SDK + secrets)
+        env:
+          CERT: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          CERT_PW: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROFILE: ${{ secrets.IOS_MOBILEPROVISION_BASE64 }}
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_PROFILE_NAME }}
+        run: |
+          set -e
+          missing=0
+          if [ ! -x ios/AppSealingSDK/Tools/generate_hash ]; then
+            echo "::error::ios/AppSealingSDK tidak ada di checkout. Untuk repo private: git add -f ios/AppSealingSDK, atau sediakan via secure storage."
+            missing=1
+          fi
+          for v in CERT CERT_PW PROFILE TEAM_ID PROFILE_NAME; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret $v belum di-set (Settings -> Secrets and variables -> Actions)."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || { echo "::error::Prasyarat sealing belum lengkap."; exit 1; }
+          echo "Prasyarat OK."
+
+      - name: Resolve API URL
+        id: api
+        env:
+          INPUT_URL: ${{ github.event.inputs.api_base_url }}
+          SECRET_URL: ${{ secrets.SIAP_API_URL }}
+        run: |
+          RAW_URL="${INPUT_URL:-$SECRET_URL}"
+          RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+          if [ -z "$RAW_URL" ]; then
+            RAW_URL="https://roof-mouse-specialties-stat.trycloudflare.com/v1"
+            echo "::warning::API URL kosong, pakai default $RAW_URL"
+          fi
+          echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Import signing certificate & provisioning profile
+        env:
+          CERT_B64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          CERT_PW: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROFILE_B64: ${{ secrets.IOS_MOBILEPROVISION_BASE64 }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/siap-signing.keychain-db"
+          KEYCHAIN_PW="ci-temp-pw"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | sed s/\"//g)
+          security default-keychain -s "$KEYCHAIN"
+
+          echo "$CERT_B64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PW" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PW" "$KEYCHAIN"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+          PP_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PP_DIR"
+          echo "$PROFILE_B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          UUID=$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | plutil -extract UUID raw -)
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$PP_DIR/$UUID.mobileprovision"
+          echo "Provisioning profile UUID: $UUID"
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build Flutter iOS (no codesign)
+        env:
+          API_BASE_URL: ${{ steps.api.outputs.url }}
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE_URL="$API_BASE_URL"
+
+      - name: Integrasi DoveRunner SDK
+        run: bash ios/scripts/apply_appsealing.sh
+
+      - name: Archive (signed)
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_PROFILE_NAME }}
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
+
+      - name: Export IPA
+        env:
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          PROFILE_NAME: ${{ secrets.IOS_PROFILE_NAME }}
+          EXPORT_METHOD: ${{ github.event.inputs.export_method }}
+        run: |
+          set -euo pipefail
+          BUNDLE_ID=$(xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos 2>/dev/null | awk -F' = ' '/ PRODUCT_BUNDLE_IDENTIFIER /{print $2; exit}')
+          echo "Bundle ID: $BUNDLE_ID"
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>${EXPORT_METHOD}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>teamID</key>
+            <string>${TEAM_ID}</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key>
+              <string>${PROFILE_NAME}</string>
+            </dict>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+          find "$RUNNER_TEMP/export" -name "*.ipa"
+
+      - name: Seal IPA (DoveRunner generate_hash)
+        run: |
+          set -euo pipefail
+          IPA_PATH=$(find "$RUNNER_TEMP/export" -name "*.ipa" | head -n 1)
+          [ -n "$IPA_PATH" ] || { echo "::error::IPA tidak ditemukan"; exit 1; }
+          bash ios/scripts/seal_ipa.sh "$IPA_PATH"
+
+      - name: Upload sealed IPA
+        uses: actions/upload-artifact@v5
+        with:
+          name: siap-ios-sealed-ipa
+          path: ${{ runner.temp }}/export/*.ipa
+          retention-days: 30

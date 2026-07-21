@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -15,16 +17,32 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  Timer? _fallbackTimer;
+
   @override
   void initState() {
     super.initState();
     context.read<AuthBloc>().add(const AuthEvent.checkAuthStatus());
+    _fallbackTimer = Timer(const Duration(seconds: 8), () {
+      if (!mounted) return;
+      final state = context.read<AuthBloc>().state;
+      if (state is AuthLoading || state is AuthInitial) {
+        context.go(RouteNames.login);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fallbackTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        _fallbackTimer?.cancel();
         switch (state) {
           case AuthAuthenticated():
             context.go(RouteNames.dashboard);

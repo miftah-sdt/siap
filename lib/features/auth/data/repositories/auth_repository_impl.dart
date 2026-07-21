@@ -74,6 +74,11 @@ class AuthRepositoryImpl implements AuthRepository {
       final cached = _local.getCachedUser();
       if (cached != null) return Success(cached);
 
+      final token = _local.getAccessToken();
+      if (token == null || token.isEmpty) {
+        return const Success(null);
+      }
+
       final profile = await _remote.getProfile();
       final user = profile.toEntity();
       await _local.saveUser(user);

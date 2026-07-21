@@ -6,6 +6,7 @@ abstract class AuthLocalDataSource {
   Future<void> saveAuth(AuthResponseModel auth);
   Future<void> saveUser(User user);
   User? getCachedUser();
+  String? getAccessToken();
   Future<void> clearAuth();
 }
 
@@ -55,6 +56,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       ),
     );
   }
+
+  @override
+  String? getAccessToken() => _prefs.getAccessToken();
 
   @override
   Future<void> clearAuth() => _prefs.clearSession();

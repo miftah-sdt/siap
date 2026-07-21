@@ -58,9 +58,13 @@ class AppSealingPlatformChannel {
   }
 
   Future<bool> isAppSealingActive() async {
-    final result = await _methodChannel.invokeMethod<bool>(
-      'isAppSealingActive',
-    );
-    return result ?? false;
+    try {
+      final result = await _methodChannel
+          .invokeMethod<bool>('isAppSealingActive')
+          .timeout(const Duration(seconds: 3), onTimeout: () => false);
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,9 +17,16 @@ import 'package:siap/routes/auth_router_refresh.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  runApp(const SiapApp());
+
+  // Jangan block first frame — sealed APK / permission / MethodChannel bisa hang.
+  unawaited(_bootstrapAfterFirstFrame());
+}
+
+Future<void> _bootstrapAfterFirstFrame() async {
+  await Future<void>.delayed(Duration.zero);
   await sl<NotificationService>().init();
   await bootstrapThreatReportingIfEnabled();
-  runApp(const SiapApp());
 }
 
 class SiapApp extends StatelessWidget {

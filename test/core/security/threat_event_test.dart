@@ -68,6 +68,23 @@ void main() {
       expect(event.dedupeKey, isNot(nextBucket.dedupeKey));
     });
 
+    test('fromMap maps D13001 usb debugging threat', () {
+      final event = ThreatEvent.fromMap({
+        'threat_code': 'D13001',
+        'code': 13001,
+        'message': 'USB debugging enabled',
+        'category': 'usb_debugging',
+        'severity': 'low',
+        'platform': 'android',
+        'will_kill_app': false,
+        'detected_at': '2026-07-20T10:20:57.000Z',
+      });
+
+      expect(event.threatCode, 'D13001');
+      expect(event.code, 13001);
+      expect(event.category, 'usb_debugging');
+    });
+
     test('toApiPayload includes threat_code for API', () {
       final event = ThreatEvent(
         threatCode: 'D13002',

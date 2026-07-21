@@ -9,7 +9,7 @@ class Env {
   const Env._();
 
   /// Override saat build/deploy:
-  /// `flutter build apk --dart-define=API_BASE_URL=https://roof-mouse-specialties-stat.trycloudflare.com/v1`
+  /// `flutter build apk --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1`
   static const String _apiBaseUrlOverride = String.fromEnvironment(
     'API_BASE_URL',
   );
@@ -17,7 +17,7 @@ class Env {
   static const AppEnvironment current = AppEnvironment.development;
 
   static const String productionBaseUrl =
-      'https://roof-mouse-specialties-stat.trycloudflare.com/v1';
+      'https://division-follow-louis-happen.trycloudflare.com/v1';
 
   static String get baseUrl {
     final override = _sanitizeApiBaseUrl(_apiBaseUrlOverride);
@@ -98,11 +98,10 @@ class Env {
     return url.startsWith('https://');
   }
 
-  /// AppSealing threat reporting → REST API.
-  /// Aktifkan: `--dart-define=ENABLE_THREAT_REPORTING=true`
-  /// Rollback: hapus dart-define atau set `false` (default).
+  /// AppSealing / DoveRunner threat reporting → REST API + popup alert.
+  /// Nonaktifkan: `--dart-define=ENABLE_THREAT_REPORTING=false`
   static const bool enableThreatReporting = bool.fromEnvironment(
     'ENABLE_THREAT_REPORTING',
-    defaultValue: false,
+    defaultValue: true,
   );
 }

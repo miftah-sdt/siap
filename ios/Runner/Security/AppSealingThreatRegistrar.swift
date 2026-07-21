@@ -30,5 +30,10 @@ enum AppSealingThreatRegistrar {
         //         category: category, willKillApp: willKill
         //     )
         // }
+        //
+        // DoveRunner threat code callback (Monitoring Mode):
+        // AppSealingThreatBridge.shared.onDoveRunnerThreatDiscovered(
+        //     threatCode: "D13001", timestampMillis: Int64(Date().timeIntervalSince1970 * 1000)
+        // )
     }
 }

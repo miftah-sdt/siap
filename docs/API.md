@@ -4,11 +4,11 @@ Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
 Default development: `http://localhost:3000/v1`
 
-**Production (Cloudflare Tunnel):** `https://roof-mouse-specialties-stat.trycloudflare.com/v1`
+**Production (Cloudflare Tunnel):** `https://division-follow-louis-happen.trycloudflare.com/v1`
 
 | Endpoint | URL |
 |----------|-----|
-| Health | https://roof-mouse-specialties-stat.trycloudflare.com/health |
+| Health | https://division-follow-louis-happen.trycloudflare.com/health |
 | Login | `POST /v1/auth/login` |
 
 Jalankan backend lokal (PostgreSQL + API):

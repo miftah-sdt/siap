@@ -5,9 +5,9 @@ import 'package:siap/injection/dependency_injection.dart';
 
 /// Satu-satunya titik integrasi di [main.dart].
 ///
-/// Rollback: set `ENABLE_THREAT_REPORTING=false` (default) atau hapus pemanggilan ini.
+/// Rollback: set `ENABLE_THREAT_REPORTING=false` atau hapus pemanggilan ini.
 Future<void> bootstrapThreatReportingIfEnabled() async {
-  if (!Env.enableThreatReporting) {
+  if (kIsWeb || !Env.enableThreatReporting) {
     return;
   }
 

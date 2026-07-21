@@ -13,6 +13,7 @@ import 'package:siap/core/services/location_service.dart';
 import 'package:siap/core/services/lookup_service.dart';
 import 'package:siap/core/services/open_meteo_service.dart';
 import 'package:siap/core/services/rfi_remote_service.dart';
+import 'package:siap/core/security/threat_alert_service.dart';
 import 'package:siap/core/security/threat_guard.dart';
 import 'package:siap/core/security/threat_report_service.dart';
 import 'package:siap/core/config/env.dart';
@@ -138,6 +139,7 @@ Future<void> configureDependencies() async {
           return session?['id'] as String?;
         },
         appVersion: AppConstants.appVersion,
+        onThreatUi: ThreatAlertService.showIfNeeded,
       ),
     );
   }

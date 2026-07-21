@@ -52,6 +52,7 @@ object DoveRunnerThreatCatalog {
         "D60004" to ThreatInfo("D60004", "repackaged_app", "Repackaged application detected", "critical"),
         "D60006" to ThreatInfo("D60006", "repackaged_app", "Repackaged application detected", "critical"),
         "D21003" to ThreatInfo("D21003", "repackaged_app", "Repackaged application detected", "critical"),
+        "D13001" to ThreatInfo("D13001", "usb_debugging", "USB debugging enabled", "low"),
         "D13002" to ThreatInfo("D13002", "usb_debugging", "USB debugging enabled", "low"),
         "D20007" to ThreatInfo("D20007", "tampering", "System tampering or security disabled", "critical"),
         "D60003" to ThreatInfo("D60003", "tampering", "System tampering or security disabled", "critical"),

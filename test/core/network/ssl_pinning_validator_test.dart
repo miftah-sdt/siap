@@ -25,7 +25,7 @@ void main() {
     test('forApiHost enables pinning for Cloudflare tunnel host', () {
       final config = SslPinningConfig.forApiHost(
         enabled: true,
-        apiBaseUrl: 'https://roof-mouse-specialties-stat.trycloudflare.com/v1',
+        apiBaseUrl: 'https://division-follow-louis-happen.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isTrue);
@@ -51,7 +51,7 @@ void main() {
     test('forApiHost disables pinning when globally disabled', () {
       final config = SslPinningConfig.forApiHost(
         enabled: false,
-        apiBaseUrl: 'https://roof-mouse-specialties-stat.trycloudflare.com/v1',
+        apiBaseUrl: 'https://division-follow-louis-happen.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isFalse);

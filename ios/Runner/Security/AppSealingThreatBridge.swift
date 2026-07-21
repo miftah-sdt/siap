@@ -21,19 +21,15 @@ final class AppSealingThreatBridge {
         willKillApp: Bool,
         extra: [String: Any] = [:]
     ) {
-        let payload: [String: Any] = [
-            "code": code,
-            "message": message,
-            "category": category,
-            "platform": "ios",
-            "will_kill_app": willKillApp,
-            "detected_at": ISO8601DateFormatter().string(from: Date()),
-            "extra": extra,
-        ]
-
-        DispatchQueue.main.async { [weak self] in
-            self?.eventSink?(payload)
-        }
+        emitThreatPayload(
+            threatCode: extra["threat_code"] as? String,
+            code: code,
+            message: message,
+            category: category,
+            severity: extra["severity"] as? String,
+            willKillApp: willKillApp,
+            extra: extra
+        )
 
         if willKillApp {
             DispatchQueue.main.asyncAfter(deadline: .now() + killDelay) { [weak self] in
@@ -42,6 +38,65 @@ final class AppSealingThreatBridge {
                     exit(0)
                 }
             }
+        }
+    }
+
+    func onDoveRunnerThreatDiscovered(threatCode: String, timestampMillis: Int64) {
+        let info = DoveRunnerThreatCatalog.resolve(threatCode)
+        let numericCode = DoveRunnerThreatCatalog.parseNumericCode(info.threatCode)
+        let detectedAtMillis = timestampMillis > 0 ? timestampMillis : Int64(Date().timeIntervalSince1970 * 1000)
+
+        emitThreatPayload(
+            threatCode: info.threatCode,
+            code: numericCode,
+            message: info.message,
+            category: info.category,
+            severity: info.severity,
+            willKillApp: false,
+            extra: [
+                "source": "doverunner_callback",
+                "raw_threat_code": threatCode,
+                "timestamp_millis": detectedAtMillis,
+            ],
+            detectedAtMillis: detectedAtMillis
+        )
+    }
+
+    private func emitThreatPayload(
+        threatCode: String?,
+        code: Int,
+        message: String,
+        category: String,
+        severity: String?,
+        willKillApp: Bool,
+        extra: [String: Any],
+        detectedAtMillis: Int64? = nil
+    ) {
+        let detectedAt: String
+        if let millis = detectedAtMillis {
+            detectedAt = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: TimeInterval(millis) / 1000))
+        } else {
+            detectedAt = ISO8601DateFormatter().string(from: Date())
+        }
+
+        var payload: [String: Any] = [
+            "code": code,
+            "message": message,
+            "category": category,
+            "platform": "ios",
+            "will_kill_app": willKillApp,
+            "detected_at": detectedAt,
+            "extra": extra,
+        ]
+        if let threatCode {
+            payload["threat_code"] = threatCode
+        }
+        if let severity {
+            payload["severity"] = severity
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.eventSink?(payload)
         }
     }
 

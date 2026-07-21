@@ -74,7 +74,7 @@ flutter run -d chrome
 flutter run -d android
 
 # android debug
-flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://roof-mouse-specialties-stat.trycloudflare.com/v1
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1
 
 # Hot reload: tekan r
 # Hot restart: tekan R

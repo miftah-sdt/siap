@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       api_base_url:
-        description: 'API URL, contoh https://roof-mouse-specialties-stat.trycloudflare.com/v1'
+        description: 'API URL, contoh https://division-follow-louis-happen.trycloudflare.com/v1'
         required: false
         type: string
 
@@ -36,7 +36,7 @@ jobs:
           RAW_URL="${INPUT_URL:-$SECRET_URL}"
           RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
           if [ -z "$RAW_URL" ]; then
-            RAW_URL="https://roof-mouse-specialties-stat.trycloudflare.com/v1"
+            RAW_URL="https://division-follow-louis-happen.trycloudflare.com/v1"
             echo "::warning::SIAP_API_URL belum di-set, pakai default $RAW_URL"
           fi
           echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"

@@ -40,12 +40,13 @@ class ThreatGuard {
 
   Future<void> _handleThreat(ThreatEvent event) async {
     debugPrint('[ThreatGuard] detected: $event');
-    onThreatUi?.call(event);
 
     if (_reportedKeys.contains(event.dedupeKey)) {
       return;
     }
     _reportedKeys.add(event.dedupeKey);
+
+    onThreatUi?.call(event);
 
     final userId = await resolveUserId?.call();
     final idempotencyKey = event.dedupeKey;

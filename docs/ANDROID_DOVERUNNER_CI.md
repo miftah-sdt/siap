@@ -9,7 +9,7 @@ Panduan build dan **sealing APK** Flutter SIAP dengan paket resmi **AppSealing_C
 ```
 GitHub Actions (ubuntu-latest)
   → flutter build apk --release
-  → decode sealing.jar dari secret
+  → ambil sealing.jar (Release / repo / URL)
   → doverunner-seal.sh (generate config.txt)
   → java -jar sealing.jar -config config.txt
   → artifact APK ter-seal
@@ -55,26 +55,65 @@ Repository → **Settings → Secrets and variables → Actions**
 | Secret | Wajib | Isi |
 |--------|-------|-----|
 | `DOVERUNNER_AUTH_KEY` | Ya | CLI Key dari `CLI Key.txt` |
-| `DOVERUNNER_SEALING_JAR_BASE64` | Ya | Base64 `sealing.jar` dari paket resmi |
 | `SIAP_API_URL` | Disarankan | `https://<domain>/v1` |
 | `DOVERUNNER_API_URL` | Opsional | Default script: `https://api.appsealing.com/covault/gw` |
 | `DOVERUNNER_SEALING_PRESET_NAME` | Opsional | Nama preset DoveRunner Console |
-| `ANDROID_KEYSTORE_BASE64` | Opsional* | Base64 keystore release |
-| `ANDROID_KEYSTORE_PASSWORD` | Opsional* | Password keystore |
-| `ANDROID_KEY_ALIAS` | Opsional* | Alias key (`siap`) |
-| `ANDROID_KEY_PASSWORD` | Opsional* | Password key |
+| `DOVERUNNER_SEALING_JAR_URL` | Opsional* | URL unduh `sealing.jar` |
+| `ANDROID_KEYSTORE_BASE64` | Opsional** | Base64 keystore release |
+| `ANDROID_KEYSTORE_PASSWORD` | Opsional** | Password keystore |
+| `ANDROID_KEY_ALIAS` | Opsional** | Alias key (`siap`) |
+| `ANDROID_KEY_PASSWORD` | Opsional** | Password key |
 
-\* Wajib jika `app_signing=none` atau CI belum punya `android/key.properties`.
+\* Alternatif jika tidak pakai GitHub Release atau commit jar ke repo.  
+\*\* Wajib jika `app_signing=none` atau CI belum punya `android/key.properties`.
 
-Encode `sealing.jar`:
+### sealing.jar tidak bisa di GitHub Secret
+
+`sealing.jar` ≈ **2.5 MB** → base64 ≈ **3.3 MB**.  
+GitHub Actions Secret **maksimum 64 KB** — paste `sealing.jar.b64` **tidak akan berhasil**.
+
+Pilih **salah satu** cara menyediakan jar di CI:
+
+#### Opsi A — GitHub Release (disarankan)
+
+Upload sekali, CI unduh otomatis via `gh release download`:
 
 ```bash
 cd AppSealing_CI_Integration_Tool_latest
-base64 -w0 sealing.jar > sealing.jar.b64
-# Copy isi .b64 ke secret DOVERUNNER_SEALING_JAR_BASE64
+
+# Release baru
+gh release create doverunner-tools sealing.jar \
+  --repo miftah-sdt/siap \
+  --title "DoveRunner CLI (internal)" \
+  --notes "Asset sealing.jar untuk CI. Jangan didistribusikan."
+
+# Atau update asset release yang sudah ada
+gh release upload doverunner-tools sealing.jar --repo miftah-sdt/siap --clobber
 ```
 
-> **Jangan commit** `sealing.jar`, `sealing.jar.b64`, atau `config.txt` — sudah di `.gitignore`.
+Workflow otomatis cari release tag **`doverunner-tools`** dengan asset `sealing.jar`.
+
+#### Opsi B — Commit ke repo private
+
+```bash
+cp AppSealing_CI_Integration_Tool_latest/sealing.jar siap/android/doverunner/
+cd siap
+git add -f android/doverunner/sealing.jar
+git commit -m "chore: add sealing.jar for CI (private repo)"
+git push
+```
+
+File tetap di `.gitignore` default — wajib `git add -f`.
+
+#### Opsi C — URL unduh (secret)
+
+Host `sealing.jar` di storage pribadi (S3, R2, server internal), lalu:
+
+```
+DOVERUNNER_SEALING_JAR_URL = https://your-storage/sealing.jar
+```
+
+> **Jangan commit** `config.txt` (berisi authkey). `sealing.jar.b64` tidak diperlukan.
 
 ---
 

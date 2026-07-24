@@ -11,12 +11,22 @@ Folder ini menyiapkan integrasi CI/CD Android sealing sesuai paket resmi **AppSe
 | `examples/` | `Document_EN/examples/` + `config.txt` | Contoh resmi native/hybrid v2 & v3 |
 | `config.txt` | generated | Dibuat runtime oleh `android/scripts/doverunner-seal.sh` |
 
+## Setup CI (GitHub Actions)
+
+`sealing.jar` (~2.5 MB) **tidak muat** GitHub Secret (max 64 KB). Pilih:
+
+1. **GitHub Release** tag `doverunner-tools` + asset `sealing.jar` ← disarankan
+2. **`git add -f sealing.jar`** di repo private
+3. Secret **`DOVERUNNER_SEALING_JAR_URL`** = URL unduh jar
+
+Detail: [docs/ANDROID_DOVERUNNER_CI.md](../../docs/ANDROID_DOVERUNNER_CI.md)
+
 ## Setup lokal
 
-1. Unduh **AppSealing_CI_Integration_Tool_latest** dari [DoveRunner Console](https://console.doverunner.com) → Organization → Third party → CLI Tool for Android AppSealing
+1. Unduh paket dari DoveRunner Console → Third party → CLI Tool
 2. Salin `sealing.jar` ke folder ini
-3. Catat **CLI Key** (`CLI Key.txt` di paket) → export sebagai `DOVERUNNER_AUTH_KEY`
-4. Jalankan seal via script (lihat `docs/ANDROID_DOVERUNNER_CI.md`)
+3. `export DOVERUNNER_AUTH_KEY="..."` dari `CLI Key.txt`
+4. `bash android/scripts/doverunner-seal.sh`
 
 Perintah resmi (setara script):
 

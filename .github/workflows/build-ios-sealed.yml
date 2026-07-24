@@ -10,7 +10,7 @@ name: Build iOS (DoveRunner sealed)
 # Alur: build Flutter -> integrasi SDK (apply_appsealing.sh) -> archive+sign
 #       -> export IPA -> seal (generate_hash) -> artifact.
 #
-# Jalankan manual: tab Actions -> "Build iOS (DoveRunner sealed)" -> Run workflow.
+# Docs: docs/IOS_DOVERUNNER_CI.md
 
 on:
   workflow_dispatch:

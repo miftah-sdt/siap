@@ -1,0 +1,103 @@
+## DoveRunner AppSecurity CLI Tool - Config Example
+# Target: Native App / AppSecurity 3.x (latest)
+# Usage example: java -jar sealing.jar -config ./config-native-for-v3.txt
+
+# Sealing API URL (Region-specific URLs: https://docs.doverunner.com/mobile-app-security/android/cicd/basic-configuration/)
+url=https://api.appsealing.com/covault/gw
+
+# Authentication Key (available in DoveRunner Developer Console)
+authkey=
+
+# Original APK/AAB file path
+srcapk=
+
+# Sealed APK/AAB output path
+sealedapk=
+
+# App signing option { none | registered_key }
+app_signing=none
+
+# App service type
+service_type=NATIVE_AOS
+
+# Service version (3.0.0.0 or higher)
+service_version=latest
+
+# Deploy mode { release | test }
+deploymode=release
+
+
+# Dex protection options (3.0.0.0+)
+# CAUTION: Both options cannot be set to 'disable' at the same time.
+
+# Obfuscate strings in classes.dex { disable | fast | balance | maximum | selective }
+dex_string_obfuscation=balance
+
+# Obfuscate method call flows in classes.dex { disable | fast | balance | maximum }
+dex_call_hiding=balance
+
+
+# Dex encryption (3.2.0.0+)
+# CAUTION: dex_encrypt and select_dex_encrypt must be set to the same value. (yes/yes or no/no)
+dex_encrypt=no
+
+# Selective Dex encryption (3.2.0.0+) (only applies when dex_encrypt=yes)
+select_dex_encrypt=no
+
+
+# SO file encryption (3.1.0.0+) { yes | no }
+so_encrypt=yes
+
+# Selective SO file encryption (3.1.0.0+) { yes | no }
+select_so_encrypt=no
+
+# SO file names to encrypt when select_so_encrypt=yes (comma-separated)
+# selective_so=libexample.so,libother.so
+
+
+# Disable file integrity check { true | false } (default: false)
+disable_file_integrity_check=false
+
+# Enable signing certificate identity check { true | false } (default: false)
+# IMPORTANT: SHA-256 certificate fingerprints must be registered in the DoveRunner Developer Console before enabling this option.
+enable_signing_certificate_identity_check=false
+
+
+# Block emulator and/or rooted device { emulator, rooting }
+block_environment=
+
+# Allow specific emulators when emulator blocking is enabled { BlueStacks, Nox, LDPlayer }
+allow_emulator=
+
+# Block work profile environment { yes | no }
+block_work_profile=yes
+
+# Allow specific work profile apps { Samsung SecureFolder }
+allow_work_profiles=
+
+# Block app on Developer Options enabled devices { yes | no }
+block_developer_options=no
+
+# Block app on USB debugging enabled devices { yes | no }
+block_usb_debugging=yes
+
+# Allow macro or network sniffing tools { macro, sniff }
+allow_external_tool=
+
+# Block app in keylogger installed environment { yes | no }
+block_keylogger=no
+
+# Block screen capture and mirroring { yes | no }
+block_screen_capture=no
+
+# Block overlay windows from other apps (Android 12+) { yes | no }
+hide_overlay_windows=no
+
+# Collect Wi-Fi security protocol information { collect | disable }
+wifi_security_protocol=disable
+
+# Use QUERY_ALL_PACKAGES permission { yes | no }
+use_query_all_packages=no
+
+# Don't force-close app, and use callback feature for threat handling { true | false } (default: false)
+use_callback_feature=false

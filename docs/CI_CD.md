@@ -84,13 +84,31 @@ Konfigurasi di GitHub repository settings:
 
 ## Deployment (Manual / Future)
 
-Pipeline saat ini **build-only**. Untuk deployment:
+Pipeline saat ini **build-only**. Workflow tambahan:
+
+| Workflow | Platform | Trigger |
+|----------|----------|---------|
+| `ci.yml` | Web + APK biasa | Push/PR |
+| `build-android-sealed.yml` | Android ter-seal DoveRunner | Manual |
+| `build-ios-sealed.yml` | iOS ter-seal DoveRunner | Manual |
+| `deploy-pages.yml` | Flutter Web | Push main |
+
+Panduan DoveRunner:
+
+| Platform | Dokumentasi |
+|----------|-------------|
+| Android (sealed APK) | [docs/ANDROID_DOVERUNNER_CI.md](ANDROID_DOVERUNNER_CI.md) |
+| iOS (sealed IPA) | [docs/IOS_DOVERUNNER_CI.md](IOS_DOVERUNNER_CI.md) |
+| iOS signing dari Windows | [docs/IOS_SIGNING_WINDOWS.md](IOS_SIGNING_WINDOWS.md) |
+
+Untuk deployment:
 
 | Target | Opsi |
 |--------|------|
-| Web | Upload `web-build` ke Firebase Hosting / Nginx / S3 |
-| Android | Upload APK ke Play Store Internal Testing |
-| iOS | Tambah job `flutter build ipa` + Fastlane |
+| Web | Upload `web-build` ke Firebase Hosting / Nginx / GitHub Pages |
+| Android sealed | Artifact dari `build-android-sealed.yml` → Play Internal / sideload |
+| Android unsealed | Artifact `release-apk` dari `ci.yml` |
+| iOS sealed | Artifact dari `build-ios-sealed.yml` + TestFlight |
 
 Contoh tambahan deploy web (future):
 

@@ -1,0 +1,194 @@
+name: Build Android (DoveRunner sealed)
+
+# Pipeline: Flutter release APK -> AppSealing_CI_Integration_Tool_latest -> artifact ter-seal.
+#
+# Prasyarat:
+#   1. Unduh AppSealing_CI_Integration_Tool_latest dari DoveRunner Console
+#      (Organization -> Third party -> CLI Tool for Android AppSealing)
+#   2. GitHub Secrets (Settings -> Secrets and variables -> Actions):
+#      - DOVERUNNER_AUTH_KEY          (CLI Key dari CLI Key.txt / halaman download)
+#      - DOVERUNNER_SEALING_JAR_BASE64 (base64 sealing.jar dari paket resmi)
+#      - SIAP_API_URL                 (opsional, URL API produksi)
+#   3. Keystore com.miftah.siap sudah diregistrasi di DoveRunner Console (app_signing=registered_key)
+#   4. Opsi use_callback_feature=true (Monitoring Mode) — sudah di ThreatReceiver.kt
+#
+# Jalankan: Actions -> "Build Android (DoveRunner sealed)" -> Run workflow
+#
+# Docs: docs/ANDROID_DOVERUNNER_CI.md
+# Secrets opsional DOVERUNNER_API_URL — default script: https://api.appsealing.com/covault/gw
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploymode:
+        description: 'deploymode: test (watermark) / release (produksi)'
+        required: true
+        default: release
+        type: choice
+        options:
+          - test
+          - release
+      use_callback:
+        description: 'Monitoring Mode (broadcast threat, bukan kill app)'
+        required: true
+        default: true
+        type: boolean
+      app_signing:
+        description: 'app_signing: registered_key (disarankan) / none'
+        required: true
+        default: registered_key
+        type: choice
+        options:
+          - registered_key
+          - none
+      api_base_url:
+        description: 'API URL opsional, contoh https://.../v1'
+        required: false
+        type: string
+
+concurrency:
+  group: build-android-sealed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-sealed-apk:
+    name: Build & seal APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Cek prasyarat secrets
+        env:
+          AUTH: ${{ secrets.DOVERUNNER_AUTH_KEY }}
+          JAR_B64: ${{ secrets.DOVERUNNER_SEALING_JAR_BASE64 }}
+        run: |
+          set -e
+          missing=0
+          if [ -z "$AUTH" ]; then
+            echo "::error::Secret DOVERUNNER_AUTH_KEY belum di-set."
+            missing=1
+          fi
+          if [ -z "$JAR_B64" ]; then
+            echo "::error::Secret DOVERUNNER_SEALING_JAR_BASE64 belum di-set."
+            missing=1
+          fi
+          [ "$missing" -eq 0 ] || exit 1
+          echo "Prasyarat secrets OK."
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Resolve API URL
+        id: api
+        env:
+          INPUT_URL: ${{ github.event.inputs.api_base_url }}
+          SECRET_URL: ${{ secrets.SIAP_API_URL }}
+        run: |
+          RAW_URL="${INPUT_URL:-$SECRET_URL}"
+          RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+          if [ -z "$RAW_URL" ]; then
+            RAW_URL="https://division-follow-louis-happen.trycloudflare.com/v1"
+            echo "::warning::API URL kosong, pakai default $RAW_URL"
+          fi
+          echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Decode keystore (release signing sebelum seal)
+        if: hashFiles('android/key.properties') == ''
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -e
+          if [ -z "$KS_B64" ]; then
+            echo "::warning::ANDROID_KEYSTORE_BASE64 tidak ada — build pakai debug signing."
+            exit 0
+          fi
+          echo "$KS_B64" | base64 -d > android/app/siap-release.keystore
+          cat > android/key.properties <<EOF
+          storePassword=$KS_PW
+          keyPassword=$KEY_PW
+          keyAlias=$KEY_ALIAS
+          storeFile=siap-release.keystore
+          EOF
+
+      - name: Build Flutter release APK
+        run: |
+          flutter build apk --release \
+            --dart-define=API_BASE_URL=${{ steps.api.outputs.url }} \
+            --dart-define=ENABLE_THREAT_REPORTING=true
+
+      - name: Siapkan DoveRunner CLI (AppSealing_CI_Integration_Tool_latest)
+        env:
+          JAR_B64: ${{ secrets.DOVERUNNER_SEALING_JAR_BASE64 }}
+        run: |
+          mkdir -p android/doverunner
+          echo "$JAR_B64" | base64 -d > android/doverunner/sealing.jar
+          java -version
+          ls -la android/doverunner/sealing.jar
+          test -f android/doverunner/config.txt.example
+
+      - name: Seal APK (java -jar sealing.jar -config config.txt)
+        env:
+          DOVERUNNER_AUTH_KEY: ${{ secrets.DOVERUNNER_AUTH_KEY }}
+          DOVERUNNER_API_URL: ${{ secrets.DOVERUNNER_API_URL }}
+          DOVERUNNER_DEPLOY_MODE: ${{ github.event.inputs.deploymode }}
+          DOVERUNNER_USE_CALLBACK: ${{ github.event.inputs.use_callback }}
+          DOVERUNNER_APP_SIGNING: ${{ github.event.inputs.app_signing }}
+          DOVERUNNER_SEALING_PRESET_NAME: ${{ secrets.DOVERUNNER_SEALING_PRESET_NAME }}
+          DOVERUNNER_SEALING_JAR: android/doverunner/sealing.jar
+        run: bash android/scripts/doverunner-seal.sh
+
+      - name: Sign sealed APK (jika app_signing=none)
+        if: github.event.inputs.app_signing == 'none'
+        env:
+          KS_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -e
+          if [ ! -f android/app/siap-release.keystore ]; then
+            echo "::error::app_signing=none butuh ANDROID_KEYSTORE_* secrets."
+            exit 1
+          fi
+          APKS="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          "$APKS" sign \
+            --ks android/app/siap-release.keystore \
+            --ks-pass "pass:$KS_PW" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "pass:$KEY_PW" \
+            --out build/app/outputs/flutter-apk/app-release-sealed-signed.apk \
+            build/app/outputs/flutter-apk/app-release-sealed.apk
+          mv build/app/outputs/flutter-apk/app-release-sealed-signed.apk \
+            build/app/outputs/flutter-apk/app-release-sealed.apk
+
+      - name: Upload sealed APK
+        uses: actions/upload-artifact@v5
+        with:
+          name: sealed-apk-${{ github.event.inputs.deploymode }}
+          path: build/app/outputs/flutter-apk/app-release-sealed.apk
+          retention-days: 14
+
+      - name: Upload unsealed APK (referensi)
+        uses: actions/upload-artifact@v5
+        with:
+          name: unsealed-apk-reference
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 3
+          if-no-files-found: ignore

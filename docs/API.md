@@ -161,6 +161,20 @@ Semua response menggunakan wrapper `BaseApiResponse<T>`:
 
 **Role values:** `admin`, `operator`, `verifikator`, `petani`
 
+## Security (DoveRunner)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/security/threats` | Laporan ancaman dari app mobile |
+| POST | `/security/webhooks/doverunner` | Webhook threat alert DoveRunner Console |
+
+Aktifkan via `ENABLE_THREAT_REPORTING` dan `ENABLE_DOVERUNNER_WEBHOOK` di `.env` API.
+
+| Dokumen | Lokasi |
+|---------|--------|
+| Webhook DoveRunner | [api/docs/DOVERUNNER_WEBHOOK.md](../../api/docs/DOVERUNNER_WEBHOOK.md) |
+| Integrasi SIEM | [api/docs/siem/README.md](../../api/docs/siem/README.md) |
+
 ## HTTP Error Codes
 
 | Code | Handling |

@@ -47,6 +47,10 @@ app.*.map.json
 /android/.gradle/
 /android/.kotlin/
 
+# DoveRunner CLI artifacts (jangan commit jar/base64/authkey)
+sealing.jar.b64
+*.jar.b64
+
 # Local scratch / unused artifacts
 Request For Information Pertanian.pdf
 bugreport-*.zip

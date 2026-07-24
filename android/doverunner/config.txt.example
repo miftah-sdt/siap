@@ -1,0 +1,108 @@
+## DoveRunner AppSecurity CLI Tool - Configuration File (SIAP / Flutter NATIVE_AOS)
+# Berdasarkan AppSealing_CI_Integration_Tool_latest / Document_EN/examples/config-for-native-v3.txt
+# Usage: java -jar sealing.jar -config ./config.txt
+#
+# AppSecurity 3.0.0.0 or higher. Untuk 2.x lihat android/doverunner/examples/config-for-native-v2.txt
+
+# Sealing API URL (Region-specific URLs: https://docs.doverunner.com/mobile-app-security/android/cicd/basic-configuration/)
+url=https://api.appsealing.com/covault/gw
+# Indonesia (Jakarta): https://jakarta-api.appsealing.com/covault/gw
+
+# Authentication Key (CLI Key dari DoveRunner Console -> Third party -> CLI Tool)
+authkey=
+
+# Original APK/AAB file path (diisi script doverunner-seal.sh / CI)
+srcapk=
+
+# Sealed APK/AAB output path
+sealedapk=
+
+# App signing option { none | registered_key }
+# registered_key : keystore com.miftah.siap harus sudah diregistrasi di console
+app_signing=registered_key
+
+# Sealing preset option. When set, security options below can be controlled from the console.
+# sealing_preset_name=siap-production
+
+# App service type { NATIVE_AOS | HYBRID_AOS }
+service_type=NATIVE_AOS
+
+# Hybrid app framework { REACT_NATIVE | IONIC | CORDOVA }
+# framework=
+
+# Service version
+service_version=latest
+
+# Deploy mode { release | test }
+deploymode=release
+
+
+# Dex obfuscation options (3.0.0.0+)
+# CAUTION: Both options cannot be set to 'disable' at the same time.
+
+# Obfuscate strings in classes.dex { disable | fast | balance | maximum | selective }
+dex_string_obfuscation=balance
+
+# Obfuscate method call flows in classes.dex { disable | fast | balance | maximum }
+dex_call_hiding=balance
+
+
+# Dex encryption (3.2.0.0+) { no | yes }
+# CAUTION: dex_encrypt and select_dex_encrypt must be set to the same value. (yes/yes or no/no)
+dex_encrypt=no
+
+# Selective Dex encryption (3.2.0.0+) (only applies when dex_encrypt=yes) { no | yes }
+select_dex_encrypt=no
+
+# SO file encryption (3.1.0.0+) { yes | no }
+so_encrypt=yes
+
+# Selective SO file encryption (3.1.0.0+) { yes | no }
+select_so_encrypt=no
+
+
+# Disable file integrity check { true | false } (default: false)
+disable_file_integrity_check=false
+
+# Enable signing certificate identity check { true | false } (default: false)
+enable_signing_certificate_identity_check=false
+
+
+# Block emulator and/or rooted device { emulator, rooting }
+block_environment=
+
+# Allow specific emulators when emulator blocking is enabled { BlueStacks, Nox, LDPlayer }
+allow_emulator=
+
+# Block work profile environment { yes | no }
+block_work_profile=yes
+
+# Allow specific work profile apps { Samsung SecureFolder }
+allow_work_profiles=
+
+# Block app on Developer Options enabled devices { yes | no }
+block_developer_options=no
+
+# Block app on USB debugging enabled devices { yes | no }
+block_usb_debugging=yes
+
+# Allow macro or network sniffing tools { macro, sniff }
+allow_external_tool=
+
+# Block app in keylogger installed environment { yes | no }
+block_keylogger=no
+
+# Block screen capture and mirroring { yes | no }
+block_screen_capture=no
+
+# Block overlay windows from other apps (Android 12+) { yes | no }
+hide_overlay_windows=no
+
+# Collect Wi-Fi security protocol information { collect | disable }
+wifi_security_protocol=disable
+
+# Use QUERY_ALL_PACKAGES permission { yes | no }
+use_query_all_packages=no
+
+# Monitoring Mode — broadcast threat ke ThreatReceiver.kt (bukan force-close)
+use_callback_feature=true

@@ -2,6 +2,9 @@
 
 Panduan build dan **sealing APK** Flutter SIAP dengan paket resmi **AppSealing_CI_Integration_Tool_latest** (`sealing.jar` + `config.txt`).
 
+> **Dokumen Word lengkap:** [cicd-doverunner/SIAP-DoveRunner-CICD-GitHub.docx](cicd-doverunner/SIAP-DoveRunner-CICD-GitHub.docx) (Android + checklist iOS)  
+> **Checklist iOS:** [cicd-doverunner/IOS_CHECKLIST.md](cicd-doverunner/IOS_CHECKLIST.md)
+
 > iOS memakai SDK embed — lihat [IOS_DOVERUNNER_CI.md](IOS_DOVERUNNER_CI.md).
 
 ## Ringkasan alur
@@ -141,7 +144,7 @@ cd siap
 
 # 1. Build APK release
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1 \
+  --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1 \
   --dart-define=ENABLE_THREAT_REPORTING=true
 
 # 2. Salin sealing.jar dari paket resmi

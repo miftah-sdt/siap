@@ -19,15 +19,15 @@ git clone https://github.com/miftah-sdt/siap.git
 
 | Layanan | URL |
 |---------|-----|
-| **API** | https://division-follow-louis-happen.trycloudflare.com |
-| **API base** (`/v1`) | https://division-follow-louis-happen.trycloudflare.com/v1 |
-| **Health** | https://division-follow-louis-happen.trycloudflare.com/health |
+| **API** | https://archive-capabilities-devices-embedded.trycloudflare.com |
+| **API base** (`/v1`) | https://archive-capabilities-devices-embedded.trycloudflare.com/v1 |
+| **Health** | https://archive-capabilities-devices-embedded.trycloudflare.com/health |
 | **Web** | https://miftah-sdt.github.io/siap/ |
 | **APK** | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 
 GitHub secret `SIAP_API_URL`:
 ```
-https://division-follow-louis-happen.trycloudflare.com/v1
+https://archive-capabilities-devices-embedded.trycloudflare.com/v1
 ```
 
 ## Pilih metode deploy
@@ -61,7 +61,7 @@ Workflow deploy butuh URL API yang sudah online.
 
 | Name | Value |
 |------|--------|
-| `SIAP_API_URL` | `https://division-follow-louis-happen.trycloudflare.com/v1` |
+| `SIAP_API_URL` | `https://archive-capabilities-devices-embedded.trycloudflare.com/v1` |
 
 3. **Actions** → **Deploy to Render** → **Run workflow**
 
@@ -116,17 +116,17 @@ File `railway.toml` di repo API mengarahkan healthcheck ke `/health`. Jika masih
 ### Public URL
 
 1. Service → **Settings** → **Networking** → **Generate Domain**
-2. Dapat URL: `https://division-follow-louis-happen.trycloudflare.com`
+2. Dapat URL: `https://archive-capabilities-devices-embedded.trycloudflare.com`
 
 ### Verifikasi
 
 ```bash
-curl https://division-follow-louis-happen.trycloudflare.com/health
+curl https://archive-capabilities-devices-embedded.trycloudflare.com/health
 ```
 
 **Secret GitHub** (`SIAP_API_URL`):
 ```
-https://division-follow-louis-happen.trycloudflare.com/v1
+https://archive-capabilities-devices-embedded.trycloudflare.com/v1
 ```
 
 > Railway trial: $5 credit (~30 hari). Setelah habis, service pause — cukup untuk demo/testing. Untuk jangka panjang tanpa CC, lihat [Belmo](#neon--belmo--github-pages).
@@ -427,10 +427,10 @@ cd d:\project_flutter\siap
 # Web (GitHub Pages project site)
 flutter build web --release ^
   --base-href "/siap/" ^
-  --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1
+  --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1
 
 # APK untuk Nox
-flutter build apk --release --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1
+flutter build apk --release --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1
 ```
 
 ---
@@ -440,7 +440,7 @@ flutter build apk --release --dart-define=API_BASE_URL=https://division-follow-l
 - [ ] Repo [`miftah-sdt/api`](https://github.com/miftah-sdt/api) di GitHub
 - [ ] Neon project + `DATABASE_URL` disalin
 - [ ] API online (Render Free **atau** Koyeb) → `/health` = `connected`
-- [ ] Secret `SIAP_API_URL` = `https://division-follow-louis-happen.trycloudflare.com/v1` di repo `siap`
+- [ ] Secret `SIAP_API_URL` = `https://archive-capabilities-devices-embedded.trycloudflare.com/v1` di repo `siap`
 - [ ] Workflow deploy sukses → branch `gh-pages`
 - [ ] GitHub Pages aktif
 - [ ] `CORS_ORIGIN` = URL GitHub Pages

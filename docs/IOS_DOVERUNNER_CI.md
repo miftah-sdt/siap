@@ -93,7 +93,7 @@ cd siap
 
 # 1. Build Flutter (no codesign)
 flutter build ios --release --no-codesign \
-  --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1 \
+  --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1 \
   --dart-define=ENABLE_THREAT_REPORTING=true
 
 # 2. Embed SDK (skip otomatis jika ios/AppSealingSDK tidak ada)

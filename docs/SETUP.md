@@ -17,6 +17,9 @@ Untuk build iOS (macOS only):
 - Xcode 15+
 - CocoaPods
 
+Untuk server database Windows (Oracle + SQL Server di VMware):
+- [WINDOWS_SERVER_SETUP.md](./WINDOWS_SERVER_SETUP.md)
+
 ## Clone & Install
 
 ```bash
@@ -74,7 +77,7 @@ flutter run -d chrome
 flutter run -d android
 
 # android debug
-flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://division-follow-louis-happen.trycloudflare.com/v1
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1
 
 # Hot reload: tekan r
 # Hot restart: tekan R

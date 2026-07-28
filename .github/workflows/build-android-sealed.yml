@@ -102,7 +102,7 @@ jobs:
           RAW_URL="${INPUT_URL:-$SECRET_URL}"
           RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
           if [ -z "$RAW_URL" ]; then
-            RAW_URL="https://division-follow-louis-happen.trycloudflare.com/v1"
+            RAW_URL="https://archive-capabilities-devices-embedded.trycloudflare.com/v1"
             echo "::warning::API URL kosong, pakai default $RAW_URL"
           fi
           echo "url=$RAW_URL" >> "$GITHUB_OUTPUT"

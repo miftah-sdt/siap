@@ -5,7 +5,8 @@ void main() {
   group('Env API base URL repair', () {
     test('repairs CI-mangled Cloudflare URL', () {
       // Simulates broken compile-time override from GitHub Actions shell.
-      const broken = 'https:archive-capabilities-devices-embedded.trycloudflare.comv1';
+      const broken =
+          'https:archive-capabilities-devices-embedded.trycloudflare.comv1';
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
       expect(
         repaired,
@@ -14,7 +15,8 @@ void main() {
     });
 
     test('accepts valid https URL unchanged', () {
-      const valid = 'https://archive-capabilities-devices-embedded.trycloudflare.com/v1';
+      const valid =
+          'https://archive-capabilities-devices-embedded.trycloudflare.com/v1';
       expect(Env.sanitizeApiBaseUrlForTest(valid), valid);
     });
 

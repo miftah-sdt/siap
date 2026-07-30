@@ -25,7 +25,8 @@ void main() {
     test('forApiHost enables pinning for Cloudflare tunnel host', () {
       final config = SslPinningConfig.forApiHost(
         enabled: true,
-        apiBaseUrl: 'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
+        apiBaseUrl:
+            'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isTrue);
@@ -51,7 +52,8 @@ void main() {
     test('forApiHost disables pinning when globally disabled', () {
       final config = SslPinningConfig.forApiHost(
         enabled: false,
-        apiBaseUrl: 'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
+        apiBaseUrl:
+            'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isFalse);

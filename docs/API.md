@@ -174,6 +174,13 @@ Aktifkan via `ENABLE_THREAT_REPORTING` dan `ENABLE_DOVERUNNER_WEBHOOK` di `.env`
 |---------|--------|
 | Webhook DoveRunner | [api/docs/DOVERUNNER_WEBHOOK.md](../../api/docs/DOVERUNNER_WEBHOOK.md) |
 | Integrasi SIEM | [api/docs/siem/README.md](../../api/docs/siem/README.md) |
+| Tokenisasi PII (CTS) | [api/docs/cts/README.md](../../api/docs/cts/README.md) |
+
+## Tokenisasi PII
+
+Backend API mengintegrasikan **CipherTrust Tokenization Server (CTS)** untuk field sensitif (`nik`, `nama`, `email`, `alamat`, `no_hp`, dll.). Aplikasi Flutter mengirim dan menerima **plaintext** — tokenisasi terjadi transparan di server saat write/read database.
+
+Alur lengkap & diagram: [api/docs/cts/OVERVIEW.md](../../api/docs/cts/OVERVIEW.md)
 
 ## HTTP Error Codes
 

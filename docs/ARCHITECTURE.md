@@ -106,3 +106,30 @@ dart run build_runner build
 ```
 
 Digunakan untuk: freezed models, json_serializable, bloc event/state.
+
+## Tokenisasi PII (CipherTrust CTS)
+
+Tokenisasi & detokenisasi PII dilakukan **sepenuhnya di backend API** — aplikasi Flutter tidak perlu perubahan kode.
+
+```mermaid
+sequenceDiagram
+    participant App as SIAP Flutter
+    participant API as SIAP API
+    participant CTS as CipherTrust CTS
+    participant DB as PostgreSQL
+
+    App->>API: POST /petani { nik, nama, ... } plaintext
+    API->>CTS: tokenize
+    API->>DB: simpan token
+    API->>CTS: detokenize (response)
+    API-->>App: plaintext JSON
+```
+
+| Aspek | Detail |
+|-------|--------|
+| Layer Flutter | Tidak berubah — kirim/terima plaintext via HTTPS |
+| Model Dart | `PetaniModel`, `UserModel` tetap field `nik`, `nama`, `email` |
+| Offline cache | Hive masih menyimpan plaintext dari API — pertimbangkan kebijakan retensi |
+| Dokumentasi API | [api/docs/cts/OVERVIEW.md](../../api/docs/cts/OVERVIEW.md) |
+
+Field PII: `nik`, `nama`, `alamat`, `no_hp`, `email`, `name`, `petani_nama`, `lokasi`.

@@ -178,9 +178,16 @@ Aktifkan via `ENABLE_THREAT_REPORTING` dan `ENABLE_DOVERUNNER_WEBHOOK` di `.env`
 
 ## Tokenisasi PII
 
-Backend API mengintegrasikan **CipherTrust Tokenization Server (CTS)** untuk field sensitif (`nik`, `nama`, `email`, `alamat`, `no_hp`, dll.). Aplikasi Flutter mengirim dan menerima **plaintext** — tokenisasi terjadi transparan di server saat write/read database.
+Backend API mengintegrasikan **CipherTrust Tokenization Server (CTS)** untuk field sensitif (`nik`, `nama`, `email`, `alamat`, `no_hp`, dll.). Aplikasi Flutter mengirim dan menerima **plaintext** — tokenisasi terjadi transparan di server.
 
-Alur lengkap & diagram: [api/docs/cts/OVERVIEW.md](../../api/docs/cts/OVERVIEW.md)
+| Alur | Dokumen / Gambar |
+|------|------------------|
+| Alur kerja lengkap | [api/docs/cts/DATAFLOW.md](../../api/docs/cts/DATAFLOW.md) |
+| Arsitektur | [architecture.png](../../api/docs/cts/images/architecture.png) |
+| Tokenize on write | [dataflow-write.png](../../api/docs/cts/images/dataflow-write.png) |
+| Detokenize on read | [dataflow-read.png](../../api/docs/cts/images/dataflow-read.png) |
+| Login (email_lookup) | [dataflow-login.png](../../api/docs/cts/images/dataflow-login.png) |
+| Setup & migrasi | [api/docs/cts/SETUP.md](../../api/docs/cts/SETUP.md) |
 
 ## HTTP Error Codes
 

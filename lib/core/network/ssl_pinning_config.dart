@@ -2,8 +2,8 @@
 ///
 /// Perbarui daftar pin saat sertifikat API diperbarui:
 /// ```bash
-/// openssl s_client -connect archive-capabilities-devices-embedded.trycloudflare.com:443 \
-///   -servername archive-capabilities-devices-embedded.trycloudflare.com </dev/null 2>/dev/null \
+/// openssl s_client -connect knowledgestorm-arizona-campaigns-proportion.trycloudflare.com:443 \
+///   -servername knowledgestorm-arizona-campaigns-proportion.trycloudflare.com </dev/null 2>/dev/null \
 ///   | openssl x509 -noout -fingerprint -sha256
 /// ```
 class SslPinningConfig {
@@ -16,7 +16,7 @@ class SslPinningConfig {
 
   /// Host API produksi saat ini (Cloudflare Tunnel).
   static const String cloudflareTunnelHost =
-      'archive-capabilities-devices-embedded.trycloudflare.com';
+      'knowledgestorm-arizona-campaigns-proportion.trycloudflare.com';
 
   static const List<String> cloudflareTunnelPins = [
     // Fingerprint sertifikat *.trycloudflare.com per 15 Jul 2026.

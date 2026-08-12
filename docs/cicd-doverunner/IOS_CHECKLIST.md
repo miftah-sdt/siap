@@ -20,7 +20,7 @@ Gunakan halaman ini sebagai lembar centang sebelum menjalankan **Build iOS (Dove
 - [ ] `IOS_MOBILEPROVISION_BASE64`
 - [ ] `IOS_TEAM_ID`
 - [ ] `IOS_PROFILE_NAME`
-- [ ] `SIAP_API_URL` (opsional): `https://archive-capabilities-devices-embedded.trycloudflare.com/v1`
+- [ ] `SIAP_API_URL` (opsional): `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1`
 
 ---
 

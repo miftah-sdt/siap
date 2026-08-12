@@ -1,0 +1,134 @@
+// SIAP — Jenkins Declarative Pipeline: DoveRunner sealed APK
+// Script Path: docs/cicd-doverunner/Jenkinsfile.example
+// Credentials ID — sesuaikan di Manage Jenkins → Credentials
+
+pipeline {
+    agent { label 'flutter-android' }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 90, unit: 'MINUTES')
+        timestamps()
+    }
+
+    parameters {
+        choice(name: 'DEPLOY_MODE', choices: ['release', 'test'], description: 'deploymode DoveRunner')
+        booleanParam(name: 'USE_CALLBACK', defaultValue: true, description: 'Monitoring Mode')
+        choice(name: 'APP_SIGNING', choices: ['registered_key', 'none'], description: 'app_signing')
+        string(name: 'API_BASE_URL', defaultValue: '', description: 'Override API URL (kosong = credential)')
+    }
+
+    environment {
+        FLUTTER_ROOT = '/opt/flutter'
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+        PATH = "${env.FLUTTER_ROOT}/bin:${env.JAVA_HOME}/bin:${env.PATH}"
+        SEALING_JAR = "${WORKSPACE}/android/doverunner/sealing.jar"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate & Setup') {
+            steps {
+                sh 'java -version'
+                sh 'flutter --version'
+                sh 'flutter pub get'
+            }
+        }
+
+        stage('Resolve API URL') {
+            steps {
+                script {
+                    def fromParam = params.API_BASE_URL?.trim()
+                    def fromCred = ''
+                    withCredentials([string(credentialsId: 'siap-api-url', variable: 'SIAP_URL')]) {
+                        fromCred = env.SIAP_URL?.trim()
+                    }
+                    env.SIAP_RESOLVED_API_URL = fromParam ?: fromCred ?: 'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1'
+                    echo "API URL: ${env.SIAP_RESOLVED_API_URL}"
+                }
+            }
+        }
+
+        stage('Keystore') {
+            when {
+                expression { fileExists('android/key.properties') == false }
+            }
+            steps {
+                withCredentials([
+                    file(credentialsId: 'android-keystore', variable: 'KS_FILE'),
+                    string(credentialsId: 'android-keystore-pass', variable: 'KS_PW'),
+                    string(credentialsId: 'android-key-alias', variable: 'KEY_ALIAS'),
+                    string(credentialsId: 'android-key-pass', variable: 'KEY_PW')
+                ]) {
+                    sh '''
+                        cp "$KS_FILE" android/app/siap-release.keystore
+                        cat > android/key.properties <<EOF
+storePassword=$KS_PW
+keyPassword=$KEY_PW
+keyAlias=$KEY_ALIAS
+storeFile=siap-release.keystore
+EOF
+                    '''
+                }
+            }
+        }
+
+        stage('Build Flutter APK') {
+            steps {
+                sh """
+                    flutter build apk --release \
+                      --dart-define=API_BASE_URL=${env.SIAP_RESOLVED_API_URL} \
+                      --dart-define=ENABLE_THREAT_REPORTING=true
+                """
+            }
+        }
+
+        stage('Prepare sealing.jar') {
+            steps {
+                sh '''
+                    mkdir -p android/doverunner
+                    if [ -f "$SEALING_JAR" ]; then
+                      echo "Pakai sealing.jar dari workspace"
+                    elif [ -f /var/jenkins/doverunner/sealing.jar ]; then
+                      cp /var/jenkins/doverunner/sealing.jar "$SEALING_JAR"
+                    else
+                      echo "ERROR: sealing.jar tidak ditemukan"
+                      exit 1
+                    fi
+                    test -s "$SEALING_JAR"
+                '''
+            }
+        }
+
+        stage('Seal APK') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'doverunner-auth-key', variable: 'DOVERUNNER_AUTH_KEY')
+                ]) {
+                    sh """
+                        export DOVERUNNER_DEPLOY_MODE=${params.DEPLOY_MODE}
+                        export DOVERUNNER_USE_CALLBACK=${params.USE_CALLBACK}
+                        export DOVERUNNER_APP_SIGNING=${params.APP_SIGNING}
+                        export DOVERUNNER_SEALING_JAR=${env.SEALING_JAR}
+                        bash android/scripts/doverunner-seal.sh
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/app-release-sealed.apk', fingerprint: true
+            archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/app-release.apk', allowEmptyArchive: true
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

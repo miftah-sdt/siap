@@ -98,6 +98,8 @@ Panduan DoveRunner:
 | Platform | Dokumentasi |
 |----------|-------------|
 | Android (sealed APK) | [docs/ANDROID_DOVERUNNER_CI.md](ANDROID_DOVERUNNER_CI.md) |
+| Android + iOS CI/CD (Word) | [docs/cicd-doverunner/SIAP-DoveRunner-CICD-GitHub.docx](cicd-doverunner/SIAP-DoveRunner-CICD-GitHub.docx) |
+| iOS checklist CI/CD | [docs/cicd-doverunner/IOS_CI.md](cicd-doverunner/IOS_CI.md) |
 | iOS (sealed IPA) | [docs/IOS_DOVERUNNER_CI.md](IOS_DOVERUNNER_CI.md) |
 | iOS signing dari Windows | [docs/IOS_SIGNING_WINDOWS.md](IOS_SIGNING_WINDOWS.md) |
 

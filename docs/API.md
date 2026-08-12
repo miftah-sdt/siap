@@ -4,11 +4,11 @@ Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
 Default development: `http://localhost:3000/v1`
 
-**Production (Cloudflare Tunnel):** `https://archive-capabilities-devices-embedded.trycloudflare.com/v1`
+**Production (Cloudflare Tunnel):** `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1`
 
 | Endpoint | URL |
 |----------|-----|
-| Health | https://archive-capabilities-devices-embedded.trycloudflare.com/health |
+| Health | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/health |
 | Login | `POST /v1/auth/login` |
 
 Jalankan backend lokal (PostgreSQL + API):

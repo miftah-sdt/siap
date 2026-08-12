@@ -38,7 +38,7 @@ Centang semua item berikut:
 [ ] IOS_MOBILEPROVISION_BASE64      — base64 provisioning profile
 [ ] IOS_TEAM_ID                     — Team ID 10 karakter Apple
 [ ] IOS_PROFILE_NAME                — nama persis provisioning profile
-[ ] (Opsional) SIAP_API_URL         — https://archive-capabilities-devices-embedded.trycloudflare.com/v1
+[ ] (Opsional) SIAP_API_URL         — https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
 [ ] App ID com.miftah.siap terdaftar di Apple Developer
 [ ] Bundle ID terdaftar di DoveRunner Console
 [ ] UDID iPhone terdaftar (jika export_method = release-testing / ad-hoc)

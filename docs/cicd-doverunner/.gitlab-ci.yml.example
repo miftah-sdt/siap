@@ -1,0 +1,90 @@
+# SIAP — GitLab CI: Build & seal Android APK (DoveRunner)
+# Salin ke root: cp docs/cicd-doverunner/.gitlab-ci.yml.example .gitlab-ci.yml
+#
+# Prasyarat:
+#   - Self-hosted runner tag: flutter, android, doverunner
+#   - CI/CD Variables: DOVERUNNER_AUTH_KEY, SIAP_API_URL (opsional)
+#   - sealing.jar via DOVERUNNER_SEALING_JAR_URL / Package Registry / repo
+
+stages:
+  - build
+
+variables:
+  FLUTTER_ROOT: "/opt/flutter"
+  JAVA_HOME: "/usr/lib/jvm/java-17-openjdk-amd64"
+  DEPLOY_MODE: "release"
+  USE_CALLBACK: "true"
+  APP_SIGNING: "registered_key"
+  GIT_DEPTH: "1"
+
+build-sealed-apk:
+  stage: build
+  tags:
+    - flutter
+    - android
+    - doverunner
+  when: manual
+  timeout: 90m
+  before_script:
+    - export PATH="$FLUTTER_ROOT/bin:$JAVA_HOME/bin:$PATH"
+    - java -version
+    - flutter --version
+    - |
+      if [ -z "$DOVERUNNER_AUTH_KEY" ]; then
+        echo "ERROR: DOVERUNNER_AUTH_KEY belum di-set di CI/CD Variables"
+        exit 1
+      fi
+    - flutter pub get
+  script:
+    # Resolve API URL
+    - |
+      RAW_URL="${API_BASE_URL:-$SIAP_API_URL}"
+      RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
+      if [ -z "$RAW_URL" ]; then
+        RAW_URL="https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1"
+        echo "WARNING: API URL kosong, pakai default $RAW_URL"
+      fi
+      export SIAP_RESOLVED_API_URL="$RAW_URL"
+    # Keystore decode (opsional)
+    - |
+      if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ ! -f android/key.properties ]; then
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/siap-release.keystore
+        cat > android/key.properties <<EOF
+      storePassword=$ANDROID_KEYSTORE_PASSWORD
+      keyPassword=$ANDROID_KEY_PASSWORD
+      keyAlias=$ANDROID_KEY_ALIAS
+      storeFile=siap-release.keystore
+      EOF
+      fi
+    # Build Flutter APK
+    - |
+      flutter build apk --release \
+        --dart-define=API_BASE_URL=$SIAP_RESOLVED_API_URL \
+        --dart-define=ENABLE_THREAT_REPORTING=true
+    # sealing.jar
+    - |
+      mkdir -p android/doverunner
+      DEST="android/doverunner/sealing.jar"
+      if [ -f "$DEST" ]; then
+        echo "Pakai sealing.jar dari repo"
+      elif [ -n "$DOVERUNNER_SEALING_JAR_URL" ]; then
+        curl -fsSL "$DOVERUNNER_SEALING_JAR_URL" -o "$DEST"
+      else
+        echo "ERROR: sealing.jar tidak ditemukan. Set DOVERUNNER_SEALING_JAR_URL atau commit jar."
+        exit 1
+      fi
+      test -s "$DEST"
+    # Seal
+    - |
+      export DOVERUNNER_DEPLOY_MODE="${DEPLOY_MODE:-release}"
+      export DOVERUNNER_USE_CALLBACK="${USE_CALLBACK:-true}"
+      export DOVERUNNER_APP_SIGNING="${APP_SIGNING:-registered_key}"
+      export DOVERUNNER_SEALING_JAR=android/doverunner/sealing.jar
+      bash android/scripts/doverunner-seal.sh
+  artifacts:
+    name: "sealed-apk-${DEPLOY_MODE}-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - build/app/outputs/flutter-apk/app-release-sealed.apk
+      - build/app/outputs/flutter-apk/app-release.apk
+    expire_in: 14 days
+    when: on_success

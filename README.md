@@ -68,13 +68,13 @@ static const AppEnvironment current = AppEnvironment.development;
 | Environment | Base URL |
 |-------------|----------|
 | development | `http://localhost:3000/v1` |
-| staging / production | `https://archive-capabilities-devices-embedded.trycloudflare.com/v1` |
+| staging / production | `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` |
 
 **Production (online):**
 
 | Layanan | URL |
 |---------|-----|
-| API | https://archive-capabilities-devices-embedded.trycloudflare.com |
+| API | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
 | Web | https://miftah-sdt.github.io/siap/ |
 | APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 
@@ -158,7 +158,7 @@ Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
 | Komponen | Platform |
 |----------|----------|
 | Database | [Neon](https://neon.tech) |
-| API | Cloudflare Tunnel — https://archive-capabilities-devices-embedded.trycloudflare.com |
+| API | Cloudflare Tunnel — https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
 | Web | https://miftah-sdt.github.io/siap/ |
 | APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 

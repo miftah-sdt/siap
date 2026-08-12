@@ -26,7 +26,7 @@ void main() {
       final config = SslPinningConfig.forApiHost(
         enabled: true,
         apiBaseUrl:
-            'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
+            'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isTrue);
@@ -53,7 +53,7 @@ void main() {
       final config = SslPinningConfig.forApiHost(
         enabled: false,
         apiBaseUrl:
-            'https://archive-capabilities-devices-embedded.trycloudflare.com/v1',
+            'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1',
       );
 
       expect(config.enabled, isFalse);

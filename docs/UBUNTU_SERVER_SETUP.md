@@ -756,6 +756,8 @@ curl -sk https://api.siap.local/health
 
 - [docs/DEPLOY.md](./DEPLOY.md) — deploy cloud (Neon + Railway + GitHub Pages)
 - [docs/SETUP.md](./SETUP.md) — setup development lokal
+- [docs/WINDOWS_SERVER_SETUP.md](./WINDOWS_SERVER_SETUP.md) — Windows Server 2022 di VMware + Oracle + SQL Server
+- [../siem/wazuh/README.md](../siem/wazuh/README.md) — Wazuh SIEM Docker stack
 - [docs/API.md](./API.md) — referensi endpoint API
 - Repo API: https://github.com/miftah-sdt/api
 - Repo Flutter: https://github.com/miftah-sdt/siap

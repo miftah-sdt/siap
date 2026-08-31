@@ -65,11 +65,8 @@ class _SearchSelectBody extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => _SearchSelectSheet(
-        title: label,
-        initial: value,
-        onSearch: onSearch,
-      ),
+      builder: (context) =>
+          _SearchSelectSheet(title: label, initial: value, onSearch: onSearch),
     );
     if (selected != null) {
       onChanged(selected);

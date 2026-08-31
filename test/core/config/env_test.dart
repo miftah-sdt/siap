@@ -5,8 +5,7 @@ void main() {
   group('Env API base URL repair', () {
     test('repairs CI-mangled Cloudflare URL', () {
       // Simulates broken compile-time override from GitHub Actions shell.
-      const broken =
-          'https:weblog-preparing-packing-came.trycloudflare.comv1';
+      const broken = 'https:weblog-preparing-packing-came.trycloudflare.comv1';
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
       expect(
         repaired,

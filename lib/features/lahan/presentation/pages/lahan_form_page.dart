@@ -75,10 +75,7 @@ class _LahanFormPageState extends State<LahanFormPage> {
         try {
           option = await _lookup.getPetaniById(user!.petaniId!);
         } catch (_) {
-          option = SelectOption(
-            id: user!.petaniId!,
-            label: user.name,
-          );
+          option = SelectOption(id: user!.petaniId!, label: user.name);
         }
         if (!mounted) return;
         setState(() {

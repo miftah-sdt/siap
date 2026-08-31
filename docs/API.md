@@ -4,11 +4,14 @@ Base URL dikonfigurasi di `lib/core/config/env.dart`.
 
 Default development: `http://localhost:3000/v1`
 
-**Production (Cloudflare Tunnel):** `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1`
+**Production** memakai Cloudflare quick tunnel. URL `*.trycloudflare.com` **berganti setiap restart** container `siap-tunnel` — jangan andalkan URL lama di dokumen ini.
 
-| Endpoint | URL |
-|----------|-----|
-| Health | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/health |
+Cek URL yang sedang aktif: [TUNNEL.md](./TUNNEL.md) (di server: `docker logs siap-tunnel 2>&1 | grep trycloudflare.com`).
+
+| Endpoint | Path |
+|----------|------|
+| Health | `/health` (bukan di bawah `/v1`) |
+| API base | `/v1` |
 | Login | `POST /v1/auth/login` |
 
 Jalankan backend lokal (PostgreSQL + API):

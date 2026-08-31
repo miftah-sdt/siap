@@ -41,7 +41,7 @@ build-sealed-apk:
       RAW_URL="${API_BASE_URL:-$SIAP_API_URL}"
       RAW_URL="$(echo "$RAW_URL" | sed 's/[[:space:]]//g' | sed 's#/$##')"
       if [ -z "$RAW_URL" ]; then
-        RAW_URL="https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1"
+        RAW_URL="https://weblog-preparing-packing-came.trycloudflare.com/v1"
         echo "WARNING: API URL kosong, pakai default $RAW_URL"
       fi
       export SIAP_RESOLVED_API_URL="$RAW_URL"

@@ -10,13 +10,13 @@ void main() {
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
       expect(
         repaired,
-        'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1',
+        'https://weblog-preparing-packing-came.trycloudflare.com/v1',
       );
     });
 
     test('accepts valid https URL unchanged', () {
       const valid =
-          'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1';
+          'https://weblog-preparing-packing-came.trycloudflare.com/v1';
       expect(Env.sanitizeApiBaseUrlForTest(valid), valid);
     });
 

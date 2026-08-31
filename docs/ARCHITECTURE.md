@@ -133,4 +133,4 @@ Flutter (plaintext) ◄──HTTPS────────┘
 | Gambar arsitektur | [architecture.png](../../api/docs/cts/images/architecture.png) |
 | Gambar write/read | [dataflow-write.png](../../api/docs/cts/images/dataflow-write.png) · [dataflow-read.png](../../api/docs/cts/images/dataflow-read.png) |
 
-Field PII: `nik`, `nama`, `alamat`, `no_hp`, `email`, `name`, `petani_nama`, `lokasi`.
+Field PII: `nik`, `nama`, `alamat`, `no_hp`, `email`, `name`, `petani_nama`, `lokasi`, `kode_lahan`, `nama_lahan`, `koordinat`, `nomor_polis`, `lahan_nama`, `nomor_klaim`, `polis_nomor`, `deskripsi`.

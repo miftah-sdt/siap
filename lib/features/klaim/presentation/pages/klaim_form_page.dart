@@ -13,7 +13,7 @@ import 'package:siap/features/klaim/presentation/bloc/klaim_form_event.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_form_state.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
-import 'package:siap/shared/widgets/app_select_field.dart';
+import 'package:siap/shared/widgets/app_search_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
@@ -32,9 +32,7 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
   late final TextEditingController _deskripsiController;
   final List<String> _buktiKerusakan = [];
 
-  List<SelectOption> _polisOptions = [];
-  String? _selectedPolisId;
-  bool _loadingPolis = true;
+  SelectOption? _selectedPolis;
 
   LookupService get _lookup => sl<LookupService>();
 
@@ -45,37 +43,25 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
       text: widget.klaim?.nomorKlaim,
     );
     _deskripsiController = TextEditingController(text: widget.klaim?.deskripsi);
-    _selectedPolisId = widget.klaim?.polisId;
-    if (widget.klaim != null) {
-      _buktiKerusakan.addAll(widget.klaim!.buktiKerusakan);
+    final existing = widget.klaim;
+    if (existing != null) {
+      _selectedPolis = SelectOption(
+        id: existing.polisId,
+        label: existing.polisNomor,
+        extra: {'nomor_polis': existing.polisNomor},
+      );
+      _buktiKerusakan.addAll(existing.buktiKerusakan);
     }
     context.read<KlaimFormBloc>().add(
       KlaimFormEvent.started(klaim: widget.klaim),
     );
-    _loadPolisOptions();
   }
 
-  Future<void> _loadPolisOptions() async {
-    setState(() => _loadingPolis = true);
-    try {
-      final options = await _lookup.getPolisOptions(
-        statuses: const ['approved', 'verified', 'submitted'],
-      );
-      if (!mounted) return;
-      setState(() {
-        _polisOptions = options;
-        _loadingPolis = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingPolis = false);
-      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
-    }
-  }
-
-  SelectOption? get _selectedPolis {
-    if (_selectedPolisId == null) return null;
-    return _polisOptions.where((o) => o.id == _selectedPolisId).firstOrNull;
+  Future<List<SelectOption>> _searchPolis(String query) {
+    return _lookup.getPolisOptions(
+      statuses: const ['approved', 'verified', 'submitted'],
+      search: query,
+    );
   }
 
   @override
@@ -149,31 +135,18 @@ class _KlaimFormPageState extends State<KlaimFormPage> {
                         Validators.required(v, field: 'Nomor Klaim'),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  AppSelectField(
+                  AppSearchSelectField(
                     label: 'Polis Asuransi',
                     prefixIcon: Icons.description_outlined,
-                    options: _polisOptions,
-                    value: _selectedPolisId,
-                    isLoading: _loadingPolis,
+                    hint: 'Cari nomor polis atau nama petani',
+                    value: _selectedPolis,
                     enabled: !isLoading,
-                    hint: _polisOptions.isEmpty && !_loadingPolis
-                        ? 'Belum ada polis tersedia'
-                        : 'Pilih nomor polis',
-                    onChanged: (value) =>
-                        setState(() => _selectedPolisId = value),
+                    onSearch: _searchPolis,
+                    onChanged: (option) =>
+                        setState(() => _selectedPolis = option),
                     validator: (v) =>
                         Validators.required(v, field: 'Polis Asuransi'),
                   ),
-                  if (!_loadingPolis && _polisOptions.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.sm),
-                      child: Text(
-                        'Ajukan akseptasi asuransi terlebih dahulu.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
                   if (selectedPolis != null) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Card(

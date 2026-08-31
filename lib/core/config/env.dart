@@ -9,7 +9,7 @@ class Env {
   const Env._();
 
   /// Override saat build/deploy:
-  /// `flutter build apk --dart-define=API_BASE_URL=https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1`
+  /// `flutter build apk --dart-define=API_BASE_URL=https://weblog-preparing-packing-came.trycloudflare.com/v1`
   static const String _apiBaseUrlOverride = String.fromEnvironment(
     'API_BASE_URL',
   );
@@ -17,7 +17,7 @@ class Env {
   static const AppEnvironment current = AppEnvironment.development;
 
   static const String productionBaseUrl =
-      'https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1';
+      'https://weblog-preparing-packing-came.trycloudflare.com/v1';
 
   static String get baseUrl {
     final override = _sanitizeApiBaseUrl(_apiBaseUrlOverride);

@@ -97,7 +97,7 @@ sudo -u jenkins /opt/flutter/bin/flutter doctor --android-licenses
 | ID (wajib exact) | Kind | Isi |
 |------------------|------|-----|
 | `doverunner-auth-key` | Secret text | CLI Key DoveRunner |
-| `siap-api-url` | Secret text | `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` |
+| `siap-api-url` | Secret text | `https://weblog-preparing-packing-came.trycloudflare.com/v1` |
 | `doverunner-jar-url` | Secret text | URL unduh sealing.jar (opsional) |
 | `android-keystore` | Secret file | File `.keystore` (opsional) |
 | `android-keystore-pass` | Secret text | Password keystore |

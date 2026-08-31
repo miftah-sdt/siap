@@ -77,7 +77,7 @@ flutter run -d chrome
 flutter run -d android
 
 # android debug
-flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=https://weblog-preparing-packing-came.trycloudflare.com/v1
 
 # Hot reload: tekan r
 # Hot restart: tekan R

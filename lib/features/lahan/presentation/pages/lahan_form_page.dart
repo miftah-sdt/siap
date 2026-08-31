@@ -15,7 +15,7 @@ import 'package:siap/features/lahan/presentation/bloc/lahan_form_event.dart';
 import 'package:siap/features/lahan/presentation/bloc/lahan_form_state.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
-import 'package:siap/shared/widgets/app_select_field.dart';
+import 'package:siap/shared/widgets/app_search_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 import 'package:siap/shared/widgets/lahan_map_picker.dart';
 import 'package:siap/shared/widgets/lahan_map_view.dart';
@@ -37,8 +37,7 @@ class _LahanFormPageState extends State<LahanFormPage> {
   late final TextEditingController _lokasiController;
   late final TextEditingController _koordinatController;
 
-  List<SelectOption> _petaniOptions = [];
-  String? _selectedPetaniId;
+  SelectOption? _selectedPetani;
   bool _loadingPetani = true;
   bool _isFetchingGps = false;
 
@@ -54,7 +53,12 @@ class _LahanFormPageState extends State<LahanFormPage> {
     );
     _lokasiController = TextEditingController(text: widget.lahan?.lokasi);
     _koordinatController = TextEditingController(text: widget.lahan?.koordinat);
-    _selectedPetaniId = widget.lahan?.petaniId;
+    if (widget.lahan != null) {
+      _selectedPetani = SelectOption(
+        id: widget.lahan!.petaniId,
+        label: widget.lahan!.petaniNama,
+      );
+    }
     context.read<LahanFormBloc>().add(
       LahanFormEvent.started(lahan: widget.lahan),
     );
@@ -67,39 +71,31 @@ class _LahanFormPageState extends State<LahanFormPage> {
     if (_isPetani) {
       final user = context.currentUser;
       if (user?.petaniId != null) {
+        SelectOption? option;
+        try {
+          option = await _lookup.getPetaniById(user!.petaniId!);
+        } catch (_) {
+          option = SelectOption(
+            id: user!.petaniId!,
+            label: user.name,
+          );
+        }
+        if (!mounted) return;
         setState(() {
-          _selectedPetaniId = user!.petaniId;
+          _selectedPetani = option;
           _loadingPetani = false;
         });
+      } else {
+        setState(() => _loadingPetani = false);
       }
       return;
     }
 
-    await _loadPetaniOptions();
+    setState(() => _loadingPetani = false);
   }
 
-  Future<void> _loadPetaniOptions() async {
-    setState(() => _loadingPetani = true);
-    try {
-      final options = await _lookup.getPetaniOptions();
-      if (!mounted) return;
-      setState(() {
-        _petaniOptions = options;
-        _loadingPetani = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingPetani = false);
-      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
-    }
-  }
-
-  String? _petaniNamaFor(String? id) {
-    if (id == null) return null;
-    return _petaniOptions
-        .where((o) => o.id == id)
-        .map((o) => o.label)
-        .firstOrNull;
+  Future<List<SelectOption>> _searchPetani(String query) {
+    return _lookup.getPetaniOptions(search: query);
   }
 
   Future<void> _fetchGps() async {
@@ -139,15 +135,29 @@ class _LahanFormPageState extends State<LahanFormPage> {
     return double.tryParse(value.trim().replaceAll(',', '.'));
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final luas = _parseLuas(_luasController.text);
     if (luas == null) return;
 
-    final petaniNama =
-        _petaniNamaFor(_selectedPetaniId) ??
-        (_isPetani ? context.currentUser?.name : null);
-    if (petaniNama == null || _selectedPetaniId == null) {
+    var petaniId = _selectedPetani?.id;
+    var petaniNama = _selectedPetani?.label;
+    if (_isPetani) {
+      petaniId ??= context.currentUser?.petaniId;
+      petaniNama ??= context.currentUser?.name;
+    }
+    petaniNama ??= widget.lahan?.petaniNama;
+
+    if (petaniId != null && (petaniNama == null || petaniNama.isEmpty)) {
+      try {
+        final petani = await _lookup.getPetaniById(petaniId);
+        petaniNama = petani.label;
+        _selectedPetani = petani;
+      } catch (_) {}
+    }
+
+    if (petaniNama == null || petaniNama.isEmpty || petaniId == null) {
+      if (!mounted) return;
       UiFeedback.showSnackBar(
         context,
         message: 'Data petani tidak ditemukan.',
@@ -157,9 +167,10 @@ class _LahanFormPageState extends State<LahanFormPage> {
     }
 
     final koordinat = _koordinatController.text.trim();
+    if (!mounted) return;
     context.read<LahanFormBloc>().add(
       LahanFormEvent.submitted(
-        petaniId: _selectedPetaniId!,
+        petaniId: petaniId,
         petaniNama: petaniNama,
         kodeLahan: _kodeController.text.trim(),
         namaLahan: _namaController.text.trim(),
@@ -209,18 +220,23 @@ class _LahanFormPageState extends State<LahanFormPage> {
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.person_outline),
                       title: const Text('Petani'),
-                      subtitle: Text(context.currentUser?.name ?? '-'),
+                      subtitle: Text(
+                        _selectedPetani?.label ??
+                            context.currentUser?.name ??
+                            '-',
+                      ),
                     )
                   else
-                    AppSelectField(
+                    AppSearchSelectField(
                       label: 'Petani',
                       prefixIcon: Icons.person_outline,
-                      options: _petaniOptions,
-                      value: _selectedPetaniId,
+                      hint: 'Cari nama atau NIK petani',
+                      value: _selectedPetani,
                       isLoading: _loadingPetani,
                       enabled: !isLoading,
-                      onChanged: (value) =>
-                          setState(() => _selectedPetaniId = value),
+                      onSearch: _searchPetani,
+                      onChanged: (option) =>
+                          setState(() => _selectedPetani = option),
                       validator: (v) => Validators.required(v, field: 'Petani'),
                     ),
                   const SizedBox(height: AppSpacing.md),

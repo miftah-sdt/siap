@@ -16,7 +16,7 @@ import 'package:siap/features/asuransi/presentation/bloc/asuransi_form_state.dar
 import 'package:siap/features/asuransi/presentation/widgets/underwriting_score_card.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/shared/widgets/app_button.dart';
-import 'package:siap/shared/widgets/app_select_field.dart';
+import 'package:siap/shared/widgets/app_search_select_field.dart';
 import 'package:siap/shared/widgets/app_text_field.dart';
 import 'package:siap/shared/widgets/attachment_picker_section.dart';
 
@@ -34,18 +34,12 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
   late final TextEditingController _nomorPolisController;
   final List<String> _documents = [];
 
-  List<SelectOption> _lahanOptions = [];
-  String? _selectedLahanId;
+  SelectOption? _selectedLahan;
   bool _loadingLahan = true;
   bool _scoring = false;
   UnderwritingScore? _score;
 
   LookupService get _lookup => sl<LookupService>();
-
-  SelectOption? get _selectedLahan {
-    if (_selectedLahanId == null) return null;
-    return _lahanOptions.where((o) => o.id == _selectedLahanId).firstOrNull;
-  }
 
   @override
   void initState() {
@@ -53,46 +47,50 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     _nomorPolisController = TextEditingController(
       text: widget.asuransi?.nomorPolis,
     );
-    _selectedLahanId = widget.asuransi?.lahanId;
-    if (widget.asuransi != null) {
-      _documents.addAll(widget.asuransi!.documents);
-      if (widget.asuransi!.riskScore != null) {
+    final existing = widget.asuransi;
+    if (existing != null) {
+      _selectedLahan = SelectOption(
+        id: existing.lahanId,
+        label: '${existing.petaniNama} — ${existing.lahanNama}',
+        extra: {
+          'nama_lahan': existing.lahanNama,
+          'petani_id': existing.petaniId,
+          'petani_nama': existing.petaniNama,
+        },
+      );
+      _documents.addAll(existing.documents);
+      if (existing.riskScore != null) {
         _score = UnderwritingScore(
-          riskScore: widget.asuransi!.riskScore!,
-          riskLevel: widget.asuransi!.riskLevel ?? 'sedang',
-          factors: widget.asuransi!.scoreFactors,
-          scoredAt: widget.asuransi!.scoredAt,
+          riskScore: existing.riskScore!,
+          riskLevel: existing.riskLevel ?? 'sedang',
+          factors: existing.scoreFactors,
+          scoredAt: existing.scoredAt,
         );
       }
     }
     context.read<AsuransiFormBloc>().add(
       AsuransiFormEvent.started(asuransi: widget.asuransi),
     );
-    _loadLahanOptions();
+    _loadSelectedLahan();
   }
 
-  Future<void> _loadLahanOptions() async {
-    setState(() => _loadingLahan = true);
-    try {
-      final options = await _lookup.getLahanOptions();
-      if (!mounted) return;
-      setState(() {
-        _lahanOptions = options;
-        _loadingLahan = false;
-        if (_selectedLahanId != null &&
-            !options.any((o) => o.id == _selectedLahanId)) {
-          _selectedLahanId = null;
-        }
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingLahan = false);
-      UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
+  Future<void> _loadSelectedLahan() async {
+    final lahanId = _selectedLahan?.id;
+    if (lahanId != null) {
+      try {
+        final option = await _lookup.getLahanById(lahanId);
+        if (mounted) setState(() => _selectedLahan = option);
+      } catch (_) {}
     }
+    if (mounted) setState(() => _loadingLahan = false);
+  }
+
+  Future<List<SelectOption>> _searchLahan(String query) {
+    return _lookup.getLahanOptions(search: query);
   }
 
   Future<void> _calculateScore() async {
-    if (_selectedLahanId == null) {
+    if (_selectedLahan?.id == null) {
       UiFeedback.showSnackBar(
         context,
         message: 'Pilih lahan terlebih dahulu.',
@@ -102,7 +100,7 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     }
     setState(() => _scoring = true);
     try {
-      final score = await sl<RfiRemoteService>().scoreLahan(_selectedLahanId!);
+      final score = await sl<RfiRemoteService>().scoreLahan(_selectedLahan!.id);
       if (!mounted) return;
       setState(() {
         _score = score;
@@ -121,15 +119,29 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final lahan = _selectedLahan;
+    var lahan = _selectedLahan;
     if (lahan == null) return;
 
-    final petaniId = lahan.extra?['petani_id'];
-    final petaniNama = lahan.extra?['petani_nama'];
-    final lahanNama = lahan.extra?['nama_lahan'] ?? lahan.label;
+    var petaniId = lahan.extra?['petani_id'];
+    var petaniNama = lahan.extra?['petani_nama'];
+    var lahanNama = lahan.extra?['nama_lahan'] ?? lahan.label;
+
+    if (petaniId == null ||
+        petaniId.isEmpty ||
+        petaniNama == null ||
+        petaniNama.isEmpty) {
+      try {
+        lahan = await _lookup.getLahanById(lahan.id);
+        if (!mounted) return;
+        petaniId = lahan.extra?['petani_id'];
+        petaniNama = lahan.extra?['petani_nama'];
+        lahanNama = lahan.extra?['nama_lahan'] ?? lahan.label;
+      } catch (_) {}
+    }
+
     if (petaniId == null ||
         petaniId.isEmpty ||
         petaniNama == null ||
@@ -147,7 +159,7 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
         nomorPolis: _nomorPolisController.text.trim(),
         petaniId: petaniId,
         petaniNama: petaniNama,
-        lahanId: lahan.id,
+        lahanId: lahan!.id,
         lahanNama: lahanNama,
         documents: List.unmodifiable(_documents),
       ),
@@ -202,33 +214,21 @@ class _AsuransiFormPageState extends State<AsuransiFormPage> {
                         Validators.required(v, field: 'Nomor Polis'),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  AppSelectField(
+                  AppSearchSelectField(
                     label: 'Lahan Petani',
                     prefixIcon: Icons.landscape_outlined,
-                    options: _lahanOptions,
-                    value: _selectedLahanId,
+                    hint: 'Cari nama petani atau nama lahan',
+                    value: _selectedLahan,
                     isLoading: _loadingLahan,
                     enabled: !isLoading,
-                    hint: _lahanOptions.isEmpty && !_loadingLahan
-                        ? 'Belum ada data lahan'
-                        : 'Pilih lahan petani',
-                    onChanged: (value) => setState(() {
-                      _selectedLahanId = value;
+                    onSearch: _searchLahan,
+                    onChanged: (option) => setState(() {
+                      _selectedLahan = option;
                       _score = null;
                     }),
                     validator: (v) =>
                         Validators.required(v, field: 'Lahan Petani'),
                   ),
-                  if (!_loadingLahan && _lahanOptions.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.sm),
-                      child: Text(
-                        'Tambahkan data lahan terlebih dahulu di menu Lahan.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
                   if (selectedLahan != null) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Card(

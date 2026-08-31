@@ -68,7 +68,7 @@ static const AppEnvironment current = AppEnvironment.development;
 | Environment | Base URL |
 |-------------|----------|
 | development | `http://localhost:3000/v1` |
-| staging / production | `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` |
+| staging / production | `https://weblog-preparing-packing-came.trycloudflare.com/v1` |
 
 **Production (online):**
 
@@ -172,6 +172,7 @@ Alternatif: [Render.com](docs/DEPLOY.md#alternatif-rendercom)
 | [docs/SETUP.md](docs/SETUP.md) | Setup development lengkap |
 | [docs/TESTING.md](docs/TESTING.md) | Panduan testing |
 | [docs/API.md](docs/API.md) | Referensi endpoint API |
+| [docs/TUNNEL.md](docs/TUNNEL.md) | Cek URL Cloudflare Tunnel (`siap-tunnel`) |
 | [docs/CI_CD.md](docs/CI_CD.md) | Pipeline CI/CD |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Deploy online (API: [miftah-sdt/api](https://github.com/miftah-sdt/api)) |
 

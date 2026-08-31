@@ -17,17 +17,23 @@ git clone https://github.com/miftah-sdt/siap.git
 
 ## URL Production (aktif)
 
+API publik lewat **Cloudflare quick tunnel**. URL `*.trycloudflare.com` **berganti setiap restart** `siap-tunnel`. Cek yang sedang jalan: [TUNNEL.md](./TUNNEL.md)
+
+```bash
+docker logs siap-tunnel 2>&1 | grep -oE 'https://[a-z0-9-]+\.trycloudflare.com' | tail -1
+```
+
 | Layanan | URL |
 |---------|-----|
 | **API** | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
-| **API base** (`/v1`) | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1 |
-| **Health** | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/health |
+| **API base** (`/v1`) | https://weblog-preparing-packing-came.trycloudflare.com/v1 |
+| **Health** | https://weblog-preparing-packing-came.trycloudflare.com/health |
 | **Web** | https://miftah-sdt.github.io/siap/ |
 | **APK** | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 
 GitHub secret `SIAP_API_URL`:
 ```
-https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
+https://weblog-preparing-packing-came.trycloudflare.com/v1
 ```
 
 ## Pilih metode deploy
@@ -61,7 +67,7 @@ Workflow deploy butuh URL API yang sudah online.
 
 | Name | Value |
 |------|--------|
-| `SIAP_API_URL` | `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` |
+| `SIAP_API_URL` | `https://weblog-preparing-packing-came.trycloudflare.com/v1` |
 
 3. **Actions** → **Deploy to Render** → **Run workflow**
 
@@ -121,12 +127,12 @@ File `railway.toml` di repo API mengarahkan healthcheck ke `/health`. Jika masih
 ### Verifikasi
 
 ```bash
-curl https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/health
+curl https://weblog-preparing-packing-came.trycloudflare.com/health
 ```
 
 **Secret GitHub** (`SIAP_API_URL`):
 ```
-https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
+https://weblog-preparing-packing-came.trycloudflare.com/v1
 ```
 
 > Railway trial: $5 credit (~30 hari). Setelah habis, service pause — cukup untuk demo/testing. Untuk jangka panjang tanpa CC, lihat [Belmo](#neon--belmo--github-pages).
@@ -427,10 +433,10 @@ cd d:\project_flutter\siap
 # Web (GitHub Pages project site)
 flutter build web --release ^
   --base-href "/siap/" ^
-  --dart-define=API_BASE_URL=https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
+  --dart-define=API_BASE_URL=https://weblog-preparing-packing-came.trycloudflare.com/v1
 
 # APK untuk Nox
-flutter build apk --release --dart-define=API_BASE_URL=https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1
+flutter build apk --release --dart-define=API_BASE_URL=https://weblog-preparing-packing-came.trycloudflare.com/v1
 ```
 
 ---
@@ -440,7 +446,7 @@ flutter build apk --release --dart-define=API_BASE_URL=https://knowledgestorm-ar
 - [ ] Repo [`miftah-sdt/api`](https://github.com/miftah-sdt/api) di GitHub
 - [ ] Neon project + `DATABASE_URL` disalin
 - [ ] API online (Render Free **atau** Koyeb) → `/health` = `connected`
-- [ ] Secret `SIAP_API_URL` = `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` di repo `siap`
+- [ ] Secret `SIAP_API_URL` = `https://weblog-preparing-packing-came.trycloudflare.com/v1` di repo `siap`
 - [ ] Workflow deploy sukses → branch `gh-pages`
 - [ ] GitHub Pages aktif
 - [ ] `CORS_ORIGIN` = URL GitHub Pages

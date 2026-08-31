@@ -94,7 +94,7 @@ Project → **Settings → CI/CD → Variables → Add variable**
 | Variable | Type | Protected | Masked | Isi |
 |----------|------|-----------|--------|-----|
 | `DOVERUNNER_AUTH_KEY` | Variable | ✓ | ✓ | CLI Key dari DoveRunner Console |
-| `SIAP_API_URL` | Variable | ✓ | — | `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com/v1` |
+| `SIAP_API_URL` | Variable | ✓ | — | `https://weblog-preparing-packing-came.trycloudflare.com/v1` |
 | `DOVERUNNER_API_URL` | Variable | — | — | Opsional (region Jakarta) |
 | `DOVERUNNER_SEALING_JAR_URL` | Variable | ✓ | — | URL unduh `sealing.jar` |
 | `ANDROID_KEYSTORE_BASE64` | Variable | ✓ | ✓ | Base64 keystore (jika perlu) |

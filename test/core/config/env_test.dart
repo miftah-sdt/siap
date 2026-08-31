@@ -6,7 +6,7 @@ void main() {
     test('repairs CI-mangled Cloudflare URL', () {
       // Simulates broken compile-time override from GitHub Actions shell.
       const broken =
-          'https:knowledgestorm-arizona-campaigns-proportion.trycloudflare.comv1';
+          'https:weblog-preparing-packing-came.trycloudflare.comv1';
       final repaired = Env.sanitizeApiBaseUrlForTest(broken);
       expect(
         repaired,

@@ -74,7 +74,7 @@ static const AppEnvironment current = AppEnvironment.development;
 
 | Layanan | URL |
 |---------|-----|
-| API | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
+| API | https://weblog-preparing-packing-came.trycloudflare.com |
 | Web | https://miftah-sdt.github.io/siap/ |
 | APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 
@@ -158,7 +158,7 @@ Panduan lengkap: [docs/DEPLOY.md](docs/DEPLOY.md)
 | Komponen | Platform |
 |----------|----------|
 | Database | [Neon](https://neon.tech) |
-| API | Cloudflare Tunnel — https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
+| API | Cloudflare Tunnel — https://weblog-preparing-packing-came.trycloudflare.com |
 | Web | https://miftah-sdt.github.io/siap/ |
 | APK | https://miftah-sdt.github.io/siap/downloads/siap.apk |
 

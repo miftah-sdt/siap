@@ -25,7 +25,7 @@ docker logs siap-tunnel 2>&1 | grep -oE 'https://[a-z0-9-]+\.trycloudflare.com' 
 
 | Layanan | URL |
 |---------|-----|
-| **API** | https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com |
+| **API** | https://weblog-preparing-packing-came.trycloudflare.com |
 | **API base** (`/v1`) | https://weblog-preparing-packing-came.trycloudflare.com/v1 |
 | **Health** | https://weblog-preparing-packing-came.trycloudflare.com/health |
 | **Web** | https://miftah-sdt.github.io/siap/ |
@@ -122,7 +122,7 @@ File `railway.toml` di repo API mengarahkan healthcheck ke `/health`. Jika masih
 ### Public URL
 
 1. Service → **Settings** → **Networking** → **Generate Domain**
-2. Dapat URL: `https://knowledgestorm-arizona-campaigns-proportion.trycloudflare.com`
+2. Dapat URL: `https://weblog-preparing-packing-came.trycloudflare.com`
 
 ### Verifikasi
 

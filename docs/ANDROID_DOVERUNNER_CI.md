@@ -144,7 +144,7 @@ cd siap
 
 # 1. Build APK release
 flutter build apk --release \
-  --dart-define=API_BASE_URL=https://archive-capabilities-devices-embedded.trycloudflare.com/v1 \
+  --dart-define=API_BASE_URL=https://weblog-preparing-packing-came.trycloudflare.com/v1 \
   --dart-define=ENABLE_THREAT_REPORTING=true
 
 # 2. Salin sealing.jar dari paket resmi

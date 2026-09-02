@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:siap/core/models/picked_attachment.dart';
 import 'package:siap/core/services/media_picker_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
@@ -35,7 +35,9 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
 
   MediaPickerService get _media => sl<MediaPickerService>();
 
-  Future<void> _pickAndUpload(Future<File?> Function() picker) async {
+  Future<void> _pickAndUpload(
+    Future<PickedAttachment?> Function() picker,
+  ) async {
     if (_isUploading) return;
 
     final online = await _media.hasConnection();
@@ -48,8 +50,8 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
       return;
     }
 
-    final file = await picker();
-    if (file == null || !mounted) return;
+    final attachment = await picker();
+    if (attachment == null || !mounted) return;
 
     setState(() {
       _isUploading = true;
@@ -58,7 +60,7 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
 
     try {
       final uploaded = await _media.upload(
-        file,
+        attachment,
         onProgress: (sent, total) {
           if (total > 0 && mounted) {
             setState(() => _progress = sent / total);
@@ -122,7 +124,7 @@ class _AttachmentPickerSectionState extends State<AttachmentPickerSection> {
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
-            if (widget.enableCamera)
+            if (widget.enableCamera && !kIsWeb)
               AppButton(
                 label: 'Kamera',
                 icon: Icons.camera_alt_outlined,

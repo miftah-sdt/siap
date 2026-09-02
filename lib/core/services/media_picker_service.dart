@@ -1,10 +1,10 @@
-import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:siap/core/models/picked_attachment.dart';
 import 'package:siap/core/models/uploaded_file.dart';
 import 'package:siap/core/network/file_remote_datasource.dart';
+import 'package:siap/core/services/file_bytes_reader.dart';
 
 class MediaPickerService {
   MediaPickerService(this._fileDataSource);
@@ -17,7 +17,7 @@ class MediaPickerService {
     return !result.contains(ConnectivityResult.none);
   }
 
-  Future<File?> pickFromCamera() async {
+  Future<PickedAttachment?> pickFromCamera() async {
     final picked = await _imagePicker.pickImage(
       source: ImageSource.camera,
       maxWidth: 1920,
@@ -25,10 +25,10 @@ class MediaPickerService {
       imageQuality: 85,
     );
     if (picked == null) return null;
-    return File(picked.path);
+    return _attachmentFromXFile(picked, fallbackName: 'camera.jpg');
   }
 
-  Future<File?> pickFromGallery() async {
+  Future<PickedAttachment?> pickFromGallery() async {
     final picked = await _imagePicker.pickImage(
       source: ImageSource.gallery,
       maxWidth: 1920,
@@ -36,22 +36,50 @@ class MediaPickerService {
       imageQuality: 85,
     );
     if (picked == null) return null;
-    return File(picked.path);
+    return _attachmentFromXFile(picked, fallbackName: 'gallery.jpg');
   }
 
-  Future<File?> pickDocument() async {
+  Future<PickedAttachment?> pickDocument() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+      withData: true,
     );
-    if (result == null || result.files.single.path == null) return null;
-    return File(result.files.single.path!);
+    if (result == null || result.files.isEmpty) return null;
+
+    final file = result.files.single;
+    if (file.bytes != null) {
+      return PickedAttachment(name: file.name, bytes: file.bytes!);
+    }
+
+    final path = file.path;
+    if (path != null) {
+      final bytes = await readFileBytes(path);
+      if (bytes != null) {
+        return PickedAttachment(name: file.name, bytes: bytes);
+      }
+    }
+
+    return null;
+  }
+
+  Future<PickedAttachment> _attachmentFromXFile(
+    XFile picked, {
+    required String fallbackName,
+  }) async {
+    final bytes = await picked.readAsBytes();
+    final name = picked.name.isNotEmpty ? picked.name : fallbackName;
+    return PickedAttachment(name: name, bytes: bytes);
   }
 
   Future<UploadedFile> upload(
-    File file, {
+    PickedAttachment attachment, {
     void Function(int sent, int total)? onProgress,
   }) {
-    return _fileDataSource.uploadFile(file, onProgress: onProgress);
+    return _fileDataSource.uploadBytes(
+      attachment.bytes,
+      attachment.name,
+      onProgress: onProgress,
+    );
   }
 }

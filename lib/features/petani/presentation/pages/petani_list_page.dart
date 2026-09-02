@@ -82,6 +82,23 @@ class _PetaniListPageState extends State<PetaniListPage> {
     }
   }
 
+  Future<void> _openCreate() async {
+    final created = await context.push<bool>(RouteNames.petaniCreate);
+    if (created == true && mounted) {
+      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+    }
+  }
+
+  Future<void> _openDetail(Petani petani) async {
+    final changed = await context.push<bool>(
+      RouteNames.petaniDetail(petani.id),
+      extra: petani,
+    );
+    if (changed == true && mounted) {
+      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+    }
+  }
+
   Future<void> _approvePetani(Petani petani) async {
     try {
       await sl<RegistrationService>().approvePetani(petani.id);
@@ -145,7 +162,7 @@ class _PetaniListPageState extends State<PetaniListPage> {
     return Scaffold(
       floatingActionButton: PermissionFab(
         module: AppModule.petani,
-        onPressed: () => context.push(RouteNames.petaniCreate),
+        onPressed: _openCreate,
       ),
       body: BlocConsumer<PetaniListBloc, PetaniListState>(
         listener: (context, state) {
@@ -197,9 +214,7 @@ class _PetaniListPageState extends State<PetaniListPage> {
                             title: 'Belum ada petani',
                             message: 'Tambahkan data petani pertama.',
                             actionLabel: canCreate ? 'Tambah Petani' : null,
-                            onAction: canCreate
-                                ? () => context.push(RouteNames.petaniCreate)
-                                : null,
+                            onAction: canCreate ? _openCreate : null,
                           );
                         }
 
@@ -226,10 +241,7 @@ class _PetaniListPageState extends State<PetaniListPage> {
                               final petani = items[index];
                               return PetaniCard(
                                 petani: petani,
-                                onTap: () => context.push(
-                                  RouteNames.petaniDetail(petani.id),
-                                  extra: petani,
-                                ),
+                                onTap: () => _openDetail(petani),
                                 onDelete: canDelete
                                     ? () =>
                                           _confirmDelete(petani.id, petani.nama)

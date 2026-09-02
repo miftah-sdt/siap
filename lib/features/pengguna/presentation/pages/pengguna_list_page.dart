@@ -5,6 +5,7 @@ import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
+import 'package:siap/features/pengguna/domain/entities/pengguna.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_list_bloc.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_list_event.dart';
 import 'package:siap/features/pengguna/presentation/bloc/pengguna_list_state.dart';
@@ -78,6 +79,23 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
     }
   }
 
+  Future<void> _openCreate() async {
+    final created = await context.push<bool>(RouteNames.penggunaCreate);
+    if (created == true && mounted) {
+      context.read<PenggunaListBloc>().add(const PenggunaListEvent.refreshed());
+    }
+  }
+
+  Future<void> _openDetail(Pengguna pengguna) async {
+    final changed = await context.push<bool>(
+      RouteNames.penggunaDetail(pengguna.id),
+      extra: pengguna,
+    );
+    if (changed == true && mounted) {
+      context.read<PenggunaListBloc>().add(const PenggunaListEvent.refreshed());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final role = context.userRole;
@@ -95,7 +113,7 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
     return Scaffold(
       floatingActionButton: PermissionFab(
         module: AppModule.pengguna,
-        onPressed: () => context.push(RouteNames.penggunaCreate),
+        onPressed: _openCreate,
       ),
       body: BlocConsumer<PenggunaListBloc, PenggunaListState>(
         listener: (context, state) {
@@ -150,9 +168,7 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
                             title: 'Belum ada pengguna',
                             message: 'Tambahkan data pengguna pertama.',
                             actionLabel: canCreate ? 'Tambah Pengguna' : null,
-                            onAction: canCreate
-                                ? () => context.push(RouteNames.penggunaCreate)
-                                : null,
+                            onAction: canCreate ? _openCreate : null,
                           );
                         }
 
@@ -179,10 +195,7 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
                               final pengguna = items[index];
                               return PenggunaCard(
                                 pengguna: pengguna,
-                                onTap: () => context.push(
-                                  RouteNames.penggunaDetail(pengguna.id),
-                                  extra: pengguna,
-                                ),
+                                onTap: () => _openDetail(pengguna),
                                 onDelete: canDelete
                                     ? () => _confirmDelete(
                                         pengguna.id,

@@ -5,6 +5,7 @@ import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
+import 'package:siap/features/klaim/domain/entities/klaim.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_list_bloc.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_list_event.dart';
 import 'package:siap/features/klaim/presentation/bloc/klaim_list_state.dart';
@@ -78,6 +79,23 @@ class _KlaimListPageState extends State<KlaimListPage> {
     }
   }
 
+  Future<void> _openCreate() async {
+    final created = await context.push<bool>(RouteNames.klaimCreate);
+    if (created == true && mounted) {
+      context.read<KlaimListBloc>().add(const KlaimListEvent.refreshed());
+    }
+  }
+
+  Future<void> _openDetail(Klaim klaim) async {
+    final changed = await context.push<bool>(
+      RouteNames.klaimDetail(klaim.id),
+      extra: klaim,
+    );
+    if (changed == true && mounted) {
+      context.read<KlaimListBloc>().add(const KlaimListEvent.refreshed());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final role = context.userRole;
@@ -95,7 +113,7 @@ class _KlaimListPageState extends State<KlaimListPage> {
     return Scaffold(
       floatingActionButton: PermissionFab(
         module: AppModule.klaim,
-        onPressed: () => context.push(RouteNames.klaimCreate),
+        onPressed: _openCreate,
       ),
       body: BlocConsumer<KlaimListBloc, KlaimListState>(
         listener: (context, state) {
@@ -147,9 +165,7 @@ class _KlaimListPageState extends State<KlaimListPage> {
                             title: 'Belum ada klaim',
                             message: 'Ajukan klaim pertama.',
                             actionLabel: canCreate ? 'Tambah Klaim' : null,
-                            onAction: canCreate
-                                ? () => context.push(RouteNames.klaimCreate)
-                                : null,
+                            onAction: canCreate ? _openCreate : null,
                           );
                         }
 
@@ -176,10 +192,7 @@ class _KlaimListPageState extends State<KlaimListPage> {
                               final klaim = items[index];
                               return KlaimCard(
                                 klaim: klaim,
-                                onTap: () => context.push(
-                                  RouteNames.klaimDetail(klaim.id),
-                                  extra: klaim,
-                                ),
+                                onTap: () => _openDetail(klaim),
                                 onDelete: canDelete
                                     ? () => _confirmDelete(
                                         klaim.id,

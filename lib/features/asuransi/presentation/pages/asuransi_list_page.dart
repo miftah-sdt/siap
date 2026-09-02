@@ -5,6 +5,7 @@ import 'package:siap/core/auth/app_permissions.dart';
 import 'package:siap/core/auth/role_context.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
+import 'package:siap/features/asuransi/domain/entities/asuransi.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_list_bloc.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_list_event.dart';
 import 'package:siap/features/asuransi/presentation/bloc/asuransi_list_state.dart';
@@ -78,6 +79,23 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
     }
   }
 
+  Future<void> _openCreate() async {
+    final created = await context.push<bool>(RouteNames.asuransiCreate);
+    if (created == true && mounted) {
+      context.read<AsuransiListBloc>().add(const AsuransiListEvent.refreshed());
+    }
+  }
+
+  Future<void> _openDetail(Asuransi asuransi) async {
+    final changed = await context.push<bool>(
+      RouteNames.asuransiDetail(asuransi.id),
+      extra: asuransi,
+    );
+    if (changed == true && mounted) {
+      context.read<AsuransiListBloc>().add(const AsuransiListEvent.refreshed());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final role = context.userRole;
@@ -95,7 +113,7 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
     return Scaffold(
       floatingActionButton: PermissionFab(
         module: AppModule.asuransi,
-        onPressed: () => context.push(RouteNames.asuransiCreate),
+        onPressed: _openCreate,
       ),
       body: BlocConsumer<AsuransiListBloc, AsuransiListState>(
         listener: (context, state) {
@@ -147,9 +165,7 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
                             title: 'Belum ada asuransi',
                             message: 'Daftarkan asuransi pertama.',
                             actionLabel: canCreate ? 'Tambah Asuransi' : null,
-                            onAction: canCreate
-                                ? () => context.push(RouteNames.asuransiCreate)
-                                : null,
+                            onAction: canCreate ? _openCreate : null,
                           );
                         }
 
@@ -176,10 +192,7 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
                               final asuransi = items[index];
                               return AsuransiCard(
                                 asuransi: asuransi,
-                                onTap: () => context.push(
-                                  RouteNames.asuransiDetail(asuransi.id),
-                                  extra: asuransi,
-                                ),
+                                onTap: () => _openDetail(asuransi),
                                 onDelete: canDelete
                                     ? () => _confirmDelete(
                                         asuransi.id,

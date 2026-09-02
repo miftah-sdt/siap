@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:siap/core/models/uploaded_file.dart';
@@ -11,14 +11,14 @@ class FileRemoteDataSource {
 
   final DioClient _client;
 
-  Future<UploadedFile> uploadFile(
-    File file, {
+  Future<UploadedFile> uploadBytes(
+    Uint8List bytes,
+    String fileName, {
     void Function(int sent, int total)? onProgress,
   }) async {
     try {
-      final fileName = file.path.split(Platform.pathSeparator).last;
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path, filename: fileName),
+        'file': MultipartFile.fromBytes(bytes, filename: fileName),
       });
 
       final response = await _client.dio.post<Map<String, dynamic>>(

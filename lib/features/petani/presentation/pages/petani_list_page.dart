@@ -19,6 +19,7 @@ import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 
 class PetaniListPage extends StatefulWidget {
   const PetaniListPage({super.key});
@@ -82,21 +83,19 @@ class _PetaniListPageState extends State<PetaniListPage> {
     }
   }
 
+  void _reload() {
+    if (!mounted) return;
+    context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+  }
+
   Future<void> _openCreate() async {
-    final created = await context.push<bool>(RouteNames.petaniCreate);
-    if (created == true && mounted) {
-      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
-    }
+    await context.push(RouteNames.petaniCreate);
+    _reload();
   }
 
   Future<void> _openDetail(Petani petani) async {
-    final changed = await context.push<bool>(
-      RouteNames.petaniDetail(petani.id),
-      extra: petani,
-    );
-    if (changed == true && mounted) {
-      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
-    }
+    await context.push(RouteNames.petaniDetail(petani.id), extra: petani);
+    _reload();
   }
 
   Future<void> _approvePetani(Petani petani) async {
@@ -104,7 +103,7 @@ class _PetaniListPageState extends State<PetaniListPage> {
       await sl<RegistrationService>().approvePetani(petani.id);
       if (!mounted) return;
       UiFeedback.showSnackBar(context, message: '${petani.nama} disetujui');
-      context.read<PetaniListBloc>().add(const PetaniListEvent.refreshed());
+      _reload();
     } catch (e) {
       if (!mounted) return;
       UiFeedback.showSnackBar(context, message: e.toString(), isError: true);
@@ -159,126 +158,135 @@ class _PetaniListPageState extends State<PetaniListPage> {
     final canApproveRegistration =
         role == UserRole.admin || role == UserRole.verifikator;
 
-    return Scaffold(
-      floatingActionButton: PermissionFab(
-        module: AppModule.petani,
-        onPressed: _openCreate,
-      ),
-      body: BlocConsumer<PetaniListBloc, PetaniListState>(
-        listener: (context, state) {
-          if (state is PetaniListError) {
-            UiFeedback.showSnackBar(
-              context,
-              message: state.message,
-              isError: true,
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Data Petani',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              PetaniSearchBar(controller: _searchController, onSearch: _search),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: state.maybeWhen(
-                  initial: () => const AppLoadingIndicator(
-                    message: 'Memuat data petani...',
-                  ),
-                  loading: () => const AppLoadingIndicator(
-                    message: 'Memuat data petani...',
-                  ),
-                  error: (message) => AppErrorView(
-                    message: message,
-                    onRetry: () => context.read<PetaniListBloc>().add(
-                      const PetaniListEvent.started(),
+    return RouteVisibilityReloader(
+      location: RouteNames.petani,
+      onBecameVisible: _reload,
+      child: Scaffold(
+        floatingActionButton: PermissionFab(
+          module: AppModule.petani,
+          onPressed: _openCreate,
+        ),
+        body: BlocConsumer<PetaniListBloc, PetaniListState>(
+          listener: (context, state) {
+            if (state is PetaniListError) {
+              UiFeedback.showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Data Petani',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                PetaniSearchBar(
+                  controller: _searchController,
+                  onSearch: _search,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: state.maybeWhen(
+                    initial: () => const AppLoadingIndicator(
+                      message: 'Memuat data petani...',
                     ),
-                  ),
-                  success:
-                      (
-                        items,
-                        page,
-                        totalPages,
-                        total,
-                        searchQuery,
-                        isLoadingMore,
-                        hasReachedMax,
-                      ) {
-                        if (items.isEmpty) {
-                          return AppEmptyState(
-                            title: 'Belum ada petani',
-                            message: 'Tambahkan data petani pertama.',
-                            actionLabel: canCreate ? 'Tambah Petani' : null,
-                            onAction: canCreate ? _openCreate : null,
-                          );
-                        }
-
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            context.read<PetaniListBloc>().add(
-                              const PetaniListEvent.refreshed(),
+                    loading: () => const AppLoadingIndicator(
+                      message: 'Memuat data petani...',
+                    ),
+                    error: (message) => AppErrorView(
+                      message: message,
+                      onRetry: () => context.read<PetaniListBloc>().add(
+                        const PetaniListEvent.started(),
+                      ),
+                    ),
+                    success:
+                        (
+                          items,
+                          page,
+                          totalPages,
+                          total,
+                          searchQuery,
+                          isLoadingMore,
+                          hasReachedMax,
+                        ) {
+                          if (items.isEmpty) {
+                            return AppEmptyState(
+                              title: 'Belum ada petani',
+                              message: 'Tambahkan data petani pertama.',
+                              actionLabel: canCreate ? 'Tambah Petani' : null,
+                              onAction: canCreate ? _openCreate : null,
                             );
-                          },
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: items.length + (isLoadingMore ? 1 : 0),
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              if (index >= items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppSpacing.md),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              final petani = items[index];
-                              return PetaniCard(
-                                petani: petani,
-                                onTap: () => _openDetail(petani),
-                                onDelete: canDelete
-                                    ? () =>
-                                          _confirmDelete(petani.id, petani.nama)
-                                    : null,
-                                onApprove:
-                                    canApproveRegistration &&
-                                        petani.registrationStatus ==
-                                            PetaniRegistrationStatus.pending
-                                    ? () => _approvePetani(petani)
-                                    : null,
-                                onReject:
-                                    canApproveRegistration &&
-                                        petani.registrationStatus ==
-                                            PetaniRegistrationStatus.pending
-                                    ? () => _rejectPetani(petani)
-                                    : null,
+                          }
+
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              context.read<PetaniListBloc>().add(
+                                const PetaniListEvent.refreshed(),
                               );
                             },
-                          ),
-                        );
-                      },
-                  orElse: () => const AppLoadingIndicator(
-                    message: 'Memuat data petani...',
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              itemCount: items.length + (isLoadingMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(AppSpacing.md),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                final petani = items[index];
+                                return PetaniCard(
+                                  petani: petani,
+                                  onTap: () => _openDetail(petani),
+                                  onDelete: canDelete
+                                      ? () => _confirmDelete(
+                                          petani.id,
+                                          petani.nama,
+                                        )
+                                      : null,
+                                  onApprove:
+                                      canApproveRegistration &&
+                                          petani.registrationStatus ==
+                                              PetaniRegistrationStatus.pending
+                                      ? () => _approvePetani(petani)
+                                      : null,
+                                  onReject:
+                                      canApproveRegistration &&
+                                          petani.registrationStatus ==
+                                              PetaniRegistrationStatus.pending
+                                      ? () => _rejectPetani(petani)
+                                      : null,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                    orElse: () => const AppLoadingIndicator(
+                      message: 'Memuat data petani...',
+                    ),
                   ),
                 ),
-              ),
-              if (state is PetaniListSuccess)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    'Total: ${state.total} petani',
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (state is PetaniListSuccess)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Total: ${state.total} petani',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

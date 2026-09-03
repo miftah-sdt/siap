@@ -7,14 +7,17 @@ import 'package:siap/core/services/report_export_service.dart';
 import 'package:siap/core/services/workflow_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/formatter.dart';
+import 'package:siap/core/utils/result.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/klaim/domain/entities/klaim.dart';
+import 'package:siap/features/klaim/domain/usecases/klaim_usecases.dart';
 import 'package:siap/features/laporan/domain/entities/laporan.dart';
 import 'package:siap/injection/dependency_injection.dart';
 import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/helpers/report_download_helper.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/permission_edit_action.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 import 'package:siap/shared/widgets/workflow_action_bar.dart';
 import 'package:siap/shared/widgets/workflow_badge.dart';
 
@@ -36,6 +39,13 @@ class _KlaimDetailPageState extends State<KlaimDetailPage> {
   void initState() {
     super.initState();
     _klaim = widget.klaim;
+  }
+
+  Future<void> _reloadDetail() async {
+    final result = await sl<GetKlaimDetailUseCase>()(_klaim.id);
+    if (!mounted) return;
+    final data = result.dataOrNull;
+    if (data != null) setState(() => _klaim = data);
   }
 
   Future<void> _runWorkflow(WorkflowAction action) async {
@@ -111,118 +121,120 @@ class _KlaimDetailPageState extends State<KlaimDetailPage> {
       AppModule.laporan,
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Klaim'),
-        actions: [
-          PermissionEditAction(
-            module: AppModule.klaim,
-            onPressed: () async {
-              final updated = await context.push<bool>(
-                RouteNames.klaimEdit(_klaim.id),
-                extra: _klaim,
-              );
-              if (updated == true && context.mounted) {
-                context.pop(true);
-              }
-            },
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          Row(
-            children: [
-              Text('Status', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(width: AppSpacing.md),
-              WorkflowBadge.klaim(_klaim.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          WorkflowActionBar.klaim(
-            status: _klaim.status,
-            isLoading: _workflowLoading,
-            onAction: _runWorkflow,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          ListTile(
-            leading: const Icon(Icons.receipt_long_outlined),
-            title: const Text('Nomor Klaim'),
-            subtitle: Text(_klaim.nomorKlaim),
-          ),
-          ListTile(
-            leading: const Icon(Icons.policy_outlined),
-            title: const Text('Polis'),
-            subtitle: Text(_klaim.polisNomor),
-          ),
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: const Text('Deskripsi Kerusakan'),
-            subtitle: Text(_klaim.deskripsi),
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today_outlined),
-            title: const Text('Tanggal Dibuat'),
-            subtitle: Text(Formatter.dateTime(_klaim.createdAt)),
-          ),
-          if (canViewLaporan) ...[
-            const Divider(height: AppSpacing.xl),
-            Text(
-              'Unduh Laporan Detail',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: AppButton(
-                    label: 'PDF',
-                    icon: Icons.picture_as_pdf_outlined,
-                    onPressed: _reportLoading
-                        ? null
-                        : () => _downloadDetailReport(ExportFormat.pdf),
-                    isLoading: _reportLoading,
-                    isExpanded: true,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: AppButton(
-                    label: 'Excel',
-                    icon: Icons.table_chart_outlined,
-                    variant: AppButtonVariant.secondary,
-                    onPressed: _reportLoading
-                        ? null
-                        : () => _downloadDetailReport(ExportFormat.excel),
-                    isLoading: _reportLoading,
-                    isExpanded: true,
-                  ),
-                ),
-              ],
+    return RouteVisibilityReloader(
+      location: RouteNames.klaimDetail(_klaim.id),
+      onBecameVisible: _reloadDetail,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Klaim'),
+          actions: [
+            PermissionEditAction(
+              module: AppModule.klaim,
+              onPressed: () async {
+                await context.push(
+                  RouteNames.klaimEdit(_klaim.id),
+                  extra: _klaim,
+                );
+                if (context.mounted) await _reloadDetail();
+              },
             ),
           ],
-          const Divider(height: AppSpacing.xl),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text(
-              'Bukti Kerusakan (${_klaim.buktiKerusakan.length})',
-              style: Theme.of(context).textTheme.titleMedium,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Row(
+              children: [
+                Text('Status', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(width: AppSpacing.md),
+                WorkflowBadge.klaim(_klaim.status),
+              ],
             ),
-          ),
-          if (_klaim.buktiKerusakan.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Text('Belum ada bukti kerusakan.'),
-            )
-          else
-            ..._klaim.buktiKerusakan.map(
-              (bukti) => ListTile(
-                leading: const Icon(Icons.image_outlined),
-                title: Text(bukti),
+            const SizedBox(height: AppSpacing.lg),
+            WorkflowActionBar.klaim(
+              status: _klaim.status,
+              isLoading: _workflowLoading,
+              onAction: _runWorkflow,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Nomor Klaim'),
+              subtitle: Text(_klaim.nomorKlaim),
+            ),
+            ListTile(
+              leading: const Icon(Icons.policy_outlined),
+              title: const Text('Polis'),
+              subtitle: Text(_klaim.polisNomor),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Deskripsi Kerusakan'),
+              subtitle: Text(_klaim.deskripsi),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today_outlined),
+              title: const Text('Tanggal Dibuat'),
+              subtitle: Text(Formatter.dateTime(_klaim.createdAt)),
+            ),
+            if (canViewLaporan) ...[
+              const Divider(height: AppSpacing.xl),
+              Text(
+                'Unduh Laporan Detail',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: 'PDF',
+                      icon: Icons.picture_as_pdf_outlined,
+                      onPressed: _reportLoading
+                          ? null
+                          : () => _downloadDetailReport(ExportFormat.pdf),
+                      isLoading: _reportLoading,
+                      isExpanded: true,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Excel',
+                      icon: Icons.table_chart_outlined,
+                      variant: AppButtonVariant.secondary,
+                      onPressed: _reportLoading
+                          ? null
+                          : () => _downloadDetailReport(ExportFormat.excel),
+                      isLoading: _reportLoading,
+                      isExpanded: true,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const Divider(height: AppSpacing.xl),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Text(
+                'Bukti Kerusakan (${_klaim.buktiKerusakan.length})',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-        ],
+            if (_klaim.buktiKerusakan.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: Text('Belum ada bukti kerusakan.'),
+              )
+            else
+              ..._klaim.buktiKerusakan.map(
+                (bukti) => ListTile(
+                  leading: const Icon(Icons.image_outlined),
+                  title: Text(bukti),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

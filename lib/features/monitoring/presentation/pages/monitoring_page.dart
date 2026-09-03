@@ -7,8 +7,10 @@ import 'package:siap/core/utils/result.dart';
 import 'package:siap/features/lahan/domain/entities/lahan.dart';
 import 'package:siap/features/lahan/domain/usecases/lahan_usecases.dart';
 import 'package:siap/injection/dependency_injection.dart';
+import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/widgets/lahan_map_view.dart';
 import 'package:siap/shared/widgets/opt_alerts_card.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 import 'package:siap/shared/widgets/weather_card.dart';
 
 class MonitoringPage extends StatefulWidget {
@@ -83,56 +85,63 @@ class _MonitoringPageState extends State<MonitoringPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _loadingLahan
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              children: [
-                Text(
-                  'Monitoring Lahan',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                const Text(
-                  'Peta, cuaca, dan peringatan OPT berdasarkan lokasi lahan terdaftar.',
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedLahan?.id,
-                  decoration: const InputDecoration(
-                    labelText: 'Pilih Lahan',
-                    border: OutlineInputBorder(),
+    return RouteVisibilityReloader(
+      location: RouteNames.monitoring,
+      onBecameVisible: _loadLahan,
+      child: Scaffold(
+        body: _loadingLahan
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  Text(
+                    'Monitoring Lahan',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  items: [
-                    for (final lahan in _lahanList)
-                      DropdownMenuItem(
-                        value: lahan.id,
-                        child: Text('${lahan.namaLahan} (${lahan.lokasi})'),
-                      ),
+                  const SizedBox(height: AppSpacing.sm),
+                  const Text(
+                    'Peta, cuaca, dan peringatan OPT berdasarkan lokasi lahan terdaftar.',
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedLahan?.id,
+                    decoration: const InputDecoration(
+                      labelText: 'Pilih Lahan',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      for (final lahan in _lahanList)
+                        DropdownMenuItem(
+                          value: lahan.id,
+                          child: Text('${lahan.namaLahan} (${lahan.lokasi})'),
+                        ),
+                    ],
+                    onChanged: (id) {
+                      final lahan = _lahanList
+                          .where((l) => l.id == id)
+                          .firstOrNull;
+                      if (lahan == null) return;
+                      setState(() => _selectedLahan = lahan);
+                      _loadInsights(lahan);
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (_selectedLahan != null) ...[
+                    LahanMapView(
+                      coordinates: _selectedLahan!.koordinat,
+                      height: 280,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    WeatherCard(
+                      forecast: _weather,
+                      isLoading: _loadingInsights,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    OptAlertsCard(alerts: _alerts, isLoading: _loadingInsights),
                   ],
-                  onChanged: (id) {
-                    final lahan = _lahanList
-                        .where((l) => l.id == id)
-                        .firstOrNull;
-                    if (lahan == null) return;
-                    setState(() => _selectedLahan = lahan);
-                    _loadInsights(lahan);
-                  },
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (_selectedLahan != null) ...[
-                  LahanMapView(
-                    coordinates: _selectedLahan!.koordinat,
-                    height: 280,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  WeatherCard(forecast: _weather, isLoading: _loadingInsights),
-                  const SizedBox(height: AppSpacing.lg),
-                  OptAlertsCard(alerts: _alerts, isLoading: _loadingInsights),
                 ],
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

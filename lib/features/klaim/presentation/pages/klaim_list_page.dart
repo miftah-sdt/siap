@@ -16,6 +16,7 @@ import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 
 class KlaimListPage extends StatefulWidget {
   const KlaimListPage({super.key});
@@ -79,21 +80,19 @@ class _KlaimListPageState extends State<KlaimListPage> {
     }
   }
 
+  void _reload() {
+    if (!mounted) return;
+    context.read<KlaimListBloc>().add(const KlaimListEvent.refreshed());
+  }
+
   Future<void> _openCreate() async {
-    final created = await context.push<bool>(RouteNames.klaimCreate);
-    if (created == true && mounted) {
-      context.read<KlaimListBloc>().add(const KlaimListEvent.refreshed());
-    }
+    await context.push(RouteNames.klaimCreate);
+    _reload();
   }
 
   Future<void> _openDetail(Klaim klaim) async {
-    final changed = await context.push<bool>(
-      RouteNames.klaimDetail(klaim.id),
-      extra: klaim,
-    );
-    if (changed == true && mounted) {
-      context.read<KlaimListBloc>().add(const KlaimListEvent.refreshed());
-    }
+    await context.push(RouteNames.klaimDetail(klaim.id), extra: klaim);
+    _reload();
   }
 
   @override
@@ -110,116 +109,123 @@ class _KlaimListPageState extends State<KlaimListPage> {
       PermissionAction.delete,
     );
 
-    return Scaffold(
-      floatingActionButton: PermissionFab(
-        module: AppModule.klaim,
-        onPressed: _openCreate,
-      ),
-      body: BlocConsumer<KlaimListBloc, KlaimListState>(
-        listener: (context, state) {
-          if (state is KlaimListError) {
-            UiFeedback.showSnackBar(
-              context,
-              message: state.message,
-              isError: true,
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Data Klaim',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              PetaniSearchBar(controller: _searchController, onSearch: _search),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: state.maybeWhen(
-                  initial: () => const AppLoadingIndicator(
-                    message: 'Memuat data klaim...',
-                  ),
-                  loading: () => const AppLoadingIndicator(
-                    message: 'Memuat data klaim...',
-                  ),
-                  error: (message) => AppErrorView(
-                    message: message,
-                    onRetry: () => context.read<KlaimListBloc>().add(
-                      const KlaimListEvent.started(),
+    return RouteVisibilityReloader(
+      location: RouteNames.klaim,
+      onBecameVisible: _reload,
+      child: Scaffold(
+        floatingActionButton: PermissionFab(
+          module: AppModule.klaim,
+          onPressed: _openCreate,
+        ),
+        body: BlocConsumer<KlaimListBloc, KlaimListState>(
+          listener: (context, state) {
+            if (state is KlaimListError) {
+              UiFeedback.showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Data Klaim',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                PetaniSearchBar(
+                  controller: _searchController,
+                  onSearch: _search,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: state.maybeWhen(
+                    initial: () => const AppLoadingIndicator(
+                      message: 'Memuat data klaim...',
                     ),
-                  ),
-                  success:
-                      (
-                        items,
-                        page,
-                        totalPages,
-                        total,
-                        searchQuery,
-                        isLoadingMore,
-                        hasReachedMax,
-                      ) {
-                        if (items.isEmpty) {
-                          return AppEmptyState(
-                            title: 'Belum ada klaim',
-                            message: 'Ajukan klaim pertama.',
-                            actionLabel: canCreate ? 'Tambah Klaim' : null,
-                            onAction: canCreate ? _openCreate : null,
-                          );
-                        }
-
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            context.read<KlaimListBloc>().add(
-                              const KlaimListEvent.refreshed(),
+                    loading: () => const AppLoadingIndicator(
+                      message: 'Memuat data klaim...',
+                    ),
+                    error: (message) => AppErrorView(
+                      message: message,
+                      onRetry: () => context.read<KlaimListBloc>().add(
+                        const KlaimListEvent.started(),
+                      ),
+                    ),
+                    success:
+                        (
+                          items,
+                          page,
+                          totalPages,
+                          total,
+                          searchQuery,
+                          isLoadingMore,
+                          hasReachedMax,
+                        ) {
+                          if (items.isEmpty) {
+                            return AppEmptyState(
+                              title: 'Belum ada klaim',
+                              message: 'Ajukan klaim pertama.',
+                              actionLabel: canCreate ? 'Tambah Klaim' : null,
+                              onAction: canCreate ? _openCreate : null,
                             );
-                          },
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: items.length + (isLoadingMore ? 1 : 0),
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              if (index >= items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppSpacing.md),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              final klaim = items[index];
-                              return KlaimCard(
-                                klaim: klaim,
-                                onTap: () => _openDetail(klaim),
-                                onDelete: canDelete
-                                    ? () => _confirmDelete(
-                                        klaim.id,
-                                        klaim.nomorKlaim,
-                                      )
-                                    : null,
+                          }
+
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              context.read<KlaimListBloc>().add(
+                                const KlaimListEvent.refreshed(),
                               );
                             },
-                          ),
-                        );
-                      },
-                  orElse: () => const AppLoadingIndicator(
-                    message: 'Memuat data klaim...',
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              itemCount: items.length + (isLoadingMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(AppSpacing.md),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                final klaim = items[index];
+                                return KlaimCard(
+                                  klaim: klaim,
+                                  onTap: () => _openDetail(klaim),
+                                  onDelete: canDelete
+                                      ? () => _confirmDelete(
+                                          klaim.id,
+                                          klaim.nomorKlaim,
+                                        )
+                                      : null,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                    orElse: () => const AppLoadingIndicator(
+                      message: 'Memuat data klaim...',
+                    ),
                   ),
                 ),
-              ),
-              if (state is KlaimListSuccess)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    'Total: ${state.total} klaim',
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (state is KlaimListSuccess)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Total: ${state.total} klaim',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

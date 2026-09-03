@@ -16,6 +16,7 @@ import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 
 class PenggunaListPage extends StatefulWidget {
   const PenggunaListPage({super.key});
@@ -79,21 +80,19 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
     }
   }
 
+  void _reload() {
+    if (!mounted) return;
+    context.read<PenggunaListBloc>().add(const PenggunaListEvent.refreshed());
+  }
+
   Future<void> _openCreate() async {
-    final created = await context.push<bool>(RouteNames.penggunaCreate);
-    if (created == true && mounted) {
-      context.read<PenggunaListBloc>().add(const PenggunaListEvent.refreshed());
-    }
+    await context.push(RouteNames.penggunaCreate);
+    _reload();
   }
 
   Future<void> _openDetail(Pengguna pengguna) async {
-    final changed = await context.push<bool>(
-      RouteNames.penggunaDetail(pengguna.id),
-      extra: pengguna,
-    );
-    if (changed == true && mounted) {
-      context.read<PenggunaListBloc>().add(const PenggunaListEvent.refreshed());
-    }
+    await context.push(RouteNames.penggunaDetail(pengguna.id), extra: pengguna);
+    _reload();
   }
 
   @override
@@ -110,119 +109,123 @@ class _PenggunaListPageState extends State<PenggunaListPage> {
       PermissionAction.delete,
     );
 
-    return Scaffold(
-      floatingActionButton: PermissionFab(
-        module: AppModule.pengguna,
-        onPressed: _openCreate,
-      ),
-      body: BlocConsumer<PenggunaListBloc, PenggunaListState>(
-        listener: (context, state) {
-          if (state is PenggunaListError) {
-            UiFeedback.showSnackBar(
-              context,
-              message: state.message,
-              isError: true,
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Data Pengguna',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              PenggunaSearchBar(
-                controller: _searchController,
-                onSearch: _search,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: state.maybeWhen(
-                  initial: () => const AppLoadingIndicator(
-                    message: 'Memuat data pengguna...',
-                  ),
-                  loading: () => const AppLoadingIndicator(
-                    message: 'Memuat data pengguna...',
-                  ),
-                  error: (message) => AppErrorView(
-                    message: message,
-                    onRetry: () => context.read<PenggunaListBloc>().add(
-                      const PenggunaListEvent.started(),
+    return RouteVisibilityReloader(
+      location: RouteNames.pengguna,
+      onBecameVisible: _reload,
+      child: Scaffold(
+        floatingActionButton: PermissionFab(
+          module: AppModule.pengguna,
+          onPressed: _openCreate,
+        ),
+        body: BlocConsumer<PenggunaListBloc, PenggunaListState>(
+          listener: (context, state) {
+            if (state is PenggunaListError) {
+              UiFeedback.showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Data Pengguna',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                PenggunaSearchBar(
+                  controller: _searchController,
+                  onSearch: _search,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: state.maybeWhen(
+                    initial: () => const AppLoadingIndicator(
+                      message: 'Memuat data pengguna...',
                     ),
-                  ),
-                  success:
-                      (
-                        items,
-                        page,
-                        totalPages,
-                        total,
-                        searchQuery,
-                        isLoadingMore,
-                        hasReachedMax,
-                      ) {
-                        if (items.isEmpty) {
-                          return AppEmptyState(
-                            title: 'Belum ada pengguna',
-                            message: 'Tambahkan data pengguna pertama.',
-                            actionLabel: canCreate ? 'Tambah Pengguna' : null,
-                            onAction: canCreate ? _openCreate : null,
-                          );
-                        }
-
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            context.read<PenggunaListBloc>().add(
-                              const PenggunaListEvent.refreshed(),
+                    loading: () => const AppLoadingIndicator(
+                      message: 'Memuat data pengguna...',
+                    ),
+                    error: (message) => AppErrorView(
+                      message: message,
+                      onRetry: () => context.read<PenggunaListBloc>().add(
+                        const PenggunaListEvent.started(),
+                      ),
+                    ),
+                    success:
+                        (
+                          items,
+                          page,
+                          totalPages,
+                          total,
+                          searchQuery,
+                          isLoadingMore,
+                          hasReachedMax,
+                        ) {
+                          if (items.isEmpty) {
+                            return AppEmptyState(
+                              title: 'Belum ada pengguna',
+                              message: 'Tambahkan data pengguna pertama.',
+                              actionLabel: canCreate ? 'Tambah Pengguna' : null,
+                              onAction: canCreate ? _openCreate : null,
                             );
-                          },
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: items.length + (isLoadingMore ? 1 : 0),
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              if (index >= items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppSpacing.md),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              final pengguna = items[index];
-                              return PenggunaCard(
-                                pengguna: pengguna,
-                                onTap: () => _openDetail(pengguna),
-                                onDelete: canDelete
-                                    ? () => _confirmDelete(
-                                        pengguna.id,
-                                        pengguna.name,
-                                      )
-                                    : null,
+                          }
+
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              context.read<PenggunaListBloc>().add(
+                                const PenggunaListEvent.refreshed(),
                               );
                             },
-                          ),
-                        );
-                      },
-                  orElse: () => const AppLoadingIndicator(
-                    message: 'Memuat data pengguna...',
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              itemCount: items.length + (isLoadingMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(AppSpacing.md),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                final pengguna = items[index];
+                                return PenggunaCard(
+                                  pengguna: pengguna,
+                                  onTap: () => _openDetail(pengguna),
+                                  onDelete: canDelete
+                                      ? () => _confirmDelete(
+                                          pengguna.id,
+                                          pengguna.name,
+                                        )
+                                      : null,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                    orElse: () => const AppLoadingIndicator(
+                      message: 'Memuat data pengguna...',
+                    ),
                   ),
                 ),
-              ),
-              if (state is PenggunaListSuccess)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    'Total: ${state.total} pengguna',
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (state is PenggunaListSuccess)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Total: ${state.total} pengguna',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -9,8 +9,10 @@ import 'package:siap/core/services/rfi_remote_service.dart';
 import 'package:siap/core/services/workflow_service.dart';
 import 'package:siap/core/theme/app_spacing.dart';
 import 'package:siap/core/utils/formatter.dart';
+import 'package:siap/core/utils/result.dart';
 import 'package:siap/core/utils/ui_feedback.dart';
 import 'package:siap/features/asuransi/domain/entities/asuransi.dart';
+import 'package:siap/features/asuransi/domain/usecases/asuransi_usecases.dart';
 import 'package:siap/features/asuransi/presentation/widgets/askrindo_sync_panel.dart';
 import 'package:siap/features/asuransi/presentation/widgets/underwriting_score_card.dart';
 import 'package:siap/features/laporan/domain/entities/laporan.dart';
@@ -19,6 +21,7 @@ import 'package:siap/routes/route_names.dart';
 import 'package:siap/shared/helpers/report_download_helper.dart';
 import 'package:siap/shared/widgets/app_button.dart';
 import 'package:siap/shared/widgets/permission_edit_action.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 import 'package:siap/shared/widgets/workflow_action_bar.dart';
 import 'package:siap/shared/widgets/workflow_badge.dart';
 
@@ -50,6 +53,24 @@ class _AsuransiDetailPageState extends State<AsuransiDetailPage> {
         scoredAt: _asuransi.scoredAt,
       );
     }
+  }
+
+  Future<void> _reloadDetail() async {
+    final result = await sl<GetAsuransiDetailUseCase>()(_asuransi.id);
+    if (!mounted) return;
+    final data = result.dataOrNull;
+    if (data == null) return;
+    setState(() {
+      _asuransi = data;
+      if (data.riskScore != null) {
+        _score = UnderwritingScore(
+          riskScore: data.riskScore!,
+          riskLevel: data.riskLevel ?? 'sedang',
+          factors: data.scoreFactors,
+          scoredAt: data.scoredAt,
+        );
+      }
+    });
   }
 
   Future<void> _calculateScore() async {
@@ -173,130 +194,132 @@ class _AsuransiDetailPageState extends State<AsuransiDetailPage> {
       AppModule.laporan,
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Asuransi'),
-        actions: [
-          PermissionEditAction(
-            module: AppModule.asuransi,
-            onPressed: () async {
-              final updated = await context.push<bool>(
-                RouteNames.asuransiEdit(_asuransi.id),
-                extra: _asuransi,
-              );
-              if (updated == true && context.mounted) {
-                context.pop(true);
-              }
-            },
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          Row(
-            children: [
-              Text('Status', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(width: AppSpacing.md),
-              WorkflowBadge.asuransi(_asuransi.status),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          WorkflowActionBar.asuransi(
-            status: _asuransi.status,
-            isLoading: _workflowLoading,
-            onAction: _runWorkflow,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          UnderwritingScoreCard(
-            score: _score,
-            isLoading: _scoring,
-            onCalculate: _calculateScore,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          AskrindoSyncPanel(
-            asuransiId: _asuransi.id,
-            askrindoRef: _asuransi.askrindoRef,
-            askrindoStatus: _asuransi.askrindoStatus,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          ListTile(
-            leading: const Icon(Icons.policy_outlined),
-            title: const Text('Nomor Polis'),
-            subtitle: Text(_asuransi.nomorPolis),
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: const Text('Petani'),
-            subtitle: Text(_asuransi.petaniNama),
-          ),
-          ListTile(
-            leading: const Icon(Icons.landscape_outlined),
-            title: const Text('Lahan'),
-            subtitle: Text(_asuransi.lahanNama),
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today_outlined),
-            title: const Text('Tanggal Dibuat'),
-            subtitle: Text(Formatter.dateTime(_asuransi.createdAt)),
-          ),
-          if (canViewLaporan) ...[
-            const Divider(height: AppSpacing.xl),
-            Text(
-              'Unduh Laporan Detail',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: AppButton(
-                    label: 'PDF',
-                    icon: Icons.picture_as_pdf_outlined,
-                    onPressed: _reportLoading
-                        ? null
-                        : () => _downloadDetailReport(ExportFormat.pdf),
-                    isLoading: _reportLoading,
-                    isExpanded: true,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: AppButton(
-                    label: 'Excel',
-                    icon: Icons.table_chart_outlined,
-                    variant: AppButtonVariant.secondary,
-                    onPressed: _reportLoading
-                        ? null
-                        : () => _downloadDetailReport(ExportFormat.excel),
-                    isLoading: _reportLoading,
-                    isExpanded: true,
-                  ),
-                ),
-              ],
+    return RouteVisibilityReloader(
+      location: RouteNames.asuransiDetail(_asuransi.id),
+      onBecameVisible: _reloadDetail,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Asuransi'),
+          actions: [
+            PermissionEditAction(
+              module: AppModule.asuransi,
+              onPressed: () async {
+                await context.push(
+                  RouteNames.asuransiEdit(_asuransi.id),
+                  extra: _asuransi,
+                );
+                if (context.mounted) await _reloadDetail();
+              },
             ),
           ],
-          const Divider(height: AppSpacing.xl),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text(
-              'Dokumen (${_asuransi.documents.length})',
-              style: Theme.of(context).textTheme.titleMedium,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Row(
+              children: [
+                Text('Status', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(width: AppSpacing.md),
+                WorkflowBadge.asuransi(_asuransi.status),
+              ],
             ),
-          ),
-          if (_asuransi.documents.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: Text('Belum ada dokumen.'),
-            )
-          else
-            ..._asuransi.documents.map(
-              (doc) => ListTile(
-                leading: const Icon(Icons.description_outlined),
-                title: Text(doc),
+            const SizedBox(height: AppSpacing.lg),
+            WorkflowActionBar.asuransi(
+              status: _asuransi.status,
+              isLoading: _workflowLoading,
+              onAction: _runWorkflow,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            UnderwritingScoreCard(
+              score: _score,
+              isLoading: _scoring,
+              onCalculate: _calculateScore,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AskrindoSyncPanel(
+              asuransiId: _asuransi.id,
+              askrindoRef: _asuransi.askrindoRef,
+              askrindoStatus: _asuransi.askrindoStatus,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            ListTile(
+              leading: const Icon(Icons.policy_outlined),
+              title: const Text('Nomor Polis'),
+              subtitle: Text(_asuransi.nomorPolis),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Petani'),
+              subtitle: Text(_asuransi.petaniNama),
+            ),
+            ListTile(
+              leading: const Icon(Icons.landscape_outlined),
+              title: const Text('Lahan'),
+              subtitle: Text(_asuransi.lahanNama),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today_outlined),
+              title: const Text('Tanggal Dibuat'),
+              subtitle: Text(Formatter.dateTime(_asuransi.createdAt)),
+            ),
+            if (canViewLaporan) ...[
+              const Divider(height: AppSpacing.xl),
+              Text(
+                'Unduh Laporan Detail',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: 'PDF',
+                      icon: Icons.picture_as_pdf_outlined,
+                      onPressed: _reportLoading
+                          ? null
+                          : () => _downloadDetailReport(ExportFormat.pdf),
+                      isLoading: _reportLoading,
+                      isExpanded: true,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Excel',
+                      icon: Icons.table_chart_outlined,
+                      variant: AppButtonVariant.secondary,
+                      onPressed: _reportLoading
+                          ? null
+                          : () => _downloadDetailReport(ExportFormat.excel),
+                      isLoading: _reportLoading,
+                      isExpanded: true,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const Divider(height: AppSpacing.xl),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Text(
+                'Dokumen (${_asuransi.documents.length})',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-        ],
+            if (_asuransi.documents.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: Text('Belum ada dokumen.'),
+              )
+            else
+              ..._asuransi.documents.map(
+                (doc) => ListTile(
+                  leading: const Icon(Icons.description_outlined),
+                  title: Text(doc),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

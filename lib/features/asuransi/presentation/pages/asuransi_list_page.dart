@@ -16,6 +16,7 @@ import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 
 class AsuransiListPage extends StatefulWidget {
   const AsuransiListPage({super.key});
@@ -79,21 +80,19 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
     }
   }
 
+  void _reload() {
+    if (!mounted) return;
+    context.read<AsuransiListBloc>().add(const AsuransiListEvent.refreshed());
+  }
+
   Future<void> _openCreate() async {
-    final created = await context.push<bool>(RouteNames.asuransiCreate);
-    if (created == true && mounted) {
-      context.read<AsuransiListBloc>().add(const AsuransiListEvent.refreshed());
-    }
+    await context.push(RouteNames.asuransiCreate);
+    _reload();
   }
 
   Future<void> _openDetail(Asuransi asuransi) async {
-    final changed = await context.push<bool>(
-      RouteNames.asuransiDetail(asuransi.id),
-      extra: asuransi,
-    );
-    if (changed == true && mounted) {
-      context.read<AsuransiListBloc>().add(const AsuransiListEvent.refreshed());
-    }
+    await context.push(RouteNames.asuransiDetail(asuransi.id), extra: asuransi);
+    _reload();
   }
 
   @override
@@ -110,116 +109,123 @@ class _AsuransiListPageState extends State<AsuransiListPage> {
       PermissionAction.delete,
     );
 
-    return Scaffold(
-      floatingActionButton: PermissionFab(
-        module: AppModule.asuransi,
-        onPressed: _openCreate,
-      ),
-      body: BlocConsumer<AsuransiListBloc, AsuransiListState>(
-        listener: (context, state) {
-          if (state is AsuransiListError) {
-            UiFeedback.showSnackBar(
-              context,
-              message: state.message,
-              isError: true,
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Data Asuransi',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              PetaniSearchBar(controller: _searchController, onSearch: _search),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: state.maybeWhen(
-                  initial: () => const AppLoadingIndicator(
-                    message: 'Memuat data asuransi...',
-                  ),
-                  loading: () => const AppLoadingIndicator(
-                    message: 'Memuat data asuransi...',
-                  ),
-                  error: (message) => AppErrorView(
-                    message: message,
-                    onRetry: () => context.read<AsuransiListBloc>().add(
-                      const AsuransiListEvent.started(),
+    return RouteVisibilityReloader(
+      location: RouteNames.asuransi,
+      onBecameVisible: _reload,
+      child: Scaffold(
+        floatingActionButton: PermissionFab(
+          module: AppModule.asuransi,
+          onPressed: _openCreate,
+        ),
+        body: BlocConsumer<AsuransiListBloc, AsuransiListState>(
+          listener: (context, state) {
+            if (state is AsuransiListError) {
+              UiFeedback.showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Data Asuransi',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                PetaniSearchBar(
+                  controller: _searchController,
+                  onSearch: _search,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: state.maybeWhen(
+                    initial: () => const AppLoadingIndicator(
+                      message: 'Memuat data asuransi...',
                     ),
-                  ),
-                  success:
-                      (
-                        items,
-                        page,
-                        totalPages,
-                        total,
-                        searchQuery,
-                        isLoadingMore,
-                        hasReachedMax,
-                      ) {
-                        if (items.isEmpty) {
-                          return AppEmptyState(
-                            title: 'Belum ada asuransi',
-                            message: 'Daftarkan asuransi pertama.',
-                            actionLabel: canCreate ? 'Tambah Asuransi' : null,
-                            onAction: canCreate ? _openCreate : null,
-                          );
-                        }
-
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            context.read<AsuransiListBloc>().add(
-                              const AsuransiListEvent.refreshed(),
+                    loading: () => const AppLoadingIndicator(
+                      message: 'Memuat data asuransi...',
+                    ),
+                    error: (message) => AppErrorView(
+                      message: message,
+                      onRetry: () => context.read<AsuransiListBloc>().add(
+                        const AsuransiListEvent.started(),
+                      ),
+                    ),
+                    success:
+                        (
+                          items,
+                          page,
+                          totalPages,
+                          total,
+                          searchQuery,
+                          isLoadingMore,
+                          hasReachedMax,
+                        ) {
+                          if (items.isEmpty) {
+                            return AppEmptyState(
+                              title: 'Belum ada asuransi',
+                              message: 'Daftarkan asuransi pertama.',
+                              actionLabel: canCreate ? 'Tambah Asuransi' : null,
+                              onAction: canCreate ? _openCreate : null,
                             );
-                          },
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: items.length + (isLoadingMore ? 1 : 0),
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              if (index >= items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppSpacing.md),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              final asuransi = items[index];
-                              return AsuransiCard(
-                                asuransi: asuransi,
-                                onTap: () => _openDetail(asuransi),
-                                onDelete: canDelete
-                                    ? () => _confirmDelete(
-                                        asuransi.id,
-                                        asuransi.nomorPolis,
-                                      )
-                                    : null,
+                          }
+
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              context.read<AsuransiListBloc>().add(
+                                const AsuransiListEvent.refreshed(),
                               );
                             },
-                          ),
-                        );
-                      },
-                  orElse: () => const AppLoadingIndicator(
-                    message: 'Memuat data asuransi...',
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              itemCount: items.length + (isLoadingMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(AppSpacing.md),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                final asuransi = items[index];
+                                return AsuransiCard(
+                                  asuransi: asuransi,
+                                  onTap: () => _openDetail(asuransi),
+                                  onDelete: canDelete
+                                      ? () => _confirmDelete(
+                                          asuransi.id,
+                                          asuransi.nomorPolis,
+                                        )
+                                      : null,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                    orElse: () => const AppLoadingIndicator(
+                      message: 'Memuat data asuransi...',
+                    ),
                   ),
                 ),
-              ),
-              if (state is AsuransiListSuccess)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    'Total: ${state.total} asuransi',
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (state is AsuransiListSuccess)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Total: ${state.total} asuransi',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

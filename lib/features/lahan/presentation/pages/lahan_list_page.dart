@@ -15,6 +15,7 @@ import 'package:siap/shared/widgets/app_empty_state.dart';
 import 'package:siap/shared/widgets/app_error_view.dart';
 import 'package:siap/shared/widgets/app_loading_indicator.dart';
 import 'package:siap/shared/widgets/permission_fab.dart';
+import 'package:siap/shared/widgets/route_visibility_reloader.dart';
 
 class LahanListPage extends StatefulWidget {
   const LahanListPage({super.key});
@@ -78,21 +79,19 @@ class _LahanListPageState extends State<LahanListPage> {
     }
   }
 
+  void _reload() {
+    if (!mounted) return;
+    context.read<LahanListBloc>().add(const LahanListEvent.refreshed());
+  }
+
   Future<void> _openCreate() async {
-    final created = await context.push<bool>(RouteNames.lahanCreate);
-    if (created == true && mounted) {
-      context.read<LahanListBloc>().add(const LahanListEvent.refreshed());
-    }
+    await context.push(RouteNames.lahanCreate);
+    _reload();
   }
 
   Future<void> _openDetail(Lahan lahan) async {
-    final changed = await context.push<bool>(
-      RouteNames.lahanDetail(lahan.id),
-      extra: lahan,
-    );
-    if (changed == true && mounted) {
-      context.read<LahanListBloc>().add(const LahanListEvent.refreshed());
-    }
+    await context.push(RouteNames.lahanDetail(lahan.id), extra: lahan);
+    _reload();
   }
 
   @override
@@ -109,134 +108,138 @@ class _LahanListPageState extends State<LahanListPage> {
       PermissionAction.delete,
     );
 
-    return Scaffold(
-      floatingActionButton: PermissionFab(
-        module: AppModule.lahan,
-        onPressed: _openCreate,
-      ),
-      body: BlocConsumer<LahanListBloc, LahanListState>(
-        listener: (context, state) {
-          if (state is LahanListError) {
-            UiFeedback.showSnackBar(
-              context,
-              message: state.message,
-              isError: true,
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Data Lahan',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Cari lahan...',
-                        prefixIcon: Icon(Icons.search),
+    return RouteVisibilityReloader(
+      location: RouteNames.lahan,
+      onBecameVisible: _reload,
+      child: Scaffold(
+        floatingActionButton: PermissionFab(
+          module: AppModule.lahan,
+          onPressed: _openCreate,
+        ),
+        body: BlocConsumer<LahanListBloc, LahanListState>(
+          listener: (context, state) {
+            if (state is LahanListError) {
+              UiFeedback.showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Data Lahan',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Cari lahan...',
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                        onSubmitted: (_) => _search(),
                       ),
-                      onSubmitted: (_) => _search(),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  IconButton.filled(
-                    onPressed: _search,
-                    icon: const Icon(Icons.search),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: state.maybeWhen(
-                  initial: () => const AppLoadingIndicator(
-                    message: 'Memuat data lahan...',
-                  ),
-                  loading: () => const AppLoadingIndicator(
-                    message: 'Memuat data lahan...',
-                  ),
-                  error: (message) => AppErrorView(
-                    message: message,
-                    onRetry: () => context.read<LahanListBloc>().add(
-                      const LahanListEvent.started(),
+                    const SizedBox(width: AppSpacing.sm),
+                    IconButton.filled(
+                      onPressed: _search,
+                      icon: const Icon(Icons.search),
                     ),
-                  ),
-                  success:
-                      (
-                        items,
-                        page,
-                        totalPages,
-                        total,
-                        searchQuery,
-                        isLoadingMore,
-                        hasReachedMax,
-                      ) {
-                        if (items.isEmpty) {
-                          return AppEmptyState(
-                            title: 'Belum ada lahan',
-                            message: 'Tambahkan data lahan pertama.',
-                            actionLabel: canCreate ? 'Tambah Lahan' : null,
-                            onAction: canCreate ? _openCreate : null,
-                          );
-                        }
-
-                        return RefreshIndicator(
-                          onRefresh: () async {
-                            context.read<LahanListBloc>().add(
-                              const LahanListEvent.refreshed(),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: state.maybeWhen(
+                    initial: () => const AppLoadingIndicator(
+                      message: 'Memuat data lahan...',
+                    ),
+                    loading: () => const AppLoadingIndicator(
+                      message: 'Memuat data lahan...',
+                    ),
+                    error: (message) => AppErrorView(
+                      message: message,
+                      onRetry: () => context.read<LahanListBloc>().add(
+                        const LahanListEvent.started(),
+                      ),
+                    ),
+                    success:
+                        (
+                          items,
+                          page,
+                          totalPages,
+                          total,
+                          searchQuery,
+                          isLoadingMore,
+                          hasReachedMax,
+                        ) {
+                          if (items.isEmpty) {
+                            return AppEmptyState(
+                              title: 'Belum ada lahan',
+                              message: 'Tambahkan data lahan pertama.',
+                              actionLabel: canCreate ? 'Tambah Lahan' : null,
+                              onAction: canCreate ? _openCreate : null,
                             );
-                          },
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: items.length + (isLoadingMore ? 1 : 0),
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.sm),
-                            itemBuilder: (context, index) {
-                              if (index >= items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppSpacing.md),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              final lahan = items[index];
-                              return LahanCard(
-                                lahan: lahan,
-                                onTap: () => _openDetail(lahan),
-                                onDelete: canDelete
-                                    ? () => _confirmDelete(
-                                        lahan.id,
-                                        lahan.namaLahan,
-                                      )
-                                    : null,
+                          }
+
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              context.read<LahanListBloc>().add(
+                                const LahanListEvent.refreshed(),
                               );
                             },
-                          ),
-                        );
-                      },
-                  orElse: () => const AppLoadingIndicator(
-                    message: 'Memuat data lahan...',
+                            child: ListView.separated(
+                              controller: _scrollController,
+                              itemCount: items.length + (isLoadingMore ? 1 : 0),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.sm),
+                              itemBuilder: (context, index) {
+                                if (index >= items.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(AppSpacing.md),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                final lahan = items[index];
+                                return LahanCard(
+                                  lahan: lahan,
+                                  onTap: () => _openDetail(lahan),
+                                  onDelete: canDelete
+                                      ? () => _confirmDelete(
+                                          lahan.id,
+                                          lahan.namaLahan,
+                                        )
+                                      : null,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                    orElse: () => const AppLoadingIndicator(
+                      message: 'Memuat data lahan...',
+                    ),
                   ),
                 ),
-              ),
-              if (state is LahanListSuccess)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.sm),
-                  child: Text(
-                    'Total: ${state.total} lahan',
-                    style: Theme.of(context).textTheme.bodySmall,
+                if (state is LahanListSuccess)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Text(
+                      'Total: ${state.total} lahan',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

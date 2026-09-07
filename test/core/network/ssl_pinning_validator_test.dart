@@ -6,7 +6,7 @@ void main() {
   group('SslPinningValidator', () {
     test('normalizeSha256Fingerprint matches Cloudflare tunnel cert', () {
       const opensslOutput =
-          'SHA256 Fingerprint=6F:AA:DA:4D:E8:40:82:B4:25:6F:B6:0F:5F:61:72:F3:E1:C5:EE:5E:29:4B:27:75:B3:67:12:02:78:C6:5A:D5';
+          'SHA256 Fingerprint=B0:65:76:06:0B:B0:3C:A9:FE:77:EF:DB:5C:E6:C3:4E:DF:8E:E9:7F:1B:4F:F0:AC:48:95:6A:F6:2E:2E:08:D9';
       expect(
         normalizeSha256Fingerprint(opensslOutput),
         SslPinningConfig.cloudflareTunnelPins.first,

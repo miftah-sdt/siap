@@ -19,9 +19,9 @@ class SslPinningConfig {
       'weblog-preparing-packing-came.trycloudflare.com';
 
   static const List<String> cloudflareTunnelPins = [
-    // Fingerprint leaf CN=trycloudflare.com (berlaku ~7 Agu–5 Nov 2026).
+    // Fingerprint leaf CN=trycloudflare.com (berlaku 5 Okt 2026–3 Jan 2027).
     // Cloudflare memutar sertifikat edge secara berkala — perbarui saat gagal handshake.
-    'b06576060bb03ca9fe77efdb5ce6c34edf8ee97f1b4ff0ac48956af62e2e08d9',
+    '3385c173e2896fb809e26acdb51a973e5eb4f00b0e49448b0bc87c1743e33125',
   ];
 
   /// Cadangan jika rollback ke Railway.
